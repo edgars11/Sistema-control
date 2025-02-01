@@ -24,8 +24,9 @@ $(document).ready(function () {
     var toDate = getDate(new Date());
 
     var fecha = new Date();
-    document.getElementById("mov_fecha_desde").value = fecha.toJSON().slice(0, 10);
-    document.getElementById("mov_fecha_hasta").value = fecha.toJSON().slice(0, 10);
+    var hoy = formatDate(fecha)
+    document.getElementById("mov_fecha_desde").value = hoy;
+    document.getElementById("mov_fecha_hasta").value = hoy;
 
     cargarTabla(todayDate, toDate, suc_idx);
 
@@ -147,4 +148,11 @@ function cargarTabla(todayDate, toDate, suc_idx) {
 
 }
 
+function formatDate(dateObject = new Date()) {
+    var year = dateObject.getFullYear();
+    var month = dateObject.getMonth() + 1;
+    var month = month > 9 ? month : "0" + month;
+    var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
+    return year + "-" + month + "-" + day;
+}
 init();

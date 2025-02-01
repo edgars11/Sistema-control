@@ -22,8 +22,9 @@ $(document).ready(function () {
     $('#total_vendido').html('$0.00');
 
     var fecha = new Date();
-    document.getElementById("fecha_desde").value = fecha.toJSON().slice(0, 10);
-    document.getElementById("fecha_hasta").value = fecha.toJSON().slice(0, 10);
+    var hoy = formatDate(fecha);
+    document.getElementById("fecha_desde").value = hoy;
+    document.getElementById("fecha_hasta").value = hoy;
 
     data.fecha_desde = fromDate;
     data.fecha_hasta = toDate;
@@ -181,7 +182,13 @@ function getDate(date) {
 
     return dateString;
 }
-
+function formatDate(dateObject = new Date()) {
+    var year = dateObject.getFullYear();
+    var month = dateObject.getMonth() + 1;
+    var month = month > 9 ? month : "0" + month;
+    var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
+    return year + "-" + month + "-" + day;
+}
 function selectCliente(cli_id) {
 
     $.post("../../controllers/clienteController.php?op=byID", { cli_id: cli_id }, function (data) {
