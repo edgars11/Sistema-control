@@ -11,7 +11,7 @@ switch ($_GET['op']) {
         if (empty($_POST["mov_id"])) {
             $usu_id = $_SESSION["usu_id"];
             $mov_tipo = $_POST['mov_tipo'] == 'sum' ? '+' : '-';
-            $movimientolote->insertarMovimientoLote($_POST['lote_idIng'], $_POST['mov_cant_ing'], $mov_tipo, $_POST['mov_motivo'], $usu_id, $_POST['suc_id']);
+            $movimientolote->insertarMovimientoLote($_POST['lote_idIng'], $_POST['mov_cant_ing'], $mov_tipo, $_POST['mov_motivo'], $usu_id, $_POST['suc_id'],$_POST['mov_fecha_ing']);
         } else {
             $movimientolote->updateLote("U", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_capacidad_max'], $_POST['lote_id']);
         }

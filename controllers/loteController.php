@@ -60,6 +60,7 @@ switch ($_GET['op']) {
                 $outout["lote_cant_actual"] = $row["lote_cant_actual"];
                 $outout["lote_fecha_upd"] = $row["lote_fecha_upd"];
                 $outout["lote_estado"] = $row["lote_estado"];
+                $outout["lote_consumo"] = $row["lote_consumo"];
             }
             echo json_encode($outout);
         }

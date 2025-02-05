@@ -56,13 +56,13 @@ class Usuario extends Conectar
     public function loginUser()
     {
         $conectar = parent::Conexion();
-        if(isset($_POST['enviar'])){
+        if (isset($_POST['enviar'])) {
             $i_usu_correo = $_POST['usu_correo'];
-            $i_usu_password = $_POST['usu_password']; 
+            $i_usu_password = $_POST['usu_password'];
             $i_suc_id = $_POST['suc_id'];
         }
 
-        if(empty($i_usu_correo) and empty($i_usu_password) and empty($i_suc_id)){
+        if (empty($i_usu_correo) and empty($i_usu_password) and empty($i_suc_id)) {
             exit();
         }
 
@@ -73,8 +73,8 @@ class Usuario extends Conectar
         $query->bindValue(3, $i_usu_password);
         $query->bindValue(4, $i_suc_id);
         $query->execute();
-        $resultado =$query->fetch();
-        if(is_array($resultado) and count($resultado)>0){
+        $resultado = $query->fetch();
+        if (is_array($resultado) and count($resultado) > 0) {
             $_SESSION["usu_id"] = $resultado['usu_id'];
             $_SESSION["suc_id"] = $resultado['suc_id'];
             $_SESSION["com_id"] = $resultado['com_id'];
@@ -84,12 +84,11 @@ class Usuario extends Conectar
             $_SESSION["usu_apellido"] = $resultado['usu_apellido'];
             $_SESSION["usu_correo"] = $resultado['usu_correo'];
 
-            // Si el login es correcto re dirige a la paginaa de inicio
-            header("Location:".Conectar::ruta()."views/home/");
-        }else{
-            exit();
+            // Si el login es correcto se dirige a la pagina de inicio
+            header("Location:" . Conectar::ruta() . "views/home/");
+        } else {
+            echo "<div class='alert alert-danger'>Usuario o clave incorrecta</div>";
         }
-
     }
     /* TODO: Listar registro por rol */
     public function updatePassword($i_operacion, $i_usu_password, $i_usu_id)
@@ -101,7 +100,6 @@ class Usuario extends Conectar
         $query->bindValue(2, $i_usu_password);
         $query->bindValue(3, $i_usu_id);
         $query->execute();
-
     }
     /* TODO: Eliminar registro por id */
     public function deleteUsuario($i_operacion, $i_usu_id, $i_suc_id)
@@ -116,7 +114,7 @@ class Usuario extends Conectar
         $query->execute();
     }
     /* TODO: Actualizar registro  */
-    public function updateUsuario($i_operacion,$i_usu_id, $i_usu_nombre,$i_usu_apellido, $i_usu_correo, $i_usu_dni, $i_usu_telefono, $i_usu_password, $i_suc_id, $i_rol_id)
+    public function updateUsuario($i_operacion, $i_usu_id, $i_usu_nombre, $i_usu_apellido, $i_usu_correo, $i_usu_dni, $i_usu_telefono, $i_usu_password, $i_suc_id, $i_rol_id)
     {
         $conectar = parent::Conexion();
         $sql = "exec sp_crud_usuario @i_operacion=?, @i_usu_id=?, @i_usu_nombre=?, @i_usu_apellido=?, @i_usu_correo=?, @i_usu_dni=?, @i_usu_telefono=?, @i_usu_password=?, @i_suc_id=?, @i_rol_id=?";
@@ -134,7 +132,7 @@ class Usuario extends Conectar
         $query->execute();
     }
     /* TODO: Insertar nuevo registro */
-    public function insertUsuario($i_operacion, $i_usu_nombre,$i_usu_apellido, $i_usu_correo, $i_usu_dni, $i_usu_telefono, $i_usu_password, $i_suc_id, $i_rol_id)
+    public function insertUsuario($i_operacion, $i_usu_nombre, $i_usu_apellido, $i_usu_correo, $i_usu_dni, $i_usu_telefono, $i_usu_password, $i_suc_id, $i_rol_id)
     {
         $conectar = parent::Conexion();
         $sql = "exec sp_crud_usuario @i_operacion=?, @i_usu_nombre=?, @i_usu_apellido=?, @i_usu_correo=?, @i_usu_dni=?, @i_usu_telefono=?, @i_usu_password=?, @i_suc_id=?, @i_rol_id=?";

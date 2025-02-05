@@ -1,4 +1,5 @@
 var suc_idx = $('#suc_idx').val();
+var fechaHoy = null;
 
 function init() {
     $('#mantenimiento_form').on("submit", function (e) {
@@ -44,6 +45,7 @@ function guardarMovimiento(e) {
     console.log(formData.get('mov_cant_ing'));
     console.log(formData.get('lote_can_total'));
     console.log(formData.get('mov_motivo'));
+    console.log(formData.get('mov_fecha_ing'));
 
     $.ajax({
         url: "../../controllers/movimientoLoteController.php?op=guardar",
@@ -65,6 +67,9 @@ function guardarMovimiento(e) {
 }
 
 $(document).ready(function () {
+    // Se asigna la fecha actual al input
+    var fecha = new Date();
+    fechaHoy = formatDate(fecha);
 
     /* Event change cuando se selecciona un lote de la lista */
     $("#lote_idIng").change(function () {
@@ -75,6 +80,18 @@ $(document).ready(function () {
                 data = JSON.parse(data);
                 $('#lote_capacidad_maxIng').val(data.lote_capacidad_max);
                 $('#lote_cant_actual').val(data.lote_cant_actual);
+            });
+        });
+    });
+
+    /* Event change cuando se selecciona un lote de la lista */
+    $("#lote_idAli").change(function () {
+        $("#lote_idAli").each(function () {
+            lote_id = $(this).val();
+
+            $.post("../../controllers/loteController.php?op=mostrar", { lote_id: lote_id }, function (data) {
+                data = JSON.parse(data);
+                $('#lote_consumo_act').val(data.lote_consumo);
             });
         });
     });
@@ -152,6 +169,7 @@ $(document).on("click", "#btn_ingreso", function () {
     });
     // Limpiamos los campos del modal
     $('#mov_tipo').val('sum');
+    $('#mov_fecha_ing').val(fechaHoy);
     $('#lote_capacidad_max').val('0.00');
     $('#lote_cant_actual').val('0.00');
     $('#mov_descr').html('INGRESO');
@@ -176,6 +194,23 @@ $(document).on("click", "#btn_perdida", function () {
     $('#mantenimiento_formIng')[0].reset();
     // Mostramos el modal
     $('#modalMovLote').modal('show');
+});
+
+$(document).on("click", "#btn_alimento", function () {
+
+    // Se obtienen los lotes disponibles
+    $.post("../../controllers/loteController.php?op=combo", { suc_id: suc_idx }, function (data) {
+        $('#lote_idAli').html(data);
+    });
+    // Limpiamos los campos del modal
+    $('#lote_consumo_act').val('0');
+    $('#mov_fecha_ing').val(fechaHoy);
+    $('#nueva_cantidad').val('0.00');
+    $('#lote_ali_total').html('0');
+    $('#ali_desc').html('');
+    $('#form_ingreso_alimento')[0].reset();
+    // Mostramos el modal
+    $('#modalIngAli').modal('show');
 });
 
 function editar(lote_id) {
@@ -259,4 +294,23 @@ function calcularTotal() {
 
 }
 
+function calcularTotalAlimento() {
+    var canAct = $('#lote_consumo_act').val();
+    var canIng = $('#lote_consumo').val();
+    var mostrar = true;
+    var canTotal = 0;
+
+    if (canIng.length > 0) {
+        canTotal = (Number.parseInt(canAct) + Number.parseInt(canIng));
+        if (mostrar) $('#lote_ali_total').val(canTotal);
+    }
+}
+
+function formatDate(dateObject = new Date()) {
+    var year = dateObject.getFullYear();
+    var month = dateObject.getMonth() + 1;
+    var month = month > 9 ? month : "0" + month;
+    var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
+    return year + "-" + month + "-" + day;
+}
 init();

@@ -60,6 +60,9 @@ if (isset($_SESSION["usu_id"])) {
                                             <button type="button" id="btn_perdida" class="btn btn-warning btn-label waves-effect right waves-light">
                                                 <i class="ri-indeterminate-circle-line label-icon align-middle fs-16 ms-2"></i> Ingresar Perdida Lote
                                             </button>
+                                            <button type="button" id="btn_alimento" class="btn btn-info btn-label waves-effect right waves-light">
+                                                <i class="ri-add-circle-line label-icon align-middle fs-16 ms-2"></i> Ingresar Alimento Lote
+                                            </button>
 
                                         </div>
                                         <div class="card-body">
@@ -127,6 +130,7 @@ if (isset($_SESSION["usu_id"])) {
             <!-- LLamado al Modal -->
             <?php require_once("modal.php") ?>
             <?php require_once("modalIngreso.php") ?>
+            <?php require_once("modalIngAlimento.php") ?>
             <!-- Fin Modal -->
 
             <!-- Librerias js -->

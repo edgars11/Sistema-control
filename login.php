@@ -97,21 +97,21 @@
                                             <form action="" method="post" id="login_form">
                                                 <div class="mb-3">
                                                     <label for="emp_id" class="form-label">Empresa</label>
-                                                    <select type="text" class="form-control form-select" name="emp_id" id="emp_id" aria-label="Seleccionar">
+                                                    <select type="text" class="form-control form-select" name="emp_id" id="emp_id" aria-label="Seleccionar" required>
                                                         <option selected>Seleccionar</option>
                                                     </select>
                                                 </div>
 
                                                 <div class="mb-3">
                                                     <label for="suc_id" class="form-label">Sucursal</label>
-                                                    <select type="text" class="form-control form-select" name="suc_id" id="suc_id" aria-label="Seleccionar">
+                                                    <select type="text" class="form-control form-select" name="suc_id" id="suc_id" aria-label="Seleccionar" required>
                                                         <option selected>Seleccionar</option>
                                                     </select>
                                                 </div> 
 
                                                 <div class="mb-3">
                                                     <label for="usu_correo" class="form-label">Email</label>
-                                                    <input type="text" class="form-control" name="usu_correo" id="usu_correo" placeholder="Ingrese su correo electrónico">
+                                                    <input type="text" class="form-control" name="usu_correo" id="usu_correo" placeholder="Ingrese su correo electrónico" required>
                                                 </div>
 
                                                 <div class="mb-3">
@@ -120,7 +120,7 @@
                                                     </div>
                                                     <label class="form-label" for="usu_password">Contraseña</label>
                                                     <div class="position-relative auth-pass-inputgroup mb-3">
-                                                        <input type="password" class="form-control pe-5" placeholder="Ingrese su contraseña" name="usu_password" id="usu_password">
+                                                        <input type="password" class="form-control pe-5" placeholder="Ingrese su contraseña" name="usu_password" id="usu_password" required>
                                                         <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
                                                     </div>
                                                 </div>
@@ -132,7 +132,7 @@
 
                                                 <div class="mt-4">
                                                     <input type="hidden" name="enviar" class="form-control" value="si">
-                                                    <button class="btn btn-success w-100" type="submit">Acceder</button>
+                                                    <button class="btn btn-success w-100" id="btnIngreso" type="submit">Acceder</button>
                                                 </div>
 
                                             </form>

@@ -35,22 +35,28 @@
                     </div>
                     <br>
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div>
                                 <label for="lote_cant_actual" class="form-label">Cantidad Actual:</label>
                                 <input type="number" class="form-control" id="lote_cant_actual" name="lote_cant_actual" placeholder="Seleccione Lote" readonly>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div>
                                 <label for="mov_cant_ing" class="form-label">Cantidad a Registrar:</label>
                                 <input type="number" class="form-control" id="mov_cant_ing" name="mov_cant_ing" onblur="calcularTotal()" placeholder="Ingrese Cantidad" required>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div>
                                 <label for="lote_can_total" class="form-label">Cantidad a Actualizar:</label>
                                 <input type="number" class="form-control" id="lote_can_total" name="lote_can_total" placeholder="Calculo automático" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div>
+                                <label for="mov_fecha_ing"><b>Fecha</b></label>
+                                <input type="date" name="mov_fecha_ing" id="mov_fecha_ing" class="form-control">
                             </div>
                         </div>
                     </div>

@@ -38,10 +38,10 @@ class MovimientoLote extends Conectar
         $query->execute();
     }
     /* TODO: Insertar nuevo registro */
-    public function insertarMovimientoLote($i_lote_id, $i_mov_cantidad, $i_mov_tipo, $i_mov_motivo, $i_usu_id, $i_suc_id)
+    public function insertarMovimientoLote($i_lote_id, $i_mov_cantidad, $i_mov_tipo, $i_mov_motivo, $i_usu_id, $i_suc_id, $i_mov_fecha)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_movimiento_lote @i_operacion=?, @i_lote_id=?, @i_mov_cantidad=?, @i_mov_tipo=?, @i_mov_motivo=?, @i_usu_id=?, @i_suc_id=? ";
+        $sql = "exec sp_crud_movimiento_lote @i_operacion=?, @i_lote_id=?, @i_mov_cantidad=?, @i_mov_tipo=?, @i_mov_motivo=?, @i_usu_id=?, @i_suc_id=?, @i_mov_fecha=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, 'C');
         $query->bindValue(2, $i_lote_id);
@@ -50,6 +50,7 @@ class MovimientoLote extends Conectar
         $query->bindValue(5, $i_mov_motivo);
         $query->bindValue(6, $i_usu_id);
         $query->bindValue(7, $i_suc_id);
+        $query->bindValue(8, $i_mov_fecha);
         $query->execute();
     
     }
