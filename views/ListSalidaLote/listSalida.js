@@ -65,12 +65,14 @@ $(document).on("click", "#btnFiltro", function () {
 
     cargarTabla(data);
 });
+
 $(document).on("click", "#buscarCliente", function () {
     // Cargamos clientes
     cargarCliente();
     // Mostramos el modal
     $('#modalClientes').modal('show');
 });
+
 function cargarTabla(data) {
     $('#tb_listadoSalida').DataTable({
         "aProcessing": true,

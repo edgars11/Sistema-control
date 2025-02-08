@@ -1,5 +1,5 @@
 <!-- Default Modals -->
-<div class="modal fade" id="modalIngAli" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+<div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,13 +8,13 @@
             </div>
             <form method="post" id="form_ingreso_alimento">
                 <div class="modal-body">
-                    <input type="hidden" name="mov_id" id="mov_id">
-                    <input type="hidden" name="mov_tipo" id="mov_tipo">
+                    <input type="hidden" name="ali_id" id="ali_id">
+                    <input type="hidden" name="cant_consumo_act" id="cant_consumo_act">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div>
-                                <label for="lote_idAli" class="form-label">Lote:</label>
-                                <select type="text" class="form-control form-select" name="lote_idAli" id="lote_idAli" aria-label="Seleccionar">
+                                <label for="lote_id" class="form-label">Lote:</label>
+                                <select type="text" class="form-control form-select" name="lote_id" id="lote_id" aria-label="Seleccionar">
                                     <option selected>Seleccionar Lote</option>
                                 </select>
                             </div>
@@ -22,8 +22,8 @@
                         </div>
                         <div class="col-md-4">
                             <div>
-                                <label for="lote_consumo_act" class="form-label">Cantidad Actual:</label>
-                                <input type="number" class="form-control" id="lote_consumo_act" name="lote_consumo_act" placeholder="Seleccione Lote" readonly>
+                                <label for="ali_cantidad_ing" class="form-label">Cantidad Ingresada:</label>
+                                <input type="number" class="form-control" id="ali_cantidad_ing" name="ali_cantidad_ing" placeholder="Seleccione Lote" readonly>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -37,17 +37,16 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div>
-                                <label for="ali_cantidad" class="form-label">Cantidad a ingresar:</label>
-                                <input type="number" class="form-control" id="ali_cantidad" name="ali_cantidad" onblur="calcularTotalAlimento()" placeholder="Ingrese cantidad" required>
+                                <label for="ali_cantidad" class="form-label">Cantidad a modificar:</label>
+                                <input type="number" class="form-control" id="ali_cantidad" min="0" max="1000" name="ali_cantidad" onblur="calcularTotalAlimento()" placeholder="Ingrese cantidad" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div>
-                                <label for="lote_ali_total" class="form-label">Cantidad a Actualizar:</label>
-                                <input type="number" class="form-control" id="lote_ali_total" name="lote_ali_total" placeholder="Calculo automático" readonly>
+                                <label for="ali_total_cant" class="form-label">Cantidad a Actualizar:</label>
+                                <input type="number" class="form-control" id="ali_total_cant" name="ali_total_cant" placeholder="Calculo automático" readonly>
                             </div>
                         </div>
-
                     </div>
                     <br>
                     <div class="row g-3">
@@ -61,7 +60,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="reset" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" name="action" value="add" class="btn btn-primary">Guardar</button>
+                    <button type="submit" name="action" value="add" class="btn btn-primary">Actualizar</button>
                 </div>
             </form>
 

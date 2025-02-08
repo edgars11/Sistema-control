@@ -20,12 +20,14 @@ switch ($_GET['op']) {
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();
-            $sub_array[] = $row['lote_descripcion'];
+            $sub_array[] = '<span class="fw-medium link-primary">' . $row['lote_descripcion'] . '</span>';
             $sub_array[] = $row['lote_capacidad_max'];
             $sub_array[] = $row['lote_cant_actual'];
             $sub_array[] = $row['lote_cant_perdida'];
+            $sub_array[] = $row['lote_consumo'];
             $sub_array[] = $row['lote_fecha_upd'];
             $sub_array[] = $row['lote_estado'] === '1' ? '<span class="badge badge-soft-success text-uppercase fs-12">Activo</span>' : '<span class="badge badge-soft-danger text-uppercase fs-12">Inactivo</span>';
+            $sub_array[] = $row['ult_fecha_ingre'];
             $sub_array[] = '<button type="button" onClick="editar(' . $row['lote_id'] . ')" id="' . $row['lote_id'] . '" class="btn btn-warning btn-icon waves-effect waves-light"><i class="ri-file-list-3-line"></i></button>';
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
                                 <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
@@ -80,5 +82,70 @@ switch ($_GET['op']) {
             }
             echo $html;
         }
+        break;
+
+    case 'guardarConsumo':
+        $usu_id = $_SESSION["usu_id"];
+        $datos = $lote->ingresoAlimento($_POST['lote_idAli'], $_POST['ali_cantidad'], $_POST['ali_fecha'], $usu_id, $_POST['ali_desc']);
+        $outout["success"] = true;
+
+        echo json_encode($outout);
+        break;
+
+    case 'listarAlimento':
+        $lote_id = $_POST['lote_id'] == '' ? null : $_POST['lote_id'];
+        $datos = $lote->getListadoAlimento($_POST['suc_id'], $_POST['ali_tipo'], $_POST['fecha_desde'], $_POST['fecha_hasta'], $lote_id);
+        $data = array();
+        foreach ($datos as $row) {
+            $sub_array = array();
+            $sub_array[] = '<span class="fw-medium link-primary">' . $row['lote_descripcion'] . '</span>';
+            $sub_array[] = $row['ali_fecha'];
+            $sub_array[] = '<span style="font-weight: 600;"># ' . $row['ali_cantidad'] . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . $row['usu_nombre'] . '</span>';
+            $sub_array[] = $row['ali_desc'] == '' ? 'Sin observación' : $row['ali_desc'];
+            $sub_array[] = $row['ali_hora'];
+            $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
+                                    <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
+                                        data-bs-original-title="Editar">
+                                        <button type="button" onClick="editar(' . $row['ali_id'] . ')" id="' . $row['ali_id'] . '" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-pencil-fill fs-16"></i></button>
+                                    </li>
+                                    <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
+                                        data-bs-original-title="Eliminar">
+                                        <button type="button" onClick="eliminar(' . $row['ali_id'] . ')" id="' . $row['ali_id'] . '" class="btn btn-danger btn-icon waves-effect waves-light"><i class="ri-delete-bin-5-line"></i></button>
+                                    </li>
+                                </ul>';
+            $data[] = $sub_array;
+        }
+        // Usado en el DataTable
+        $results = array(
+            "sEcho" => 1,
+            "iTotalRecords" => count($data),
+            "iTotalDisplayRecords" => count($data),
+            "aaData" => $data
+        );
+        echo json_encode($results);
+        break;
+    case 'mostrarConsumoId':
+        $datos = $lote->getListadoAlimentoID($_POST['ali_id']);
+        if (is_array($datos) == true and count($datos) > 0) {
+            foreach ($datos as $row) {
+                $outout["ali_id"] = $row["ali_id"];
+                $outout["lote_id"] = $row["lote_id"];
+                $outout["ali_cantidad"] = $row["ali_cantidad"];
+                $outout["ali_fecha"] = $row["ali_fecha"];
+                $outout["ali_desc"] = $row["ali_desc"];
+                $outout["total_consumo_lote"] = $row["total_consumo_lote"];
+            }
+            echo json_encode($outout);
+        }
+        break;
+    case 'eliminarConsumo':
+        $dato = $lote->deleteLoteConsumo($_POST['ali_id']);
+        if ($dato) {
+            $outout["exec"] = true;
+        } else {
+            $outout["exec"] = false;
+        }
+        echo json_encode($outout);
         break;
 }

@@ -73,8 +73,10 @@ if (isset($_SESSION["usu_id"])) {
                                                         <th>CAPACIDAD MAX</th>
                                                         <th>CANT. ACTUAL</th>
                                                         <th>CANT. PERDIDA</th>
+                                                        <th>CANT. ALIMENTO</th>
                                                         <th>FECHA ACTUALIZACION</th>
                                                         <th>ESTADO</th>
+                                                        <th>FECHA ULT INGRESO</th>
                                                         <th>MOVIMIENTOS</th>
                                                         <th>OPCIONES</th>
                                                     </tr>

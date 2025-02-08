@@ -121,14 +121,14 @@ if (isset($_SESSION["usu_id"])) {
                                         <div class="col-xl-2">
                                             <div class="mb-3">
                                                 <label for="sal_peso" class="form-label">Peso</label>
-                                                <input type="number" class="form-control" placeholder="Ingrese Peso" name="sal_peso" id="sal_peso" min="0" max="1000" step="0.01" />
+                                                <input type="number" class="form-control" placeholder="Ingrese Peso" name="sal_peso" id="sal_peso" min="0" max="10000" step="0.01" />
                                             </div>
                                         </div><!-- end col -->
 
                                         <div class="col-xl-2">
                                             <div class="mb-3">
                                                 <label for="sal_tara" class="form-label">Tara(Descuento)</label>
-                                                <input type="number" class="form-control" onblur="validarCantidad('N')" min="0" max="1000" step="0.01" placeholder="Ingrese tara" name="sal_tara" id="sal_tara">
+                                                <input type="number" class="form-control" onblur="validarCantidad('N')" min="0" max="10000" step="0.01" placeholder="Ingrese tara" name="sal_tara" id="sal_tara">
                                             </div>
                                         </div><!-- end col -->
                                     </div><!-- end row -->
@@ -143,7 +143,7 @@ if (isset($_SESSION["usu_id"])) {
                                         <div class="col-xl-2">
                                             <div class="mb-3">
                                                 <label for="sal_precio" class="form-label">Precio Venta</label>
-                                                <input type="text" class="form-control" onblur="validarCantidad('T')" min="0" max="1000" step="0.01" placeholder="Ingrese Precio" name="sal_precio" id="sal_precio">
+                                                <input type="text" class="form-control" onblur="validarCantidad('T')" min="0" max="10000" step="0.01" placeholder="Ingrese Precio" name="sal_precio" id="sal_precio">
                                             </div>
                                         </div><!-- end col -->
 

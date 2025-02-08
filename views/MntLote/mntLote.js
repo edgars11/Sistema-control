@@ -9,6 +9,12 @@ function init() {
     $('#mantenimiento_formIng').on("submit", function (e) {
         guardarMovimiento(e);
     });
+
+    $('#form_ingreso_alimento').on("submit", function (e) {
+        guardarAlimentoLote(e)
+    });
+
+
 }
 
 function guardarYEditar(e) {
@@ -61,6 +67,38 @@ function guardarMovimiento(e) {
                 text: "Ejecución exitosa!",
                 icon: "success"
             });
+        }
+    });
+
+}
+
+function guardarAlimentoLote(e) {
+    e.preventDefault();
+    var formData = new FormData($('#form_ingreso_alimento')[0]);
+    formData.append('suc_id', suc_idx);
+    console.log(formData.get('lote_idAli'));
+    console.log(formData.get('ali_cantidad'));
+    console.log(formData.get('ali_fecha'));
+    console.log(formData.get('ali_desc'));
+
+    $.ajax({
+        url: "../../controllers/loteController.php?op=guardarConsumo",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            data = JSON.parse(data);
+            if(data.success){
+                $('#table_data').DataTable().ajax.reload();
+                $('#modalIngAli').modal('hide');
+                swal.fire({
+                    title: "Consumo Lote",
+                    text: "Se ingresó correctamente!",
+                    icon: "success"
+                });
+            }
+            
         }
     });
 
@@ -296,7 +334,7 @@ function calcularTotal() {
 
 function calcularTotalAlimento() {
     var canAct = $('#lote_consumo_act').val();
-    var canIng = $('#lote_consumo').val();
+    var canIng = $('#ali_cantidad').val();
     var mostrar = true;
     var canTotal = 0;
 
