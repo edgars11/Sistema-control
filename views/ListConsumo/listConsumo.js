@@ -15,6 +15,9 @@ function init() {
     $('#form_fecha').on("submit", function (e) {
         consultaPorFecha(e);
     });
+    $('#form_ingreso_alimento').on("submit", function (e) {
+        guardarYEditar(e);
+    });
 }
 
 $(document).ready(function () {
@@ -39,6 +42,44 @@ $(document).ready(function () {
 
 });
 
+function guardarYEditar(e) {
+
+    e.preventDefault();
+
+    var formData = new FormData($('#form_ingreso_alimento')[0]);
+    formData.append('suc_id', $('#suc_idx').val());
+    console.log(formData.get('lote_id'));
+    console.log(formData.get('ali_fecha'));
+    console.log(formData.get('ali_cantidad'));
+    console.log(formData.get('ali_desc'));
+    console.log(formData.get('ali_id'));
+
+    $.ajax({
+        url: "../../controllers/loteController.php?op=updConsumo",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            data = JSON.parse(data);
+            if(data.success){
+                $('#table_data').DataTable().ajax.reload();
+                $('#modalMantenimiento').modal('hide');
+                swal.fire({
+                    title: "Consumo Lote",
+                    text: "Actualización exitosa!",
+                    icon: "success"
+                });
+            } else {
+                swal.fire({
+                    title: "Consumo Lote",
+                    text: "Error al actualizar registro!",
+                    icon: "error"
+                });
+            }
+        }
+    });
+}
 
 $(document).on("click", "#btnFiltro", function () {
     fromDate = $('#fecha_desde').val();
@@ -75,6 +116,7 @@ function editar(ali_id) {
         $('#ali_desc').val(data.ali_desc);
         $('#cant_consumo_act').val(data.total_consumo_lote);
         $('#ali_total_cant').val(data.total_consumo_lote);
+        $('#ali_id').val(data.ali_id);
         $('#ali_cantidad').val('');
     })
     $('#lbTitulo').html('Editar Registro');
@@ -186,4 +228,5 @@ function formatDate(dateObject = new Date()) {
     var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
     return year + "-" + month + "-" + day;
 }
+
 init();

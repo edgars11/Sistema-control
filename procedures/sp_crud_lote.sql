@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 7/2/2025 20:43:54 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 8/2/2025 10:50:20 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -98,6 +98,7 @@ end
 			from tm_lote l
 			where lote_estado = 1
 			and suc_id = @i_suc_id
+			order by lote_descripcion asc
 		end
 		if @i_tipo = 'I'
 		begin

@@ -148,4 +148,16 @@ switch ($_GET['op']) {
         }
         echo json_encode($outout);
         break;
+    case 'updConsumo':
+        $usu_id = $_SESSION["usu_id"];
+        $datos = $lote->updateRegAlimento($_POST['lote_id'], $_POST['ali_cantidad'], $_POST['ali_fecha'], $usu_id, $_POST['ali_desc'], $_POST['ali_id']);
+        if ($datos=== 'true') {
+            $outout["success"] = true;
+        } else {
+            $outout["success"] = false;
+        }
+        $outout["success"] = $datos;
+
+        echo json_encode($outout);
+        break;
 }

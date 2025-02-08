@@ -23,7 +23,8 @@ as
 declare 
 @w_hora  varchar(75),
 @w_exec varchar(10),
-@w_cantidad_ant int
+@w_cantidad_ant int,
+@w_lote_id int
 begin
 	if @i_operacion = 'C'
 	begin
@@ -44,7 +45,8 @@ begin
 	begin
 		select @w_hora = getdate()
 
-		select @w_cantidad_ant = ali_cantidad from tm_alimento_lote where ali_id = @i_ali_id
+		select @w_cantidad_ant = ali_cantidad
+		from tm_alimento_lote where ali_id = @i_ali_id
 
 		update tm_alimento_lote 
 		set lote_id = @i_lote_id ,	
@@ -62,7 +64,9 @@ begin
 	begin
 		select @w_hora = getdate()
 
-		select @w_cantidad_ant = ali_cantidad from tm_alimento_lote where ali_id = @i_ali_id
+		select @w_cantidad_ant = ali_cantidad
+			,@w_lote_id = lote_id	
+		from tm_alimento_lote where ali_id = @i_ali_id
 
 		update tm_alimento_lote 
 		set ali_estado = 0
@@ -71,7 +75,7 @@ begin
 		update tm_lote 
 		set lote_consumo = (isnull(lote_consumo, 0) - @w_cantidad_ant),
 		lote_fecha_upd = @w_hora
-		where lote_id = @i_lote_id
+		where lote_id = @w_lote_id
 	end
 
 	if @i_operacion = 'R'

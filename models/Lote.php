@@ -114,4 +114,20 @@ class Lote extends Conectar
         $query->bindValue(2, $i_ali_id);
         return $query->execute();
     }
+
+        /* TODO: Ingreso alimento lote */
+        public function updateRegAlimento($i_lote_id, $i_ali_cantidad, $i_ali_fecha, $i_user_id, $i_ali_desc, $i_ali_id)
+        {
+            $conectar = parent::Conexion();
+            $sql = "exec sp_crud_alimento_lote @i_operacion=?, @i_lote_id=?, @i_ali_cantidad=?, @i_ali_fecha=?, @i_user_id=?, @i_ali_desc=?, @i_ali_id=?";
+            $query = $conectar->prepare($sql);
+            $query->bindValue(1, 'U');
+            $query->bindValue(2, $i_lote_id);
+            $query->bindValue(3, $i_ali_cantidad);
+            $query->bindValue(4, $i_ali_fecha);
+            $query->bindValue(5, $i_user_id);
+            $query->bindValue(6, $i_ali_desc);
+            $query->bindValue(7, $i_ali_id);
+            return $query->execute();
+        }
 }
