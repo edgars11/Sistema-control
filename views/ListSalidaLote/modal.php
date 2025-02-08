@@ -26,6 +26,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" id="btnResetClient" class="btn btn-light" data-bs-dismiss="modal">Todos</button>
                 <button type="reset" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
 
