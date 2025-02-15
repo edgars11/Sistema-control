@@ -31,7 +31,7 @@ $(document).ready(function () {
     var toDate = getDate(new Date());
 
     var fecha = new Date();
-    var hoy = formatDate(fecha)
+    var hoy = formatDate(fecha);
     document.getElementById("fecha_desde").value = hoy;
     document.getElementById("fecha_hasta").value = hoy;
 
@@ -45,6 +45,16 @@ $(document).ready(function () {
 function guardarYEditar(e) {
 
     e.preventDefault();
+
+    var idLote = $('#lote_id').val();
+    if(idLote == 'Seleccionar'){
+        swal.fire({
+            title: "Consumo Lote",
+            text: "Error con id de Lote, seleccione uno corrercto!",
+            icon: "error"
+        });
+        return;
+    }
 
     var formData = new FormData($('#form_ingreso_alimento')[0]);
     formData.append('suc_id', $('#suc_idx').val());

@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 8/2/2025 10:50:20 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 13/2/2025 19:57:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -90,6 +90,7 @@ end
 			lote_capacidad_max,
 			lote_cant_actual,
 			lote_cant_perdida,
+			lote_cant_vendidos,
 			lote_consumo,
 			CONVERT(varchar, lote_fecha_upd , 22) as lote_fecha_upd,
 			lote_estado,

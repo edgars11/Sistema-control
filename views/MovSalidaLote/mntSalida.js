@@ -1,6 +1,10 @@
 var suc_idx = $('#suc_idx').val();
 var emp_idx = $('#emp_idx').val();
 
+// Se obtiene botones y combo
+const btnclientes = document.getElementById('buscarCliente');
+const comboLotes = document.getElementById('lote_idIng');
+
 function init() {
     $('#mantenimiento_formIng').on("submit", function (e) {
         guardarMovimiento(e);
@@ -13,14 +17,18 @@ function guardarMovimiento(e) {
     formData.append('suc_id', suc_idx);
     console.log(formData.get('sal_fecha'));
     console.log(formData.get('suc_id'));
+    console.log(formData.get('salida_id'));
 
     var idCliente = $('#cli_id').val();
     var idLote = $('#lote_idIng').val();
+    formData.append('lote_id', idLote);
+    console.log(idLote);
     var sal_total = $('#sal_total').val();
     var sal_cantidad = $('#sal_cantidad').val();
     var sal_peso = $('#sal_peso').val();
     var sal_fecha = $('#sal_fecha').val();
     var sal_tipo = $('#sal_tipo').val();
+    var salida_id = $('#salida_id').val();
 
     if (idCliente.length == 0) {
         swal.fire({
@@ -58,26 +66,75 @@ function guardarMovimiento(e) {
         return;
     }
 
-    $.ajax({
-        url: "../../controllers/salidaLoteController.php?op=guardar",
-        type: "POST",
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function (data) {
-            if (data.length === 0) {
+    if (salida_id.length > 0) {
+        swal.fire({
+            title: "Confirmación!",
+            text: "Desea modificar el registro de salida?",
+            icon: "warning",
+            confirmButtonText: "Si",
+            showCancelButton: true,
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "../../controllers/salidaLoteController.php?op=guardar",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.length === 0) {
+                            limpiarCampos();
+                            // Recarga los datos de la tabla
+                            $('#table_data').DataTable().ajax.reload();
+                            swal.fire({
+                                title: "Salida Lote",
+                                text: "Modificación exitosa!",
+                                icon: "success"
+                            });
+                        }
+
+                    }
+                });
+            } else {
                 limpiarCampos();
-                // Recarga los datos de la tabla
-                $('#table_data').DataTable().ajax.reload();
-                swal.fire({
-                    title: "Salida Lote",
-                    text: "Ejecución exitosa!",
-                    icon: "success"
+            }
+        });
+    } else {
+        swal.fire({
+            title: "Confirmación!",
+            text: "Desea guardar el registro de salida?",
+            icon: "warning",
+            confirmButtonText: "Si",
+            showCancelButton: true,
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log("modificando")
+                $.ajax({
+                    url: "../../controllers/salidaLoteController.php?op=guardar",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.length === 0) {
+                            limpiarCampos();
+                            // Recarga los datos de la tabla
+                            $('#table_data').DataTable().ajax.reload();
+                            swal.fire({
+                                title: "Salida Lote",
+                                text: "Ejecución exitosa!",
+                                icon: "success"
+                            });
+                        }
+
+                    }
                 });
             }
+        });
+    }
 
-        }
-    });
 
 }
 
@@ -327,6 +384,10 @@ function limpiarCampos() {
     $('#sal_cantidad').val('');
     $('#sal_peso').val('');
     $('#sal_peso_neto').val('');
+    $('#salida_id').val('');
+    $('#agregarSalida').html('<i class="ri-add-circle-line label-icon align-middle fs-16 me-2"></i>Agregar');
+    btnclientes.disabled = false;
+    comboLotes.disabled = false;
 }
 
 function eliminar(salida_id) {
@@ -356,7 +417,7 @@ function eliminar(salida_id) {
                             text: "Eliminado Correctamente!",
                             icon: "success"
                         });
-                    }else{
+                    } else {
                         swal.fire({
                             title: "Movimiento",
                             text: "Error al eliminar movimiento!",
@@ -369,4 +430,58 @@ function eliminar(salida_id) {
         }
     });
 }
+
+function editar(salida_id) {
+    console.log(salida_id);
+    swal.fire({
+        title: "Confirmación!",
+        text: "Desea editar el registro de salida?",
+        icon: "warning",
+        confirmButtonText: "Si",
+        showCancelButton: true,
+        cancelButtonText: "No"
+    }).then((result) => {
+        if (result.value) {
+            // Elimina el registro
+            $.post("../../controllers/salidaLoteController.php?op=mostrarByID",
+                { salida_id: salida_id },
+                function (data) {
+                    data = JSON.parse(data);
+                    console.log(data);
+                    $('#cli_nom').val(data.cli_nombre);
+                    $('#salida_id').val(data.salida_id);
+                    $('#cli_contacto').val(data.cli_telefono);
+                    $('#cta_cli').val(data.cta_monto);
+                    $('#cli_id').val(data.cli_id);
+                    $('#cli_identificacion').val(data.cli_ruc);
+                    $('#lote_idIng').val(data.lote_id);
+                    $('#lote_cant_act').val(data.lote_cant_actual);
+                    $('#sal_cantidad').val(data.salida_cantidad);
+                    $('#sal_peso').val(data.salida_peso);
+                    $('#sal_tara').val(data.salida_tara);
+                    $('#sal_peso_neto').val(data.salida_peso_neto);
+                    $('#sal_precio').val(data.salida_precio);
+                    $('#sal_total').val(data.salida_total);
+                    $('#sal_tipo').val(data.salida_tipo);
+                    var fecha = new Date(data.salida_fecha);
+                    $('#sal_fecha').val(formatDate(fecha));
+                    $('#agregarSalida').html('<i class="ri-add-circle-line label-icon align-middle fs-16 me-2"></i>Modificar');
+
+                    btnclientes.disabled = true;
+                    comboLotes.disabled = true;
+                })
+
+
+        }
+    });
+}
+
+function formatDate(dateObject = new Date()) {
+    var year = dateObject.getFullYear();
+    var month = dateObject.getMonth() + 1;
+    var month = month > 9 ? month : "0" + month;
+    var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
+    return year + "-" + month + "-" + day;
+}
+
 init();

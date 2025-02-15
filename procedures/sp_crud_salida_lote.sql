@@ -1,0 +1,297 @@
+USE [SistemaControl]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 13/2/2025 20:05:06 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[sp_crud_salida_lote] (
+ @i_operacion char(1) ,
+ @i_tipo char(1) = null,
+ @i_suc_id int = null,
+ @i_salida_id int = null,
+ @i_lote_id int = null,
+ @i_salida_cantidad int = null,
+ @i_salida_tipo varchar(5) = null,
+ @i_salida_fecha varchar(75) = null, 
+ @i_fecha_desde varchar(75) = null, 
+ @i_fecha_hasta varchar(75) = null,
+ @i_salida_peso decimal(12,2) = null,
+ @i_salida_peso_neto decimal(12,2) = null,
+ @i_salida_tara decimal(12,2) = null,
+ @i_salida_precio decimal(14,2) = null,
+ @i_salida_total decimal(14,2) = null,
+ @i_usu_id tinyint = null,
+ @i_cli_id tinyint = null
+)
+as
+declare
+@w_fecha varchar(75),
+@w_cta_obs varchar(75),
+@w_salida_id int,
+@w_cta_cli int,
+@w_lote_id int,
+@w_cta_id int,
+@w_cliente_id int,
+@w_cant_actual_upd decimal (14,2),
+@w_nueva_cant_upd decimal (14,2),
+@w_total_upd decimal (14,2),
+@w_cantidad_sal int ,
+@w_valor_total_act  decimal (14,2),
+@w_exec tinyint
+
+begin
+	if @i_operacion = 'C'
+	begin
+		select  @w_fecha = GETDATE()
+		insert into tm_salida_lote 
+		(salida_fecha, 			lote_id, 			salida_cantidad, 		salida_peso, 		salida_tara,		
+		salida_peso_neto, 		salida_precio,		salida_total,		salida_tipo, 			cli_id, 			
+		usu_id,					salida_hora)
+		values
+		(@i_salida_fecha,		@i_lote_id, 		@i_salida_cantidad, 	@i_salida_peso, 	@i_salida_tara, 	
+		@i_salida_peso_neto, 	@i_salida_precio,	@i_salida_total, 	@i_salida_tipo,			@i_cli_id,			
+		@i_usu_id,				@w_fecha)
+
+		select @w_salida_id = SCOPE_IDENTITY()
+
+		update tm_lote 
+		set lote_cant_actual = isnull(lote_cant_actual,0) - @i_salida_cantidad,
+		lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
+		lote_fecha_upd = @w_fecha
+		where lote_id = @i_lote_id
+
+		-- OBSERVACION CUENTA CLIENE
+		select @w_cta_obs = 'Salida # ' + CONVERT(varchar, @w_salida_id)
+
+		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
+		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id
+
+		if ISNULL(@w_cta_cli,0) = 0
+		begin
+			exec sp_crud_cuenta_cli 
+				@i_operacion = 'C',
+				@i_cta_id	 = @w_cta_cli,
+				@i_cli_id	 = @i_cli_id,
+				@i_cta_monto = @i_salida_total,
+				@i_cta_fecha = @w_fecha,
+				@i_cta_obs	 = @w_cta_obs,
+				@i_salida_id = @w_salida_id,
+				@i_suc_id	 = @i_suc_id,
+				@i_usu_id	 = @i_usu_id
+
+		end 
+		else if @w_cta_cli > 0
+		begin
+			exec sp_crud_cuenta_cli 
+				@i_operacion = 'U', 
+				@i_cta_id	 = @w_cta_cli,
+				@i_cli_id	 = @i_cli_id,
+				@i_cta_monto = @i_salida_total,
+				@i_cta_fecha = @w_fecha,
+				@i_cta_obs	 = @w_cta_obs,
+				@i_salida_id = @w_salida_id,
+				@i_suc_id	 = @i_suc_id,
+				@i_usu_id	 = @i_usu_id,
+				@i_movc_tipo = '+'
+		end	
+
+	end
+
+	if @i_operacion = 'U'
+	begin
+		select  @w_fecha = GETDATE()
+
+		select 
+			@w_cantidad_sal = salida_cantidad ,
+		 	@w_valor_total_act = salida_total,
+			@w_lote_id = lote_id,
+			@w_cliente_id = cli_id
+		from tm_salida_lote
+		where salida_id = @i_salida_id
+
+		update tm_salida_lote set
+		salida_fecha = @i_salida_fecha, 
+		lote_id = @i_lote_id, 			
+		salida_cantidad = @i_salida_cantidad, 		
+		salida_peso = @i_salida_peso, 		
+		salida_tara = @i_salida_tara,		
+		salida_peso_neto = @i_salida_peso_neto, 		
+		salida_precio = @i_salida_precio,		
+		salida_total = @i_salida_total,		
+		salida_tipo = @i_salida_tipo, 			
+		cli_id = @i_cli_id, 			
+		usu_id = @i_usu_id,					
+		salida_hora = @w_fecha
+		where 
+		salida_id = @i_salida_id
+
+		update tm_lote 
+		set lote_cant_actual = (isnull(lote_cant_actual,0)+@w_cantidad_sal),
+		lote_cant_vendidos = (isnull(lote_cant_vendidos,0)-@w_cantidad_sal),
+		lote_fecha_upd = @w_fecha
+		where lote_id = @w_lote_id
+
+		update tm_lote 
+		set lote_cant_actual = isnull(lote_cant_actual,0) - @i_salida_cantidad,
+		lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
+		lote_fecha_upd = @w_fecha
+		where lote_id = @i_lote_id
+
+		-- OBSERVACION CUENTA CLIENE
+		select @w_cta_obs = 'Salida modificada # ' + CONVERT(varchar, @w_salida_id)
+		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
+		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id
+
+		update tm_movimiento_cuenta 
+		set movc_valor = @i_salida_total,
+		movc_nuevo_val = (movc_val_actual + @i_salida_total),
+		movc_obs = @w_cta_obs,
+		movc_fecha = @w_fecha
+		where salida_id = @i_salida_id
+		and cta_id = @w_cta_cli
+
+		update tm_cuenta_cliente
+		set cta_monto = (cta_monto - @w_valor_total_act) + @i_salida_total,
+		cta_fecha_upd = @w_fecha,
+		cta_obs = @w_cta_obs
+		where cta_id = @w_cta_cli
+
+	end
+
+	if @i_operacion = 'D'
+	begin
+
+		select @w_fecha = GETDATE()
+
+		-- SE OBTIENE DATOS PARA LA ACTUALIZACIÓN
+		select 
+			@w_cant_actual_upd = salida_cantidad,
+			@w_total_upd = salida_total,
+			@w_lote_id = lote_id
+		from tm_salida_lote where salida_id =  @i_salida_id
+
+		-- SE ACTUALIZA LA CANTIDAD DISPONIBLE DEL LOTE
+		update tm_lote 
+		set lote_cant_actual = lote_cant_actual + @w_cant_actual_upd,
+		lote_cant_vendidos = lote_cant_vendidos - @w_cant_actual_upd,
+		lote_fecha_upd = @w_fecha
+		where lote_id = @w_lote_id
+
+		-- SE OBTIENE LA CTA POR MEDIO DEL MOVIEMIENTO REGISTRADO
+		select @w_cta_id = cta_id from tm_movimiento_cuenta
+		where salida_id = @i_salida_id
+
+		-- SE ACTUALIZA LA CUENTA DEL CLIENTE
+		update tm_cuenta_cliente
+		set cta_monto = cta_monto - @w_total_upd,
+		cta_fecha_upd = @w_fecha,
+		cta_obs = 'Actualizado'
+		where cta_id = @w_cta_id
+
+		-- SE ELIMINA REGISTRO DE MOVIMIENTO Y SALIDA LOTE
+		delete from tm_movimiento_cuenta where salida_id = @i_salida_id
+		delete from tm_salida_lote where salida_id = @i_salida_id
+		
+		select @w_exec = 0
+	end
+
+	if @i_operacion = 'R'
+	begin
+		select
+			cl.cli_nombre, 
+			l.lote_descripcion, 
+			sl.salida_tipo, 
+			salida_cantidad, 
+			salida_peso, 
+			salida_tara, 
+			salida_peso_neto, 
+			salida_precio, 
+			salida_total, 
+			CONVERT(varchar, salida_fecha , 103) as salida_fecha,
+			salida_id
+		from tm_salida_lote sl
+		inner join tm_lote l on l.lote_id = sl.lote_id
+		inner join tm_cliente cl on cl.cli_id = sl.cli_id
+		where l.suc_id = @i_suc_id
+		and sl.usu_id = @i_usu_id
+		and CAST(sl.salida_hora as date) = @i_salida_fecha
+		order by sl.salida_hora desc
+
+	end
+
+	if @i_operacion = 'L'
+	begin 
+		if @i_tipo = 'L'
+		begin 
+			select 
+				l.lote_descripcion,
+				c.cli_nombre,
+				sl.salida_tipo,
+				sl.salida_fecha,
+				sl.salida_cantidad,
+				sl.salida_peso_neto,
+				sl.salida_precio,
+				sl.salida_total,
+				CONCAT(u.usu_nombre, ' ',u.usu_apellido) as usu_nombre,
+				sl.salida_hora
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id
+			inner join tm_cliente c on c.cli_id = sl.cli_id
+			inner join tm_usuario u on u.usu_id = sl.usu_id
+			where l.lote_id = ISNULL(@i_lote_id, l.lote_id)
+			and c.cli_id = ISNULL( @i_cli_id , c.cli_id)
+			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
+			and CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+			and l.suc_id = @i_suc_id
+			order by sl.salida_fecha desc
+		end 
+
+		if @i_tipo = 'T'
+		begin 
+			select 
+				sum(sl.salida_cantidad) as cantidad,
+				sum(sl.salida_peso_neto)as peso_neto,
+				sum(sl.salida_total) as total
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id
+			inner join tm_cliente c on c.cli_id = sl.cli_id
+			inner join tm_usuario u on u.usu_id = sl.usu_id
+			where l.lote_id = ISNULL(@i_lote_id, l.lote_id)
+			and c.cli_id = ISNULL( @i_cli_id , c.cli_id)
+			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
+			and CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+			and l.suc_id = @i_suc_id
+		end 
+
+		if @i_tipo = 'I'
+		begin
+			select
+				cl.cli_nombre, 
+				cl.cli_ruc,
+				cl.cli_telefono,
+				cc.cta_monto,
+				l.lote_descripcion, 
+				sl.salida_tipo, 
+				salida_cantidad, 
+				salida_peso, 
+				salida_tara, 
+				salida_peso_neto, 
+				salida_precio, 
+				salida_total, 
+				CONVERT(varchar, salida_fecha , 20) as salida_fecha,
+				salida_id,
+				cl.cli_id,
+				l.lote_id,
+				l.lote_cant_actual
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id
+			inner join tm_cliente cl on cl.cli_id = sl.cli_id
+			inner join tm_cuenta_cliente cc on cc.cli_id = cl.cli_id 
+			where sl.salida_id = @i_salida_id
+
+		end
+	end
+	
+	return 0
+end

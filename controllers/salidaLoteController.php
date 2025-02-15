@@ -12,7 +12,7 @@ switch ($_GET['op']) {
         if (empty($_POST["salida_id"])) {
             $salidalote->insertarSalidaLote($_POST['lote_idIng'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['suc_id']);
         } else {
-            $salidalote->updateLote($_POST['lote_idIng'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['salida_id']);
+            $salidalote->updateLote($_POST['lote_id'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['salida_id'], $_POST['suc_id']);
         }
         break;
         // TODO: Listado de registro en format JSON para Datatable JS
@@ -25,12 +25,12 @@ switch ($_GET['op']) {
             $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_nombre'] . '</span>';
             $sub_array[] = $row['lote_descripcion'];
             $sub_array[] = $row['salida_tipo'] === 'PV' ? '<span class="badge badge-soft-success text-uppercase fs-12">POLLO VIVO</span>' : '<span class="badge badge-soft-danger text-uppercase fs-12">POLLO FAENADO</span>';
-            $sub_array[] = '<span style="font-weight: 600;"># ' . $row['salida_cantidad']. '</span>';
+            $sub_array[] = '<span style="font-weight: 600;"># ' . $row['salida_cantidad'] . '</span>';
             $sub_array[] = $row['salida_peso'];
             $sub_array[] = $row['salida_tara'];
-            $sub_array[] = '<span style="font-weight: 600;">' . $row['salida_peso_neto']. ' lbs</span>';
+            $sub_array[] = '<span style="font-weight: 600;">' . $row['salida_peso_neto'] . ' lbs</span>';
             $sub_array[] = $row['salida_precio'];
-            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . $row['salida_total']. '</span>';
+            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . $row['salida_total'] . '</span>';
             $sub_array[] = $row['salida_fecha'];
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
@@ -122,11 +122,34 @@ switch ($_GET['op']) {
         break;
     case 'deleteout':
         $datos =  $salidalote->deleteSalida($_POST['salida_id']);
-        if ($datos === 0) {
-            $outout["exec"] = true;
-        } else {
-            $outout["exec"] = false;
-        }
+        $outout["exec"] = $datos;
+
         echo json_encode($outout);
+        break;
+
+    case 'mostrarByID':
+        $datos = $salidalote->getSalidaById($_POST['salida_id']);
+        if (is_array($datos) == true and count($datos) > 0) {
+            foreach ($datos as $row) {
+                $outout["cli_nombre"] = $row["cli_nombre"];
+                $outout["cli_ruc"] = $row["cli_ruc"];
+                $outout["cli_telefono"] = $row["cli_telefono"];
+                $outout["cta_monto"] = $row["cta_monto"];
+                $outout["lote_descripcion"] = $row["lote_descripcion"];
+                $outout["salida_tipo"] = $row["salida_tipo"];
+                $outout["salida_cantidad"] = $row["salida_cantidad"];
+                $outout["salida_peso"] = $row["salida_peso"];
+                $outout["salida_tara"] = $row["salida_tara"];
+                $outout["salida_peso_neto"] = $row["salida_peso_neto"];
+                $outout["salida_precio"] = $row["salida_precio"];
+                $outout["salida_total"] = $row["salida_total"];
+                $outout["salida_fecha"] = $row["salida_fecha"];
+                $outout["salida_id"] = $row["salida_id"];
+                $outout["cli_id"] = $row["cli_id"];
+                $outout["lote_id"] = $row["lote_id"];
+                $outout["lote_cant_actual"] = $row["lote_cant_actual"];
+            }
+            echo json_encode($outout);
+        }
         break;
 }

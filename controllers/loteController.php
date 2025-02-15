@@ -25,10 +25,10 @@ switch ($_GET['op']) {
             $sub_array[] = $row['lote_cant_actual'];
             $sub_array[] = $row['lote_cant_perdida'];
             $sub_array[] = $row['lote_consumo'];
+            $sub_array[] = $row['lote_cant_vendidos'];
             $sub_array[] = $row['lote_fecha_upd'];
             $sub_array[] = $row['lote_estado'] === '1' ? '<span class="badge badge-soft-success text-uppercase fs-12">Activo</span>' : '<span class="badge badge-soft-danger text-uppercase fs-12">Inactivo</span>';
             $sub_array[] = $row['ult_fecha_ingre'];
-            $sub_array[] = '<button type="button" onClick="editar(' . $row['lote_id'] . ')" id="' . $row['lote_id'] . '" class="btn btn-warning btn-icon waves-effect waves-light"><i class="ri-file-list-3-line"></i></button>';
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
                                 <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                     data-bs-original-title="Editar">
