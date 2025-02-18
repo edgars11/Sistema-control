@@ -26,10 +26,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="btnResetClient" class="btn btn-light" data-bs-dismiss="modal">Todos</button>
+                <button type="button" id="btnResetClient" class="btn btn-soft-danger" onclick="resetClient()" data-bs-dismiss="modal"><i class="ri-delete-bin-2-line align-bottom me-1"></i>Todos</button>
                 <button type="reset" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
-
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

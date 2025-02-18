@@ -87,6 +87,11 @@ function guardarMovimiento(e) {
                             limpiarCampos();
                             // Recarga los datos de la tabla
                             $('#table_data').DataTable().ajax.reload();
+                            // Actualiza el valor actual del lote
+                            $.post("../../controllers/loteController.php?op=mostrar", { lote_id: idLote }, function (data) {
+                                data = JSON.parse(data);
+                                $('#lote_cant_act').val(data.lote_cant_actual);
+                            });
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Modificación exitosa!",
@@ -122,6 +127,11 @@ function guardarMovimiento(e) {
                             limpiarCampos();
                             // Recarga los datos de la tabla
                             $('#table_data').DataTable().ajax.reload();
+                            // Actualiza el valor actual del lote
+                            $.post("../../controllers/loteController.php?op=mostrar", { lote_id: idLote }, function (data) {
+                                data = JSON.parse(data);
+                                $('#lote_cant_act').val(data.lote_cant_actual);
+                            });
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Ejecución exitosa!",
@@ -134,7 +144,6 @@ function guardarMovimiento(e) {
             }
         });
     }
-
 
 }
 

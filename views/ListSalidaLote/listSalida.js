@@ -54,6 +54,8 @@ $(document).on("click", "#btnFiltro", function () {
 
     if (cli_id.length > 0) {
         data.cli_id = cli_id;
+    }else{
+        data.cli_id = null;
     }
 
     if (tipo_prod !== 'Seleccionar') {
@@ -75,6 +77,11 @@ $(document).on("click", "#buscarCliente", function () {
     $('#modalClientes').modal('show');
 });
 
+function resetClient(){
+    $('#cli_nombre').val('');
+    $('#cli_id').val('');
+    $('#modalClientes').modal('hide');
+}
 function cargarTabla(data) {
     $('#tb_listadoSalida').DataTable({
         "aProcessing": true,
