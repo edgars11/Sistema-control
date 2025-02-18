@@ -10,7 +10,6 @@ const data = {
     fecha_hasta: null,
     suc_id: i_suc_id
 }
-
 $(document).ready(function () {
 
     fromDate = getDate(new Date());
@@ -37,7 +36,6 @@ $(document).ready(function () {
 
 
 });
-
 $(document).on("click", "#btnFiltro", function () {
     fromDate = $('#fecha_desde').val();
     toDate = $('#fecha_hasta').val();
@@ -197,7 +195,7 @@ function eliminar(pagc_id) {
     console.log(pagc_id);
     swal.fire({
         title: "Confirmación!",
-        text: "Desea eliminar el registro de salida?",
+        text: "¿Desea eliminar el registro de cobro?",
         icon: "warning",
         confirmButtonText: "Si",
         showCancelButton: true,
@@ -223,7 +221,7 @@ function eliminar(pagc_id) {
                     } else {
                         swal.fire({
                             title: "Pago Cuenta",
-                            text: "Error al eliminar movimiento!",
+                            text: "Error al eliminar cobro!",
                             icon: "error"
                         });
                     }
@@ -238,3 +236,114 @@ function formatDate(dateObject = new Date()) {
     var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
     return year + "-" + month + "-" + day;
 }
+
+function editar(pagc_id) {
+    console.log(pagc_id);
+    swal.fire({
+        title: "Confirmación!",
+        text: "Desea editar el registro de cobro?",
+        icon: "warning",
+        confirmButtonText: "Si",
+        showCancelButton: true,
+        cancelButtonText: "No"
+    }).then((result) => {
+        if (result.value) {
+
+            // Se obtienen las Formas de pago
+            $.post("../../controllers/pagoController.php?op=combo", function (data) {
+                $('#pago_idM').html(data);
+            });
+            // Elimina el registro
+            $.post("../../controllers/pagoController.php?op=getCobroId",
+                { pagc_id: pagc_id },
+                function (data) {
+                    data = JSON.parse(data);
+                    console.log(data);
+                    $('#pagc_id').val(data.pagc_id);
+                    $('#cli_nombreM').val(data.cli_nombre);
+                    $('#pago_idM').val(data.pago_id);
+                    $('#pagc_monto').val(data.pagc_monto);
+                    $('#pagc_obs').val(data.pagc_obs);
+                })
+
+            // Mostramos el modal
+            $('#modalUpdCobo').modal('show');
+        }
+    });
+}
+
+function init() {
+    $('#mantenimiento_formIng').on("submit", function (e) {
+        guardarMovimiento(e);
+    });
+}
+
+function guardarMovimiento(e) {
+    e.preventDefault();
+    var formData = new FormData($('#mantenimiento_formIng')[0]);
+    formData.append('suc_id', suc_idx);
+    console.log(formData.get('pagc_id'));
+    console.log(formData.get('pago_idM'));
+    console.log(formData.get('pagc_monto'));
+    console.log(formData.get('pagc_obs'));
+
+    var pagc_monto = $('#pagc_monto').val();
+    var pago_id = $('#pago_idM').val();
+
+    if (pagc_monto.length == 0) {
+        swal.fire({
+            title: "Datos incompletos",
+            text: "Ingrese un monto válido!",
+            icon: "warning"
+        });
+        return;
+    }
+
+    if (pago_id === 'Seleccionar') {
+        swal.fire({
+            title: "Datos incompletos",
+            text: "Seleccione un tipo de pago correcto!",
+            icon: "warning"
+        });
+        return;
+    }
+
+
+    swal.fire({
+        title: "Confirmación!",
+        text: "¿Desea actualizar el registro de cobro?",
+        icon: "warning",
+        confirmButtonText: "Si",
+        showCancelButton: true,
+        cancelButtonText: "No"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            console.log("modificando")
+            $.ajax({
+                url: "../../controllers/pagoController.php?op=updateCobroId",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    data = JSON.parse(data);
+                    console.log(data)
+                    if (data.exec) {
+                        // Recarga los datos de la tabla
+                        $('#tb_listadoSalida').DataTable().ajax.reload();
+                        swal.fire({
+                            title: "Salida Lote",
+                            text: "Ejecución exitosa!",
+                            icon: "success"
+                        });
+                    }
+                    $('#modalUpdCobo').modal('hide');
+                }
+            });
+        }
+    });
+
+
+}
+
+init();

@@ -12,8 +12,6 @@ $(document).ready(function () {
 });
 
 $(document).on("click", "#buscarCuenta", function () {
-
-    console.log("Seleccionado")
     // Cargamos clientes
     cargarTablaCuentas(w_usu_idx);
     // Mostramos el modal

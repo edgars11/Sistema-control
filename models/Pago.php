@@ -99,4 +99,29 @@ class Pago extends Conectar
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+    /* TODO: Listado de Pagos  */
+    public function getCobroId($i_pago_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_pago @i_operacion=?,@i_tipo =?, @i_pago_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'R');
+        $query->bindValue(2, 'C');
+        $query->bindValue(3, $i_pago_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+    /* TODO: Listado de Pagos  */
+    public function updateCobroById($i_pagc_monto, $i_pagc_obs, $i_pago_id, $i_pagc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_pago @i_operacion=?,@i_pagc_monto=?,@i_pagc_obs=?, @i_pago_id=?,@i_pagc_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'U');
+        $query->bindValue(2, $i_pagc_monto);
+        $query->bindValue(3, $i_pagc_obs);
+        $query->bindValue(4, $i_pago_id);
+        $query->bindValue(5, $i_pagc_id);
+        return $query->execute();
+    }
 }

@@ -164,11 +164,12 @@ if (isset($_SESSION["usu_id"])) {
 
             <!-- LLamado al Modal -->
             <?php require_once("modal.php") ?>
+            <?php require_once("modalUpdate.php") ?>
             <!-- Fin Modal -->
 
             <!-- Librerias js -->
             <?php require_once("../html/js.php"); ?>
-            <script type="text/javascript" src="listSalida.js"></script>
+            <script type="text/javascript" src="listCoboCta.js"></script>
             <!-- Fin librerias js -->
         </body>
 

@@ -75,7 +75,7 @@ switch ($_GET['op']) {
             $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_ruc'] . '</span>';
             $sub_array[] = '<strong>$' . $row['cta_monto'] . '</strong>';
             $sub_array[] = $row['cta_estado'] === '1' ? '<span class="badge badge-soft-success text-uppercase fs-12">Activo</span>' : '<span class="badge badge-soft-danger text-uppercase">Inactivo</span>';
-            $sub_array[] = '<button type="button" onClick="selCuenta(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-success btn-label waves-effect waves-light rounded-pill"><i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i></button>';
+            $sub_array[] = '<button type="button" onClick="selCuenta(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-success btn-label waves-effect waves-light rounded-pill"><i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> Seleccionar Cuenta</button>';
             $data[] = $sub_array;
         }
         // Usado en el DataTable

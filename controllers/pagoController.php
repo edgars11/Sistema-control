@@ -34,17 +34,10 @@ switch ($_GET['op']) {
         break;
     case 'deleterPago':
         $datos = $pago->eliminarPago($_POST['pagc_id']);
-        if ($datos) {
-            $outout["exec"] = true;
-        } else {
-            $outout["exec"] = false;
-        }
-
+        $outout["exec"] = $datos;
         echo json_encode($outout);
 
         break;
-
-
     case 'listadoPagos':
         $pago_id = $_POST['pago_id'] == '' ? null : $_POST['pago_id'];
         $cli_id = $_POST['cli_id'] == '' ? null : $_POST['cli_id'];
@@ -80,5 +73,28 @@ switch ($_GET['op']) {
             "aaData" => $data
         );
         echo json_encode($results);
+        break;
+    case 'getCobroId':
+        $datos = $pago->getCobroId($_POST['pagc_id']);
+        if (is_array($datos) == true and count($datos) > 0) {
+            foreach ($datos as $row) {
+                $outout["pagc_id"] = $row["pagc_id"];
+                $outout["cta_id"] = $row["cta_id"];
+                $outout["pago_id"] = $row["pago_id"];
+                $outout["pagc_monto"] = $row["pagc_monto"];
+                $outout["pagc_obs"] = $row["pagc_obs"];
+                $outout["pagc_fecha"] = $row["pagc_fecha"];
+                $outout["cli_nombre"] = $row["cli_nombre"];
+            }
+            echo json_encode($outout);
+        }
+        break;
+
+    case 'updateCobroId':
+        $datos = $pago->updateCobroById($_POST['pagc_monto'], $_POST['pagc_obs'], $_POST['pago_idM'], $_POST['pagc_id']);
+        $outout["exec"] = $datos;
+
+        echo json_encode($outout);
+
         break;
 }

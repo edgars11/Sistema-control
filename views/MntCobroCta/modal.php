@@ -1,6 +1,6 @@
 <!-- Default Modals -->
 <div class="modal fade" id="modalCuentas" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="lbTitulo">LISTADO DE CUENTAS VIGENTES</h5>
