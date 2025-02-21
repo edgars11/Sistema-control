@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 13/2/2025 20:05:06 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 20/2/2025 20:40:18 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -270,6 +270,8 @@ begin
 				cl.cli_nombre, 
 				cl.cli_ruc,
 				cl.cli_telefono,
+				cl.cli_direccion,
+				cl.cli_correo,
 				cc.cta_monto,
 				l.lote_descripcion, 
 				sl.salida_tipo, 

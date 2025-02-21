@@ -32,7 +32,7 @@ switch ($_GET['op']) {
             $sub_array[] = $row['salida_precio'];
             $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . $row['salida_total'] . '</span>';
             $sub_array[] = $row['salida_fecha'];
-            $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
+            $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0 w-100">
                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                         data-bs-original-title="Editar">
                                         <button type="button" onClick="editar(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-pencil-fill fs-16"></i></button>
@@ -40,6 +40,10 @@ switch ($_GET['op']) {
                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                         data-bs-original-title="Eliminar">
                                         <button type="button" onClick="eliminar(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-danger btn-icon waves-effect waves-light"><i class="ri-delete-bin-5-line"></i></button>
+                                    </li>
+                                    <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
+                                        data-bs-original-title="Eliminar">
+                                        <button type="button" onClick="verSalida(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-primary btn-icon waves-effect waves-light"><i class="ri-printer-line"></i></button>
                                     </li>
                                 </ul>';
             $data[] = $sub_array;
@@ -134,6 +138,8 @@ switch ($_GET['op']) {
                 $outout["cli_nombre"] = $row["cli_nombre"];
                 $outout["cli_ruc"] = $row["cli_ruc"];
                 $outout["cli_telefono"] = $row["cli_telefono"];
+                $outout["cli_direccion"] = $row["cli_direccion"];
+                $outout["cli_correo"] = $row["cli_correo"];
                 $outout["cta_monto"] = $row["cta_monto"];
                 $outout["lote_descripcion"] = $row["lote_descripcion"];
                 $outout["salida_tipo"] = $row["salida_tipo"];

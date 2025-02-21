@@ -1,5 +1,6 @@
 var suc_idx = $('#suc_idx').val();
 var emp_idx = $('#emp_idx').val();
+var com_idx = $('#com_idx').val();
 
 // Se obtiene botones y combo
 const btnclientes = document.getElementById('buscarCliente');
@@ -481,6 +482,24 @@ function editar(salida_id) {
                 })
 
 
+        }
+    });
+}
+function verSalida(salida_id) {
+    console.log(salida_id);
+    swal.fire({
+        title: "Confirmación!",
+        text: "Desea imprimir el registro de salida?",
+        icon: "warning",
+        confirmButtonText: "Si",
+        showCancelButton: true,
+        cancelButtonText: "No"
+    }).then((result) => {
+        if (result.value) {
+            // Elimina el registro
+            $.get("../../controllers/generatePDFController.php?op=generatePdf", { salida_id: salida_id , emp_id: emp_idx , com_id: com_idx }, function (data) {
+
+            });
         }
     });
 }

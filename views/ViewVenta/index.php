@@ -6,7 +6,7 @@ if (isset($_SESSION["usu_id"])) {
     <html lang="es" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none">
 
     <head>
-        <title>Fact-System | Roles</title>
+        <title>Fact-System | Detalle Venta</title>
         <?php require_once("../html/head.php"); ?>
     </head>
 
