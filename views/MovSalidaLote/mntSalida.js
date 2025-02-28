@@ -489,17 +489,22 @@ function verSalida(salida_id) {
     console.log(salida_id);
     swal.fire({
         title: "Confirmación!",
-        text: "Desea imprimir el registro de salida?",
+        text: "Desea descargar el pdf de registro de salida?",
         icon: "warning",
-        confirmButtonText: "Si",
+        confirmButtonText: "Si, descargar",
         showCancelButton: true,
-        cancelButtonText: "No"
+        cancelButtonText: "Visualizar"
     }).then((result) => {
-        if (result.value) {
+        if (result.isConfirmed) {
             // Elimina el registro
-            $.get("../../controllers/generatePDFController.php?op=generatePdf", { salida_id: salida_id , emp_id: emp_idx , com_id: com_idx }, function (data) {
+            // $.get("../../controllers/generatePDFController.php?op=generatePdf", { salida_id: salida_id, emp_id: emp_idx, com_id: com_idx, download: 1 }, function (data) {
 
-            });
+            // });
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generatePdf&salida_id=" + salida_id + "&emp_id=" + emp_idx + "&com_id=" + com_idx + "&download=" + 1;
+            window.open(url, "_blank");
+        } else {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generatePdf&salida_id=" + salida_id + "&emp_id=" + emp_idx + "&com_id=" + com_idx + "&download=" + 0;
+            window.open(url, "_blank");
         }
     });
 }

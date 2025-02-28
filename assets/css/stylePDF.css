@@ -12,7 +12,7 @@ a {
 body {
   position: relative;
   width: 18cm;  
-  height: 29.7cm; 
+  height: 26.7cm; 
   margin: 0 auto; 
   color: #001028;
   background: #FFFFFF; 
@@ -32,43 +32,36 @@ header {
 }
 
 #logo img {
-  width: 90px;
+  width: 120px;
 }
 
 h1 {
   border-top: 1px solid  #5D6975;
   border-bottom: 1px solid  #5D6975;
-  color: #5D6975;
-  font-size: 2.4em;
+  color: #ffffff;
+  font-size: 2.0em;
   line-height: 1.4em;
-  font-weight: normal;
+  font-weight: bold;
   text-align: center;
-  margin: 0 0 20px 0;
-  background: url(dimension.png);
+  margin: 0 0 10px 0;
+  /* background: url("http://' . $rutaImg . '/Sistema-Control/assets/images/dimension.png"); */
+  background-color: #191a1b;
 }
 
-#project {
+/* #project {
   float: left;
-}
+} */
 
-#project span {
-  color: #5D6975;
-  text-align: right;
-  width: 52px;
-  margin-right: 10px;
-  display: inline-block;
-  font-size: 0.8em;
-}
 
 #company {
   float: right;
   text-align: right;
 }
 
-#project div,
+/* #project div,
 #company div {
   white-space: nowrap;        
-}
+} */
 
 table {
   width: 100%;
@@ -87,11 +80,12 @@ table td {
 }
 
 table th {
+  font-weight: 600;
   padding: 5px 20px;
-  color: #5D6975;
-  border-bottom: 1px solid #C1CED9;
-  white-space: nowrap;        
-  font-weight: normal;
+  color: #fafafa;
+  background-color: #191a1b;
+  border: 1px solid #434444;
+  white-space: nowrap;
 }
 
 table .service,
@@ -109,10 +103,21 @@ table td.desc {
   vertical-align: top;
 }
 
+table td.totales {
+  padding: 10px;
+  font-weight: bold;
+}
+
+
+table td.total {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
 table td.unit,
 table td.qty,
-table td.total {
-  font-size: 1.2em;
+table td.subtotal{
+  font-size: 13px;
 }
 
 table td.grand {
@@ -133,4 +138,56 @@ footer {
   border-top: 1px solid #C1CED9;
   padding: 8px 0;
   text-align: center;
+}
+
+.width-50{
+  width: 350px;
+}
+
+.text-center{
+  text-align: center;
+}
+
+.text-right{
+  text-align: right;
+}
+
+.text-shadow{
+  text-shadow: 0px 0px 5px rgb(0, 0, 0);
+}
+.text-bold{
+  font-weight: bold;
+}
+
+.text-fw-600{
+  font-weight: 600;
+}
+.text-fw-500{
+  font-weight: 500;
+}
+
+.tc-yellow{
+  color: rgb(232, 235, 91);
+}
+
+.tc-green{
+  color: rgb(96, 185, 6);
+}
+.ts-13{
+  font-size: 13px;
+}
+.ts-15{
+  font-size: 15px;
+}
+
+.margin-p{
+  margin: 0;
+}
+
+.margin-bottom-10{
+  margin-bottom: 10px;
+}
+
+.margin-bottom-25{
+  margin-bottom: 15px;
 }

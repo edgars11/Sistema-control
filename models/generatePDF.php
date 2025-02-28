@@ -9,11 +9,14 @@ use Dompdf\Options;
 
 class GeneratePDF extends Conectar
 {
-    public function generate_pdf_salida($salida_id, $emp_id, $com_id)
+    public function generate_pdf_salida($salida_id, $emp_id, $com_id, $download)
     {
         //DatosCliente;
         $salidalote = new SalidaLote();
         $empresa = new Empresa();
+        $rutaImg = $_SERVER['HTTP_HOST'];
+
+        $descarga = $download === "1" ? true : false;
 
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
@@ -22,7 +25,7 @@ class GeneratePDF extends Conectar
 
         $dompdf = new Dompdf($options);
 
-        $detalleEmpresa = $empresa->getEmpresaPorId("R",$emp_id, $com_id);
+        $detalleEmpresa = $empresa->getEmpresaPorId("R", $emp_id, $com_id);
         $subtotal = 0;
         $valorIva = 15;
         $iva = 0;
@@ -50,12 +53,12 @@ class GeneratePDF extends Conectar
             $tipoProd = $row["salida_tipo"] == 'PV' ? 'POLLO VIVO' : ' POLLO FAENADO';
             $tbody .= '
                     <tr>
-                        <td class="service">' . $tipoProd . '</td>
+                        <td class="service text-fw-600">' . $tipoProd . '</td>
                         <td class="desc">' . $row["salida_fecha"] . '</td>
                         <td class="unit"># ' . $row["salida_cantidad"] . '</td>
                         <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
-                        <td class="total">$ ' . $row["salida_precio"] . '</td>
-                        <td class="total">$ ' . $row["salida_total"] . '</td>
+                        <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
+                        <td class="subtotal">$ ' . $row["salida_total"] . '</td>
                     </tr>
             ';
         }
@@ -71,23 +74,24 @@ class GeneratePDF extends Conectar
             <body>
                 <header class="clearfix">
                 <div id="logo">
-                    <img src="logo.png">
+                    <img src="http://' . $rutaImg . '/Sistema-Control/assets/images/logo-lite.jpg" alt="Logo empresa" style="width: 100px"><br>
                 </div>
-                <h1>REGISTRO SALIDA #' . $salida_id . '</h1>
+                <h1>REGISTRO SALIDA <span class="tc-yellow"># ' . $salida_id . '</span></h1>
                 <div id="company" class="clearfix">
-                    <div>'.$datosEmpresa["emp_nombre"].'</div>
-                    <div>'.$datosEmpresa["emp_direccion"].'</div>
-                    <div>'.$datosEmpresa["emp_telefono"].'</div>
-                    <div>'.$datosEmpresa["emp_ruc"].'</div>
-                    <div><a href="mailto:'.$datosEmpresa["emp_correo"].'">'.$datosEmpresa["emp_correo"].'</a></div>
+                    <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
+                    <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
                 </div>
                 <div id="project">
-                    <div><span>PROJECT</span>Control Salida Mercaderia</div>
-                    <div><span>CLIENTE:</span> '.$datosCliente["cli_nombre"].'</div>
-                    <div><span>DIRECCIÓN:</span> '.$datosCliente["cli_direccion"].'</div>
-                    <div><span>CORREO:</span> <a href="'.$datosCliente["cli_correo"].'">'.$datosCliente["cli_correo"].'</a></div>
-                    <div><span>RUC/CI:</span> '.$datosCliente["cli_ruc"].'</div>
-                    <div><span>CONTACTO:</span> '.$datosCliente["cli_telefono"].'</div>
+                    <div class="margin-bottom-25"><span class="text-fw-600  ts-15">COMPROBANTE PARA:</span></div>
+                    <div><span class="text-fw-600">CLIENTE:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
+                    <div><span class="text-fw-600">DIRECCIÓN:</span>  <span class="ts-13">' . $datosCliente["cli_direccion"] . ' </span></div>
+                    <div><span class="text-fw-600">CORREO:</span> <span class="ts-13"> <a href="' . $datosCliente["cli_correo"] . '">' . $datosCliente["cli_correo"] . '</a> </span></div>
+                    <div><span class="text-fw-600">RUC/CI:</span>  <span class="ts-13">' . $datosCliente["cli_ruc"] . ' </span></div>
+                    <div><span class="text-fw-600">CONTACTO:</span> <span class="ts-13"> ' . $datosCliente["cli_telefono"] . ' </span></div>
                 </div>
                 </header>
                 <main>
@@ -105,26 +109,26 @@ class GeneratePDF extends Conectar
                     <tbody>
                         ' . $tbody . '
                         <tr>
-                            <td colspan="5" class="grand total">SUBTOTAL</td>
-                            <td class="grand total">$ '.$subtotal.'</td>
+                            <td colspan="5" class="totales">SUBTOTAL</td>
+                            <td class="subtotal totales">$ ' . $subtotal . '</td>
                         </tr>
                         <tr>
-                            <td colspan="5">IVA '.$valorIva.'%</td>
-                            <td class="total">$ 0.00</td>
+                            <td colspan="5" class="totales">IVA ' . $valorIva . '%</td>
+                            <td class="subtotal totales">$ 0.00</td>
                         </tr>
                         <tr>
-                            <td colspan="5" class="strong" >VALOR TOTAL</td>
-                            <td class="total">$ '.$subtotal.'</td>
+                            <td colspan="5" class="grand total totales">VALOR TOTAL</td>
+                            <td class="grand total totales tc-green">$ ' . $subtotal . '</td>
                         </tr>
                     </tbody>
                 </table>
                 <div id="notices">
-                    <div>NOTICE:</div>
-                    <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
+                    <div>OBSERVACIONES:</div>
+                    <div class="notice"></div>
                 </div>
                 </main>
                 <footer>
-                Invoice was created on a computer and is valid without the signature and seal.
+                    <span class="text-bold">Granja LITE</span> le agradece por su compra.
                 </footer>
             </body>
             </html>
@@ -137,12 +141,12 @@ class GeneratePDF extends Conectar
         header('Cache-Control: public, must-revalidate, max-age=0');
         header('Pragma: public');
 
-        $dompdf->stream();
-        // $dompdf->stream('Reg_NombreCliente_' . $salida_id . '.pdf');
+        // $dompdf->stream();
+        $dompdf->stream('Reg_' . $datosCliente["cli_nombre"] . '_#' . $salida_id . '.pdf', array('Attachment' => $descarga));
 
-        $fileLocation = '../assets/pdf/salidas/Reg_salida_' . $salida_id . '.pdf';
+        // $fileLocation = '../assets/pdf/salidas/Reg_salida_' . $salida_id . '.pdf';
         $dompdf->output();
-        file_put_contents($fileLocation, $dompdf->output());
+        // file_put_contents($fileLocation, $dompdf->output());
 
         exit();
     }
