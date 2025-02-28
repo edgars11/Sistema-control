@@ -59,6 +59,13 @@ if (isset($_SESSION["usu_id"])) {
                                                             <h5 class="card-title mb-0">Filtro Búsqueda</h5>
                                                         </div>
                                                     </div>
+                                                    <div class="col-sm-auto">
+
+                                                        <div>
+                                                            <button class="btn btn-soft-danger" onclick="resetClient()"><i class="ri-delete-bin-2-line align-bottom me-1"></i>Limpiar Cliente</button>
+                                                            <button type="button" onclick="generarReporte()" class="btn btn-outline-warning waves-effect waves-light"><i class="ri-file-download-line align-bottom me-1"></i> Descargar Reporte</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="card-body border-bottom-dashed border-bottom">
@@ -113,7 +120,6 @@ if (isset($_SESSION["usu_id"])) {
                                                     <!--end row-->
                                                 </form>
                                             </div>
-
                                         </div>
                                         <div class="card-body">
                                             <table id="tb_listadoSalida" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width:100%">
@@ -148,13 +154,8 @@ if (isset($_SESSION["usu_id"])) {
 
                                                 </tfoot>
                                             </table>
-                                            <div class="hstack gap-2 justify-content-end d-print-none mt-4">
-                                                <!-- <a href="javascript:window.print()" class="btn btn-success"><i class="ri-printer-line align-bottom me-1"></i> Print</a>
-                                                <a href="javascript:void(0);" class="btn btn-primary"><i class="ri-download-2-line align-bottom me-1"></i> Download</a> -->
-                                                <button type="button" id="" class="btn btn-info btn-icon waves-effect waves-light"><i class="ri-eye-fill"></i>Generar Reporte</button>
-                                            </div>
-                                        </div>
 
+                                        </div>
                                     </div>
                                 </div><!--end col-->
                                 <!-- Datatables fin -->

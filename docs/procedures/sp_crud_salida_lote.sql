@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 20/2/2025 20:40:18 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 27/2/2025 23:21:47 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -228,7 +228,7 @@ begin
 				l.lote_descripcion,
 				c.cli_nombre,
 				sl.salida_tipo,
-				sl.salida_fecha,
+				CONVERT(varchar, sl.salida_fecha , 23) as salida_fecha,
 				sl.salida_cantidad,
 				sl.salida_peso_neto,
 				sl.salida_precio,

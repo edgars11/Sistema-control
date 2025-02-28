@@ -1,4 +1,6 @@
 var i_suc_id = $('#suc_idx').val();
+var emp_idx = $('#emp_idx').val();
+var com_idx = $('#com_idx').val();
 
 var fromDate;
 var toDate;
@@ -11,7 +13,6 @@ const data = {
     fecha_hasta: null,
     suc_id: i_suc_id
 }
-
 $(document).ready(function () {
 
     fromDate = getDate(new Date());
@@ -38,7 +39,6 @@ $(document).ready(function () {
 
 
 });
-
 $(document).on("click", "#btnFiltro", function () {
     fromDate = $('#fecha_desde').val();
     toDate = $('#fecha_hasta').val();
@@ -69,14 +69,12 @@ $(document).on("click", "#btnFiltro", function () {
 
     cargarTabla(data);
 });
-
 $(document).on("click", "#buscarCliente", function () {
     // Cargamos clientes
     cargarCliente();
     // Mostramos el modal
     $('#modalClientes').modal('show');
 });
-
 function resetClient(){
     $('#cli_nombre').val('');
     $('#cli_id').val('');
@@ -185,7 +183,6 @@ function cargarTotables(dataI) {
         }
     })
 }
-
 function getDate(date) {
     var dateString = new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
         .toISOString()
@@ -217,4 +214,34 @@ function selectCliente(cli_id) {
         }
     })
     $('#modalClientes').modal('hide');
+}
+function generarReporte(){
+
+    if (cli_id.length > 0) {
+        data.cli_id = cli_id;
+    }else{
+        swal.fire({
+            title: "Generación Reporte",
+            text: "Seleccione un cliente para continuar con el reporte!",
+            icon: "warning"
+        });
+        return;
+    }
+
+    swal.fire({
+        title: "Confirmación!",
+        text: "Desea descargar el pdf de registro de salida?",
+        icon: "warning",
+        confirmButtonText: "Si, descargar",
+        showCancelButton: true,
+        cancelButtonText: "Visualizar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generateListadoSalidaPdf&lote_id=" + data.lote_id + "&cli_id=" + data.cli_id + "&salida_tipo=" + data.salida_tipo + "&fecha_desde=" + data.fecha_desde + "&fecha_hasta=" + data.fecha_hasta + "&suc_id=" + i_suc_id + "&emp_id=" + emp_idx + "&com_id=" + com_idx + "&download=" + 1;
+            window.open(url, "_blank");
+        } else {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generateListadoSalidaPdf&lote_id=" + data.lote_id + "&cli_id=" + data.cli_id + "&salida_tipo=" + data.salida_tipo + "&fecha_desde=" + data.fecha_desde + "&fecha_hasta=" + data.fecha_hasta + "&suc_id=" + i_suc_id + "&emp_id=" + emp_idx + "&com_id=" + com_idx + "&download=" + 0;
+            window.open(url, "_blank");
+        }
+    });
 }
