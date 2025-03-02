@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 1/3/2025 17:00:18 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 2/3/2025 16:46:42 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -65,7 +65,7 @@ begin
 		select @w_cta_obs = 'Salida # ' + CONVERT(varchar, @w_salida_id)
 
 		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
-		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id
+		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
 
 		if ISNULL(@w_cta_cli,0) = 0
 		begin
@@ -141,7 +141,7 @@ begin
 		-- OBSERVACION CUENTA CLIENE
 		select @w_cta_obs = 'Salida modificada # ' + CONVERT(varchar, @w_salida_id)
 		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
-		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id
+		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
 
 		update tm_movimiento_cuenta 
 		set movc_valor = @i_salida_total,
@@ -156,6 +156,7 @@ begin
 		cta_fecha_upd = @w_fecha,
 		cta_obs = @w_cta_obs
 		where cta_id = @w_cta_cli
+		and cta_estado = 1
 
 	end
 
@@ -188,6 +189,7 @@ begin
 		cta_fecha_upd = @w_fecha,
 		cta_obs = 'Actualizado'
 		where cta_id = @w_cta_id
+		and cta_estado = 1
 
 		-- SE ELIMINA REGISTRO DE MOVIMIENTO Y SALIDA LOTE
 		delete from tm_movimiento_cuenta where salida_id = @i_salida_id

@@ -2,9 +2,11 @@ var suc_idx = $('#suc_idx').val();
 var emp_idx = $('#emp_idx').val();
 var usu_idx = $('#usu_idx').val();
 
+var fecha = new Date();
+
 function init() {
-    $('#mantenimiento_form').on("submit", function (e) {
-        guardarYEditar(e);
+    $('#FormUpdateCtaCli').on("submit", function (e) {
+        updateCtaCli(e);
     })
 
     $('#FormCreacionCtaCli').on("submit", function (e) {
@@ -15,8 +17,6 @@ function init() {
 function guardarYEditar(e) {
 
     e.preventDefault();
-
-    var fecha = new Date();
 
     var formData = new FormData($('#FormCreacionCtaCli')[0]);
     formData.append('suc_id', $('#suc_idx').val());
@@ -41,6 +41,91 @@ function guardarYEditar(e) {
             });
         }
     });
+}
+
+function updateCtaCli(e) {
+
+    e.preventDefault();
+    var cta_id = $('#cta_id').val();
+    // var pago_id = $('#pago_id').val();
+    var pagc_monto = $('#cta_montoUpd').val();
+    var pagc_obs = $('#cta_obs').val();
+    var mov_tipo = $('#mov_tipo').val();
+
+    /* TODO: Validación de campos de ventas */
+    if (cta_id.length == 0 || pagc_monto.length == 0) {
+        // Muestra notificación de la eliminación
+        swal.fire({
+            title: "Pago",
+            text: "Error! Campos incompletos",
+            icon: "error"
+        });
+        return;
+    }
+
+    if (cta_id.length == 0) {
+        swal.fire({
+            title: "Cuenta Cliente",
+            text: "Seleccione un cuenta de cliente!",
+            icon: "warning"
+        });
+        return;
+    }
+
+    if (mov_tipo == 'AD') {
+        var formData = new FormData($('#FormUpdateCtaCli')[0]);
+        formData.append('suc_id', $('#suc_idx').val());
+        formData.append('cta_fecha', formatDate(fecha));
+        formData.append('usu_id', usu_idx);
+
+        $.ajax({
+            url: "../../controllers/cuentasController.php?op=update",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                data = JSON.parse(data);
+                console.log(data);
+                $('#table_data').DataTable().ajax.reload();
+                $('#modalUpdateCuenta').modal('hide');
+                swal.fire({
+                    title: "Cuenta Cliente",
+                    text: "Se registró la cuenta correctamente!",
+                    icon: "success"
+                });
+            }
+        });
+    } else {
+        $.post("../../controllers/pagoController.php?op=guardarPago", {
+            cta_id: cta_id,
+            pago_id: 1,
+            pagc_obs: pagc_obs,
+            pagc_monto: pagc_monto,
+            suc_id: suc_idx
+        }, function (data) {
+            data = JSON.parse(data);
+
+            if (data.success == true) {
+                $('#cta_id').val('');
+                $('#cta_monto').val('');
+                $('#cta_obs').val('');
+                swal.fire({
+                    title: "Cuenta cliente",
+                    text: "Actualización de la cuenta se realizó correctamente!",
+                    icon: "success"
+                });
+            } else {
+                swal.fire({
+                    title: "Cuenta cliente",
+                    text: "Hubo un error al guardar el cobro de cuenta!",
+                    icon: "warning"
+                });
+            }
+        })
+    }
+
+
 }
 
 $(document).ready(function () {
@@ -89,24 +174,36 @@ $(document).ready(function () {
             }
         },
     });
+
+    $("#mov_tipo").change(function () {
+        $("#mov_tipo").each(function () {
+            tipoMov = $(this).val();
+            if (tipoMov === 'AD') {
+                $('#tipoMovimiento').html('<span class="badge badge-soft-success text-uppercase fs-22">+</span>');
+            } else {
+                $('#tipoMovimiento').html('<span class="badge badge-soft-danger text-uppercase fs-22">-</span>');
+            }
+        });
+    });
 });
 
 function editar(cta_id) {
-    $.post("../../controllers/categoriaController.php?op=mostrar", { cta_id: cta_id }, function (data) {
+    $.post("../../controllers/cuentasController.php?op=byCta", { cta_id: cta_id, suc_id: suc_idx }, function (data) {
         data = JSON.parse(data);
         $('#cta_id').val(data.cta_id);
-        $('#cta_nombre').val(data.cta_nombre);
+        $('#cli_nombre').val(data.cli_nombre);
+        $('#cta_montoAct').val(data.cta_monto);
+        $('#cta_nuevo_val').val(data.cta_monto);
         console.log(data);
     })
     $('#lbTitulo').html('Editar Registro');
-    $('#modalMantenimiento').modal('show');
+    $('#modalUpdateCuenta').modal('show');
 }
 
 function eliminar(cta_id) {
-    console.log(cta_id);
     swal.fire({
         title: "Eliminar!",
-        text: "Desea eliminar el registro?",
+        text: "Desea eliminar la cuenta del cliente?",
         icon: "warning",
         confirmButtonText: "Si",
         showCancelButton: true,
@@ -114,19 +211,28 @@ function eliminar(cta_id) {
     }).then((result) => {
         if (result.value) {
             // Elimina el registro
-            $.post("../../controllers/categoriaController.php?op=eliminar", { cta_id: cta_id, suc_id: $('#suc_idx').val() }, function (data) {
-                console.log(data);
+            $.post("../../controllers/cuentasController.php?op=delete", { cta_id: cta_id, suc_id: suc_idx }, function (data) {
+                data = JSON.parse(data);
+                if (data) {
+                    // Recarga los datos de la tabla
+                    $('#table_data').DataTable().ajax.reload();
+
+                    // Muestra notificación de la eliminación
+                    swal.fire({
+                        title: "Categoria",
+                        text: "Eliminado Correctamente!",
+                        icon: "success"
+                    });
+                } else {
+                    swal.fire({
+                        title: "Categoria",
+                        text: "Hubo un error al eliminar la cuenta del cliente!",
+                        icon: "error"
+                    });
+                }
             })
 
-            // Recarga los datos de la tabla
-            $('#table_data').DataTable().ajax.reload();
 
-            // Muestra notificación de la eliminación
-            swal.fire({
-                title: "Categoria",
-                text: "Eliminado Correctamente!",
-                icon: "success"
-            });
         }
     });
 }
@@ -197,7 +303,7 @@ function seleccionarCliente(cli_id) {
     $.post("../../controllers/clienteController.php?op=byID", { cli_id: cli_id }, function (data) {
         data = JSON.parse(data);
         $('#cli_id').val(cli_id);
-        $('#cli_nombre').val(data.cli_nombre);
+        $('#cli_nombreC').val(data.cli_nombre);
     })
 
     $('#modalListaClientes').modal('hide');
@@ -272,6 +378,39 @@ function formatDate(dateObject = new Date()) {
     var minutos = dateObject.getMinutes();
     var segundos = dateObject.getSeconds();
     return year + "-" + month + "-" + day + " " + hora + ":" + minutos + ":" + segundos;
+}
+
+function calcularValor() {
+    var canAct = $('#cta_montoAct').val();
+    var canMod = $('#cta_montoUpd').val();
+    var tipo = $('#mov_tipo').val();
+
+    var canActNumber = 0;
+    var canModNumber = 0;
+    var total = 0;
+
+    if (canAct !== "" && canMod !== "") {
+        canActNumber = parseFloat(canAct);
+        canModNumber = parseFloat(canMod);
+
+        if (canModNumber > canActNumber) {
+            $('#cta_montoUpd').val('');
+            swal.fire({
+                title: "Cantidad incorrecta",
+                text: "El monto ingresado sobrepasa a la monto actual!",
+                icon: "error"
+            });
+        } else {
+            if (tipo === 'AD') {
+                total = canActNumber + canModNumber;
+            } else {
+                total = canActNumber - canModNumber;
+            }
+            $('#cta_nuevo_val').val(total);
+
+        }
+    }
+
 }
 
 init();

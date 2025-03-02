@@ -106,6 +106,7 @@ if (isset($_SESSION["usu_id"])) {
             <?php require_once("modal.php") ?>
             <?php require_once("crearCuentaModal.php") ?>
             <?php require_once("modalListaClientes.php") ?>
+            <?php require_once("modalUpdate.php") ?>
             <!-- Fin Modal -->
 
             <!-- Librerias js -->

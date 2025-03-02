@@ -51,8 +51,34 @@ class Cuentas extends Conectar
         $query->bindValue(7, $i_suc_id);
         $query->bindValue(8, $i_usu_id);
         return $query->execute();
-        
     }
 
-
+    /* TODO: Actualizar una nueva cuenta */
+    public function updateAccount($i_cta_monto, $i_cta_fecha, $i_cta_obs, $i_salida_id, $i_suc_id, $i_usu_id, $i_cta_id, $i_movc_tipo)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_cuenta_cli @i_operacion=?, @i_cta_monto=?, @i_cta_fecha=?, @i_cta_obs=?, @i_salida_id=?, @i_suc_id=?, @i_usu_id=?, @i_cta_id=?, @i_movc_tipo=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'U');
+        $query->bindValue(2, $i_cta_monto);
+        $query->bindValue(3, $i_cta_fecha);
+        $query->bindValue(4, $i_cta_obs);
+        $query->bindValue(5, $i_salida_id);
+        $query->bindValue(6, $i_suc_id);
+        $query->bindValue(7, $i_usu_id);
+        $query->bindValue(8, $i_cta_id);
+        $query->bindValue(9, $i_movc_tipo);
+        return $query->execute();
+    }
+    /* TODO: Actualizar una nueva cuenta */
+    public function deleteAccount($i_cta_id, $i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_cuenta_cli @i_operacion=?, @i_suc_id=?, @i_cta_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'D');
+        $query->bindValue(2, $i_suc_id);
+        $query->bindValue(3, $i_cta_id);
+        return $query->execute();
+    }
 }

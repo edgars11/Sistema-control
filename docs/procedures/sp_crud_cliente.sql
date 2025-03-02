@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 2/3/2025 9:58:52 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 2/3/2025 16:37:15 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -66,7 +66,7 @@ begin
 		end
 		if @i_tipo = 'I'
 		begin
-			select @w_monto_cuenta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id
+			select @w_monto_cuenta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id and cta_estado = 1
 			select 
 				cli_id,
 				cli_nombre,
@@ -101,7 +101,7 @@ begin
 		begin
 			select * 
 			from tm_cliente
-			where cli_id not in (select cli_id from tm_cuenta_cliente) 
+			where cli_id not in (select cli_id from tm_cuenta_cliente where cta_estado = 1) 
 			and cli_estado = 1
 		end
 	end

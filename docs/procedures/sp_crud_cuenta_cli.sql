@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 2/3/2025 10:52:39 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 2/3/2025 16:32:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -46,7 +46,7 @@ begin
 
 	if @i_operacion = 'U'
 	begin
-		select @w_val_actual = cta_monto from tm_cuenta_cliente where cta_id = @i_cta_id and suc_id = @i_suc_id
+		select @w_val_actual = cta_monto from tm_cuenta_cliente where cta_id = @i_cta_id and suc_id = @i_suc_id and cta_estado = 1
 		
 		print @w_val_actual
 		print @i_movc_tipo
@@ -68,6 +68,7 @@ begin
 			cta_obs = @i_cta_obs
 		where cta_id = 	@i_cta_id
 		and suc_id = @i_suc_id
+		and cta_estado = 1
 
 		-- SE REGISTRA EL MOVIMIENO DE LA CUENTA
 		insert into tm_movimiento_cuenta 
@@ -111,6 +112,7 @@ begin
 		inner join tm_cuenta_cliente cc on cc.cta_id = mc.cta_id
 		where cc.cta_id = @i_cta_id
 		and cc.suc_id = @i_suc_id
+		and cc.cta_estado = 1
 		order by movc_fecha desc
 	end
 
@@ -134,4 +136,13 @@ begin
 		and cta_id = @i_cta_id
 		and cta_estado = 1
 	end
+
+	if @i_operacion = 'D'
+	begin
+		update tm_cuenta_cliente
+		set cta_estado = 0
+		where cta_id = @i_cta_id
+		and suc_id = @i_suc_id
+	end
+
 end

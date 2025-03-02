@@ -18,8 +18,8 @@
                         </div>
                         <div class="col-md-4">
                             <div>
-                                <label for="cli_nombre" class="form-label">Nombre Cliente:</label>
-                                <input type="text" class="form-control" id="cli_nombre" name="cli_nombre" placeholder="Seleccione un cliente" readonly>
+                                <label for="cli_nombreC" class="form-label">Nombre Cliente:</label>
+                                <input type="text" class="form-control" id="cli_nombreC" name="cli_nombreC" placeholder="Seleccione un cliente" readonly>
                             </div>
                         </div>
                         <div class="col-md-3">

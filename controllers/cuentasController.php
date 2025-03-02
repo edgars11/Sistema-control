@@ -107,4 +107,14 @@ switch ($_GET['op']) {
         $datos = $cuentas->createAccount($_POST['cli_id'], $_POST['cta_monto'], $_POST['cta_fecha'], $observaciones, 0, $_POST['suc_id'], $_POST['usu_id']);
         echo json_encode($datos);
         break;
+
+    case 'update':
+        $observaciones = $_POST['cta_obs'] == '' ? 'Actualizacióm cuenta' : $_POST['cta_obs'];
+        $datos = $cuentas->updateAccount($_POST['cta_monto'], $_POST['cta_fecha'], $observaciones, 0, $_POST['suc_id'], $_POST['usu_id'], $_POST['cta_id'], "+");
+        echo json_encode($datos);
+        break;
+    case 'delete':
+        $datos = $cuentas->deleteAccount( $_POST['cta_id'], $_POST['suc_id']);
+        echo json_encode($datos);
+        break;
 }
