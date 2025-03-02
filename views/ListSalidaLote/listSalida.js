@@ -48,13 +48,13 @@ $(document).on("click", "#btnFiltro", function () {
 
     if (lote_id !== 'Seleccionar') {
         data.lote_id = lote_id;
-    }else{
+    } else {
         data.lote_id = null;
     }
 
     if (cli_id.length > 0) {
         data.cli_id = cli_id;
-    }else{
+    } else {
         data.cli_id = null;
     }
 
@@ -75,7 +75,7 @@ $(document).on("click", "#buscarCliente", function () {
     // Mostramos el modal
     $('#modalClientes').modal('show');
 });
-function resetClient(){
+function resetClient() {
     $('#cli_nombre').val('');
     $('#cli_id').val('');
     $('#modalClientes').modal('hide');
@@ -176,7 +176,7 @@ function cargarCliente() {
 function cargarTotables(dataI) {
     $.post("../../controllers/salidaLoteController.php?op=totales", dataI, function (data) {
         data = JSON.parse(data);
-        if(data.cantidad !== null){
+        if (data.cantidad !== null) {
             $('#total_cantidad').html('<span class="counter-value" ># ' + data.cantidad + '</span>');
             $('#total_peso').html('<span class="counter-value" >' + data.peso_neto + ' Lbs</span>');
             $('#total_vendido').html('<span class="counter-value">$ ' + data.total + '</span>');
@@ -215,18 +215,18 @@ function selectCliente(cli_id) {
     })
     $('#modalClientes').modal('hide');
 }
-function generarReporte(){
+function generarReporte() {
 
-    if (cli_id.length > 0) {
-        data.cli_id = cli_id;
-    }else{
-        swal.fire({
-            title: "Generación Reporte",
-            text: "Seleccione un cliente para continuar con el reporte!",
-            icon: "warning"
-        });
-        return;
-    }
+    // if (cli_id.length > 0) {
+    //     data.cli_id = cli_id;
+    // }else{
+    //     swal.fire({
+    //         title: "Generación Reporte",
+    //         text: "Seleccione un cliente para continuar con el reporte!",
+    //         icon: "warning"
+    //     });
+    //     return;
+    // }
 
     swal.fire({
         title: "Confirmación!",

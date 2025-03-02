@@ -4,6 +4,7 @@ require_once '../config/conexion.php';
 require_once '../models/SalidaLote.php';
 require_once '../models/Empresa.php';
 require_once '../models/Cliente.php';
+require_once '../models/Lote.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -21,6 +22,8 @@ class GeneratePDF extends Conectar
 
         $detalleEmpresa = $empresa->getEmpresaPorId("R", $emp_id, $com_id);
         $subtotal = 0;
+        $salida_cantidad = 0;
+        $salida_peso_neto = 0;
         $valorIva = 15;
         $iva = 0;
 
@@ -33,7 +36,6 @@ class GeneratePDF extends Conectar
             $datosEmpresa["emp_direccion"] = $row["emp_direccion"];
             $datosEmpresa["emp_correo"] = $row["emp_correo"];
         }
-
         $content_css = file_get_contents('../assets/css/stylePDF.css');
         $detalle = $salidalote->getSalidaById($salida_id);
         $tbody = "";
@@ -44,6 +46,8 @@ class GeneratePDF extends Conectar
             $datosCliente["cli_direccion"] = $row["cli_direccion"];
             $datosCliente["cli_correo"] = $row["cli_correo"];
             $subtotal = $subtotal + $row["salida_total"];
+            $salida_cantidad = $salida_cantidad + $row["salida_cantidad"];
+            $salida_peso_neto = $salida_peso_neto + $row["salida_peso_neto"];
             $tipoProd = $row["salida_tipo"] == 'PV' ? 'POLLO VIVO' : ' POLLO FAENADO';
             $tbody .= '
                     <tr>
@@ -56,6 +60,8 @@ class GeneratePDF extends Conectar
                     </tr>
             ';
         }
+
+        $observacion = 'Total cantidad entregada: <span class="text-fw-600">' . $salida_cantidad . '</span>, Total libras entregado: <span class="text-fw-600">' . $salida_peso_neto . ' Lbs</span>';
 
         $html = '
             <!DOCTYPE html>
@@ -118,7 +124,7 @@ class GeneratePDF extends Conectar
                 </table>
                 <div id="notices">
                     <div>OBSERVACIONES:</div>
-                    <div class="notice"></div>
+                    <div class="notice">' . $observacion . '</div>
                 </div>
                 </main>
                 <footer>
@@ -145,36 +151,77 @@ class GeneratePDF extends Conectar
         $subtotal = 0;
         $valorIva = 15;
         $iva = 0;
+        $colSpan = 0;
         $tbody = "";
-
-        $textoDescripcion = "El reporte generado muestra el listado de registro desde la fecha: " . $fecha_desde . " hasta la fecha: " .  $fecha_hasta;
 
         $content_css = file_get_contents('../assets/css/stylePDF.css');
         $lote_id = $lote_id === 'null' ? null : $lote_id;
         $cli_id = $cli_id === 'null' ? null : $cli_id;
         $salida_tipo = $salida_tipo === 'null' ? null : $salida_tipo;
         $detalle = $salidalote->getlistadoSalida('L', $lote_id, $cli_id, $salida_tipo, $fecha_desde, $fecha_hasta, $suc_id);
-        foreach ($detalle as $row) {
+        $totalesConsulta = $salidalote->getlistadoSalida('T', $lote_id, $cli_id, $salida_tipo, $fecha_desde, $fecha_hasta, $suc_id);
 
-            $subtotal = $subtotal + $row["salida_total"];
-            $tipoProd = $row["salida_tipo"] == 'PV' ? 'POLLO VIVO' : ' POLLO FAENADO';
-            $tbody .= '
-                    <tr>
-                        <td class="service text-fw-600">' . $tipoProd . '</td>
-                        <td class="desc">' . $row["salida_fecha"] . '</td>
-                        <td class="unit"># ' . $row["salida_cantidad"] . '</td>
-                        <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
-                        <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
-                        <td class="subtotal">$ ' . $row["salida_total"] . '</td>
-                    </tr>
-            ';
-        }
+        $textoDescripcion = 'El reporte generado muestra el listado de registro desde la fecha: <span class="text-fw-600">' . $fecha_desde . ' </span> hasta la fecha: <span class="text-fw-600">' .  $fecha_hasta . '</span>.<br>Total cantidad entregada: <span class="text-fw-600">#' . $totalesConsulta[0]['cantidad'] . '</span> Total libras entregadas: <span class="text-fw-600">' . $totalesConsulta[0]['peso_neto'] . ' Lbs </span>';
 
-        $datosEmpresa = datosEmpresa($emp_id, $com_id);
-
+        $columns = "";
         if (!empty($cli_id)) {
-            $datosCliente = buscarCliente($cli_id);
+
+            $colSpan = 5;
+            $columns = '
+                        <th class="service">PRODUCTO</th>
+                        <th class="desc">FECHA</th>
+                        <th>CANTIDAD</th>
+                        <th>P.NETO</th>
+                        <th>PRECIO</th>
+                        <th>TOTAL</th>
+            ';
+
+            foreach ($detalle as $row) {
+
+                $subtotal = $subtotal + $row["salida_total"];
+                $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
+                $tbody .= '
+                        <tr>
+                            <td class="service">' . $tipoProd . '</td>
+                            <td class="desc">' . $row["salida_fecha"] . '</td>
+                            <td class="unit"># ' . $row["salida_cantidad"] . '</td>
+                            <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
+                            <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
+                            <td class="subtotal">$ ' . $row["salida_total"] . '</td>
+                        </tr>
+                ';
+            }
+        } else {
+            $colSpan = 6;
+            $columns = '
+                        <th class="service text-fw-500">CLIENTE</th>
+                        <th class="service">PRODUCTO</th>
+                        <th class="desc">FECHA</th>
+                        <th>CANT.</th>
+                        <th>P.NETO</th>
+                        <th>PRECIO</th>
+                        <th>TOTAL</th>
+            ';
+
+            foreach ($detalle as $row) {
+
+                $subtotal = $subtotal + $row["salida_total"];
+                $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
+                $tbody .= '
+                <tr>
+                    <td class="service text-fw-500">' . $row["cli_nombre"] . '</td>
+                    <td class="service">' . $tipoProd . '</td>
+                    <td class="desc">' . $row["salida_fecha"] . '</td>
+                    <td class="unit"># ' . $row["salida_cantidad"] . '</td>
+                    <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
+                    <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
+                    <td class="subtotal">$ ' . $row["salida_total"] . '</td>
+                </tr>
+                ';
+            }
         }
+
+        $encabezado = getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta);
 
         $html = '
             <!DOCTYPE html>
@@ -190,39 +237,19 @@ class GeneratePDF extends Conectar
                     <img src="http://' . $rutaImg . '/Sistema-Control/assets/images/logo-lite.jpg" alt="Logo empresa" style="width: 100px"><br>
                 </div>
                 <h1>REGISTRO LISTADO SALIDA </h1>
-                <div id="company" class="clearfix">
-                    <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
-                    <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
-                    <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
-                    <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
-                    <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
-                    <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
-                </div>
-                <div id="project">
-                    <div class="margin-bottom-25"><span class="text-fw-600  ts-15">COMPROBANTE PARA:</span></div>
-                    <div><span class="text-fw-600">CLIENTE:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
-                    <div><span class="text-fw-600">DIRECCIÓN:</span>  <span class="ts-13">' . $datosCliente["cli_direccion"] . ' </span></div>
-                    <div><span class="text-fw-600">CORREO:</span> <span class="ts-13"> <a href="' . $datosCliente["cli_correo"] . '">' . $datosCliente["cli_correo"] . '</a> </span></div>
-                    <div><span class="text-fw-600">RUC/CI:</span>  <span class="ts-13">' . $datosCliente["cli_ruc"] . ' </span></div>
-                    <div><span class="text-fw-600">CONTACTO:</span> <span class="ts-13"> ' . $datosCliente["cli_telefono"] . ' </span></div>
-                </div>
+                ' . $encabezado . '
                 </header>
                 <main>
                 <table>
                     <thead>
                     <tr>
-                        <th class="service">PRODUCTO</th>
-                        <th class="desc">FECHA</th>
-                        <th>CANTIDAD</th>
-                        <th>P.NETO</th>
-                        <th>PRECIO</th>
-                        <th>TOTAL</th>
+                        ' . $columns . '
                     </tr>
                     </thead>
                     <tbody>
                         ' . $tbody . '
                         <tr>
-                            <td colspan="5" class="grand total totales">VALOR TOTAL</td>
+                            <td colspan="' . $colSpan . '" class="grand total totales">VALOR TOTAL</td>
                             <td class="grand total totales tc-green">$ ' . $subtotal . '</td>
                         </tr>
                     </tbody>
@@ -239,7 +266,7 @@ class GeneratePDF extends Conectar
             </html>
         ';
 
-        $nombreReporte = 'RegListadoSalida-' . $datosCliente["cli_nombre"] . '_' . $fecha_desde . '.pdf';
+        $nombreReporte = 'RegListadoSalida-From-' . $fecha_desde . '-to-' . $fecha_hasta . '.pdf';
 
         generarPDF($html, $nombreReporte, $descarga);
     }
@@ -254,7 +281,7 @@ function generarPDF($html, $nombreReporte, $descarga)
     $options->set('isRemoteEnabled', true);
 
     $dompdf = new Dompdf($options);
-
+    // $dompdf->set_paper('A4', 'portrait'); //landscape
     $dompdf->loadHtml($html);
     $dompdf->render();
     header('Content-Type: application/pdf');
@@ -303,4 +330,121 @@ function datosEmpresa($emp_id, $com_id)
     }
 
     return $datosEmpresa;
+}
+
+function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta)
+{
+    $datosEmpresa = datosEmpresa($emp_id, $com_id);
+
+    if (!empty($salida_tipo)) {
+        $producto = $salida_tipo == 'PV' ? 'POLLO VIVO' : 'POLLO FAENADO';
+    } else {
+        $producto = "POLLO VIVO / POLLO FAENADO";
+    }
+
+    if (!empty($cli_id) && $lote_id == null) {
+        $datosCliente = buscarCliente($cli_id);
+        $html = '
+        <div id="company" class="clearfix">
+                        <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+                        <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
+                        <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
+                        <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
+                        <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
+                        <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
+                    </div>
+                    <div id="project">
+                        <div class="margin-bottom-25"><span class="text-fw-600  ts-15">REPORTE DE:</span></div>
+                        <div><span class="text-fw-600">CLIENTE:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
+                        <div><span class="text-fw-600">DIRECCIÓN:</span>  <span class="ts-13">' . $datosCliente["cli_direccion"] . ' </span></div>
+                        <div><span class="text-fw-600">CORREO:</span> <span class="ts-13"> <a href="' . $datosCliente["cli_correo"] . '">' . $datosCliente["cli_correo"] . '</a> </span></div>
+                        <div><span class="text-fw-600">RUC/CI:</span>  <span class="ts-13">' . $datosCliente["cli_ruc"] . ' </span></div>
+                        <div><span class="text-fw-600">CONTACTO:</span> <span class="ts-13"> ' . $datosCliente["cli_telefono"] . ' </span></div>
+                        <div><span class="text-fw-600">PRODUCTO:</span> <span class="ts-13"> ' . $producto . ' </span></div>
+                    </div>
+        ';
+    } else if ($lote_id == null && $cli_id == null) {
+
+        $infoLotesT = "";
+        $salidalote = new SalidaLote();
+        $detalleLote = $salidalote->getTotalesLotesByFecha($fecha_desde, $fecha_hasta);
+
+        foreach ($detalleLote as $row) {
+
+            $infoLotesT .= '
+            <div><span class="text-fw-600">LOTE:</span> <span class="ts-13"> ' . $row['lote_descripcion'] . ' </span></div>
+            <div><span class="text-fw-500">Cantidad:</span> <span class="ts-13"> #' . $row['cantidad'] . ' </span> | <span class="text-fw-500">Peso Neto:</span> <span class="ts-13"> ' . $row['peso_neto'] . ' Lbs</span> | <span class="text-fw-500">Total:</span> <span class="ts-13"> $' . $row['total'] . '</span></div>
+            ';
+        }
+
+        $html = '
+        <div id="company" class="clearfix">
+            <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
+            <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
+        </div>
+        <div id="project">
+            <div class="margin-bottom-25"><span class="text-fw-600  ts-15">REPORTE LOTES:</span></div>
+            ' . $infoLotesT . '
+            <div><span class="text-fw-600">PRODUCTO:</span> <span class="ts-13"> ' . $producto . ' </span></div>
+        </div>
+        ';
+    } else if (!empty($lote_id) && $cli_id == null) {
+
+        $lote = new Lote();
+
+        $infoLote = $lote->getLotePorId("R", $lote_id);
+
+        $html = '
+        <div id="company" class="clearfix">
+            <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
+            <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
+        </div>
+        <div id="project">
+            <div class="margin-bottom-25"><span class="text-fw-600  ts-15">DATOS LOTE SELECCIONADO:</span></div>
+            <div><span class="text-fw-600">LOTE:</span> <span class="ts-13">' . $infoLote[0]["lote_descripcion"] . '</span> </div>
+            <div><span class="text-fw-600">CANTIDAD VENDIDA:</span> #<span class="ts-13">' . $totalesConsulta[0]["cantidad"] . '</span> </div>
+            <div><span class="text-fw-600">TOTAL LIBRAS:</span> <span class="ts-13">' . $totalesConsulta[0]["peso_neto"] . ' Lbs</span> </div>
+            <div><span class="text-fw-600">TOTAL VALOR:</span> $<span class="ts-13">' . $totalesConsulta[0]["total"] . '</span> </div>
+            <div><span class="text-fw-600">PRODUCTO:</span> <span class="ts-13"> ' . $producto . ' </span></div>
+        </div>
+        ';
+    } else if (!empty($lote_id) && !empty($cli_id)) {
+
+        $lote = new Lote();
+
+        $infoLote = $lote->getLotePorId("R", $lote_id);
+        $datosCliente = buscarCliente($cli_id);
+        $html = '
+        <div id="company" class="clearfix">
+            <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
+            <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
+            <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
+        </div>
+        <div id="project">
+            <div class="margin-bottom-25"><span class="text-fw-600  ts-15">DATOS LOTE SELECCIONADO:</span></div>
+            <div><span class="text-fw-600">LOTE:</span> <span class="ts-13">' . $infoLote[0]["lote_descripcion"] . '</span> </div>
+            <div><span class="text-fw-600">CANTIDAD VENDIDA:</span> #<span class="ts-13">' . $totalesConsulta[0]["cantidad"] . '</span> </div>
+            <div><span class="text-fw-600">TOTAL LIBRAS:</span> <span class="ts-13">' . $totalesConsulta[0]["peso_neto"] . ' Lbs</span> </div>
+            <div><span class="text-fw-600">TOTAL VALOR:</span> $<span class="ts-13">' . $totalesConsulta[0]["total"] . '</span> </div>
+            <br>
+            <div class="margin-bottom-25"><span class="text-fw-600  ts-15">DATOS CLIENTE SELECCIONADO:</span></div>
+            <div><span class="text-fw-600">CLIENTE:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
+            <div><span class="text-fw-600">RUC:</span> <span class="ts-13">' . $datosCliente["cli_ruc"] . '</span> </div>
+            <div><span class="text-fw-600">PRODUCTO:</span> <span class="ts-13"> ' . $producto . ' </span></div>
+        </div>
+        ';
+    }
+
+    return $html;
 }

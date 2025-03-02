@@ -131,4 +131,17 @@ class SalidaLote extends Conectar
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+    /* TODO: REPORTE DE LOTES FILTRADO POR FECHAS */
+    public function getTotalesLotesByFecha($i_fecha_desde, $i_fecha_hasta)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_salida_lote @i_operacion=?, @i_tipo=?, @i_fecha_desde=?, @i_fecha_hasta=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'L');
+        $query->bindValue(2, 'A');
+        $query->bindValue(3, $i_fecha_desde);
+        $query->bindValue(4, $i_fecha_hasta);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

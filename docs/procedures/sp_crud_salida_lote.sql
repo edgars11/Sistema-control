@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 27/2/2025 23:21:47 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 1/3/2025 17:00:18 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -292,6 +292,20 @@ begin
 			inner join tm_cuenta_cliente cc on cc.cli_id = cl.cli_id 
 			where sl.salida_id = @i_salida_id
 
+		end
+	
+		if @i_tipo = 'A'
+		begin
+		select 
+			sl.lote_id , 
+			l.lote_descripcion , 
+			sum(salida_cantidad) as cantidad, 
+			sum(salida_peso_neto) as peso_neto, 
+			sum(salida_total) as total
+		from tm_salida_lote sl
+		inner join tm_lote l on l.lote_id = sl.lote_id 
+		where  CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+		group by sl.lote_id, l.lote_descripcion
 		end
 	end
 	
