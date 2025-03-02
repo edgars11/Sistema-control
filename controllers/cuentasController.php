@@ -6,7 +6,7 @@ require_once("../models/Cuentas.php");
 $cuentas = new Cuentas();
 
 switch ($_GET['op']) {
-        // TODO: Listado de registro en format JSON para Datatable JS
+    // TODO: Listado de registro en format JSON para Datatable JS
     case 'listar':
         $datos = $cuentas->getCuentasPorSucursal($_POST['suc_id']);
         $data = array();
@@ -40,7 +40,7 @@ switch ($_GET['op']) {
         );
         echo json_encode($results);
         break;
-        // TODO: Listado de registro en format JSON para Datatable JS
+    // TODO: Listado de registro en format JSON para Datatable JS
     case 'movimientos':
         $datos = $cuentas->getMovCuentasPorSucursal($_POST['cta_id'], $_POST['suc_id']);
         $data = array();
@@ -65,7 +65,7 @@ switch ($_GET['op']) {
         echo json_encode($results);
         break;
 
-        // TODO: Listado de registro en format JSON para Datatable JS
+    // TODO: Listado de registro en format JSON para Datatable JS
     case 'consultaModal':
         $datos = $cuentas->getCuentasPorSucursal($_POST['suc_id']);
         $data = array();
@@ -101,5 +101,10 @@ switch ($_GET['op']) {
             }
             echo json_encode($outout);
         }
+        break;
+    case 'guardar':
+        $observaciones = $_POST['cta_obs'] == '' ? 'Ingreso cuenta' : $_POST['cta_obs'];
+        $datos = $cuentas->createAccount($_POST['cli_id'], $_POST['cta_monto'], $_POST['cta_fecha'], $observaciones, 0, $_POST['suc_id'], $_POST['usu_id']);
+        echo json_encode($datos);
         break;
 }

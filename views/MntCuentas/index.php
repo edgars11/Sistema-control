@@ -32,7 +32,6 @@ if (isset($_SESSION["usu_id"])) {
 
                     <div class="page-content">
                         <div class="container-fluid">
-
                             <!-- start page title -->
                             <div class="row">
                                 <div class="col-12">
@@ -47,15 +46,25 @@ if (isset($_SESSION["usu_id"])) {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Datatables ini -->
                                 <div class="col-lg-12">
                                     <div class="card">
-                                        <!-- <div class="card-header">
-                                            <button type="button" id="btn_nuevo" class="btn btn-primary btn-label waves-effect right waves-light">
-                                                <i class="ri-user-smile-line label-icon align-middle fs-16 ms-2"></i> Nuevo Registro
-                                            </button>
-                                        </div> -->
+                                        <div class="card-header">
+                                            <div class="card-header border-bottom-dashed">
+                                                <div class="row g-4 align-items-center">
+                                                    <div class="col-sm">
+                                                        <div>
+                                                            <h5 class="card-title mb-0">Cuenta de Clientes</h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-auto">
+                                                        <div>
+                                                            <button type="button" onclick="addCuenta()" class="btn btn-soft-success"><i class="ri-add-circle-line align-middle me-1"></i> Agregar Cuenta</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="card-body">
                                             <table id="table_data" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width:100%">
                                                 <thead>
@@ -95,6 +104,8 @@ if (isset($_SESSION["usu_id"])) {
             <!-- END layout-wrapper -->
             <!-- LLamado al Modal -->
             <?php require_once("modal.php") ?>
+            <?php require_once("crearCuentaModal.php") ?>
+            <?php require_once("modalListaClientes.php") ?>
             <!-- Fin Modal -->
 
             <!-- Librerias js -->

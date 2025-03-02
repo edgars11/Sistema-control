@@ -6,7 +6,7 @@ require_once("../models/Cliente.php");
 $cliente = new Cliente();
 
 switch ($_GET['op']) {
-        // TODO: Guardar y editar registro
+    // TODO: Guardar y editar registro
     case 'guardar':
         if (empty($_POST["cli_id"])) {
             $cliente->insertCliente("C", $_POST['emp_id'], $_POST['cli_nombre'], $_POST['cli_ruc'], $_POST['cli_telefono'], $_POST['cli_direccion'], $_POST['cli_correo']);
@@ -14,7 +14,7 @@ switch ($_GET['op']) {
             $cliente->updateCliente("U", $_POST['emp_id'], $_POST['cli_nombre'], $_POST['cli_ruc'], $_POST['cli_telefono'], $_POST['cli_direccion'], $_POST['cli_correo'], $_POST['cli_id']);
         }
         break;
-        // TODO: Listado de registro en format JSON para Datatable JS
+    // TODO: Listado de registro en format JSON para Datatable JS
     case 'listar':
         $datos = $cliente->getClientePorEmpresa("R", $_POST['emp_id']);
         $data = array();
@@ -41,9 +41,9 @@ switch ($_GET['op']) {
         );
         echo json_encode($results);
         break;
-        // TODO: Mostrar información del registro por ID
+    // TODO: Mostrar información del registro por ID
     case 'mostrar':
-        $datos = $cliente->getClientePorId("R", $_POST['cli_id']);
+        $datos = $cliente->getClientePorId($_POST['cli_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             foreach ($datos as $row) {
                 $outout["cli_id"] = $row["cli_id"];
@@ -59,7 +59,7 @@ switch ($_GET['op']) {
             echo json_encode($outout);
         }
         break;
-        // TODO: Mostrar información del registro por identificacion
+    // TODO: Mostrar información del registro por identificacion
     case 'byCED':
         $datos = $cliente->getClientePorRuc("R", $_POST['cli_ruc'], $_POST['emp_id']);
         if (is_array($datos) == true and count($datos) > 0) {
@@ -77,11 +77,11 @@ switch ($_GET['op']) {
             echo json_encode($outout);
         }
         break;
-        // TODO: Eliminar registro por id
+    // TODO: Eliminar registro por id
     case 'eliminar':
         $cliente->deleteCliente("D", $_POST['cli_id'], $_POST['emp_id']);
         break;
-        /* TODO: Listar combo */
+    /* TODO: Listar combo */
     case 'combo':
         $datos = $cliente->getClientePorEmpresa("R", $_POST['emp_id']);
         if (is_array($datos) == true and count($datos) > 0) {
@@ -132,5 +132,27 @@ switch ($_GET['op']) {
             }
             echo json_encode($outout);
         }
+        break;
+
+    // TODO: Listado de registro en format JSON para Datatable JS
+    case 'listarCSC':
+        $datos = $cliente->getClienteSinCuenta( $_POST['emp_id']);
+        $data = array();
+        foreach ($datos as $row) {
+            $sub_array = array();
+            $sub_array[] = $row['cli_nombre'];
+            $sub_array[] = $row['cli_ruc'];
+            $sub_array[] = $row['cli_direccion'];
+            $sub_array[] = '<button type="button" onClick="seleccionarCliente(' . $row['cli_id'] . ')" id="' . $row['cli_id'] . '" class="btn btn-success btn-icon waves-effect waves-light"><i class=" ri-checkbox-circle-fill"></i></button>';
+            $data[] = $sub_array;
+        }
+        // Usado en el DataTable
+        $results = array(
+            "sEcho" => 1,
+            "iTotalRecords" => count($data),
+            "iTotalDisplayRecords" => count($data),
+            "aaData" => $data
+        );
+        echo json_encode($results);
         break;
 }

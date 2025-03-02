@@ -1,7 +1,13 @@
 var suc_idx = $('#suc_idx').val();
+var emp_idx = $('#emp_idx').val();
+var usu_idx = $('#usu_idx').val();
 
 function init() {
     $('#mantenimiento_form').on("submit", function (e) {
+        guardarYEditar(e);
+    })
+
+    $('#FormCreacionCtaCli').on("submit", function (e) {
         guardarYEditar(e);
     })
 }
@@ -10,25 +16,27 @@ function guardarYEditar(e) {
 
     e.preventDefault();
 
-    var formData = new FormData($('#mantenimiento_form')[0]);
+    var fecha = new Date();
+
+    var formData = new FormData($('#FormCreacionCtaCli')[0]);
     formData.append('suc_id', $('#suc_idx').val());
-    console.log($('#suc_idx').val());
-    console.log(formData.get('cta_id'));
-    console.log(formData.get('cta_nombre'));
+    formData.append('cta_fecha', formatDate(fecha));
+    formData.append('usu_id', usu_idx);
 
     $.ajax({
-        url: "../../controllers/categoriaController.php?op=guardar",
+        url: "../../controllers/cuentasController.php?op=guardar",
         type: "POST",
         data: formData,
         contentType: false,
         processData: false,
         success: function (data) {
-            console.log("guardado");
+            data = JSON.parse(data);
+            console.log(data);
             $('#table_data').DataTable().ajax.reload();
-            $('#modalMantenimiento').modal('hide');
+            $('#modalCrearCuenta').modal('hide');
             swal.fire({
-                title: "Categoria",
-                text: "Ejecución exitosa!",
+                title: "Cuenta Cliente",
+                text: "Se registró la cuenta correctamente!",
                 icon: "success"
             });
         }
@@ -177,6 +185,72 @@ function cargarTablaMovimientos(cta_id) {
     });
 }
 
+function addCuenta() {
+    $('#cli_id').val('');
+    $('#cli_nombre').val('');
+
+    $('#modalCrearCuenta').modal('show');
+}
+
+function seleccionarCliente(cli_id) {
+
+    $.post("../../controllers/clienteController.php?op=byID", { cli_id: cli_id }, function (data) {
+        data = JSON.parse(data);
+        $('#cli_id').val(cli_id);
+        $('#cli_nombre').val(data.cli_nombre);
+    })
+
+    $('#modalListaClientes').modal('hide');
+}
+
+function listarCliente() {
+    $('#tb_listadoClietes').DataTable({
+        "aProcessing": true,
+        "aServerSide": true,
+        dom: 'Bfrtip',
+        buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+        ],
+        "ajax": {
+            url: "../../controllers/clienteController.php?op=listarCSC",
+            type: "post",
+            data: { emp_id: emp_idx }
+        },
+        "bDestroy": true,
+        "responsive": true,
+        "bInfo": true,
+        "iDisplayLength": 10,
+        "order": [[0, "desc"]],
+        "language": {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningun dato disponible en la tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "sPaginate": {
+                "sFirts": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior",
+            },
+            "oAria": {
+                "sSortAscending": "Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": "Activar para ordenar la columna de manera descendente"
+            }
+        },
+    });
+    $('#modalListaClientes').modal('show');
+}
+
 $(document).on("click", "#btn_nuevo", function () {
     // Limpiamos los campos del modal
     $('#cta_id').val('');
@@ -187,5 +261,17 @@ $(document).on("click", "#btn_nuevo", function () {
     $('#modalMantenimiento').modal('show');
 
 });
+
+function formatDate(dateObject = new Date()) {
+    var year = dateObject.getFullYear();
+    var month = dateObject.getMonth() + 1;
+    var month = month > 9 ? month : "0" + month;
+    var day = dateObject.getDate() > 9 ? dateObject.getDate() : "0" + dateObject.getDate();
+
+    var hora = dateObject.getHours();
+    var minutos = dateObject.getMinutes();
+    var segundos = dateObject.getSeconds();
+    return year + "-" + month + "-" + day + " " + hora + ":" + minutos + ":" + segundos;
+}
 
 init();

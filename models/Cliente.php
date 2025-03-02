@@ -94,4 +94,16 @@ class Cliente extends Conectar
         $query->bindValue(7, $i_cli_correo);
         $query->execute();
     }
+    /* TODO: Listar registro por nombre */
+    public function getClienteSinCuenta($i_emp_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_cliente @i_operacion=?, @i_tipo=?, @i_emp_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'R');
+        $query->bindValue(2, 'W');
+        $query->bindValue(3, $i_emp_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -146,7 +146,6 @@ if (isset($_SESSION["usu_id"])) {
                                 </div><!--end col-->
                                 <!-- Datatables fin -->
 
-
                             </div>
                             <!-- end page title -->
                             <!--end row-->
