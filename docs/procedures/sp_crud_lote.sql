@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 13/2/2025 19:57:35 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 4/3/2025 21:10:30 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -108,6 +108,38 @@ end
 			and lote_id = @i_lote_id
 		end
 	end
+
+	if @i_operacion = 'L'
+	begin
+		if @i_tipo = 'T'
+		begin
+			select 
+				ml.lote_id, 
+				l.lote_descripcion, 
+				mov_fecha as fecha
+			from tm_movimiento_lote ml
+			inner join tm_lote l on l.lote_id = ml.lote_id
+			where mov_tipo = '+'
+			and ml.suc_id = @i_suc_id
+			and ml.lote_id = ISNULL(@i_lote_id, ml.lote_id)
+			group by ml.lote_id, l.lote_descripcion, mov_fecha
+			order by mov_fecha desc
+		end
+
+		if @i_tipo = 'U'
+		begin
+			select 
+				ml.lote_id, 
+				l.lote_descripcion , 
+				max(mov_fecha) as fecha
+			from tm_movimiento_lote ml
+			inner join tm_lote l on l.lote_id = ml.lote_id
+			where mov_tipo = '+'
+			and ml.suc_id = @i_suc_id
+			group by ml.lote_id, l.lote_descripcion
+		end
+	end
+
 
 	if @w_commit = 'S' and @@TRANCOUNT > 0
 	begin
