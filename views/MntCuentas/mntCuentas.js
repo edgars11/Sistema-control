@@ -86,7 +86,6 @@ function updateCtaCli(e) {
             processData: false,
             success: function (data) {
                 data = JSON.parse(data);
-                console.log(data);
                 $('#table_data').DataTable().ajax.reload();
                 $('#modalUpdateCuenta').modal('hide');
                 swal.fire({
@@ -108,8 +107,10 @@ function updateCtaCli(e) {
 
             if (data.success == true) {
                 $('#cta_id').val('');
-                $('#cta_monto').val('');
+                $('#cta_montoUpd').val('');
                 $('#cta_obs').val('');
+                $('#table_data').DataTable().ajax.reload();
+                $('#modalUpdateCuenta').modal('hide');
                 swal.fire({
                     title: "Cuenta cliente",
                     text: "Actualización de la cuenta se realizó correctamente!",
@@ -196,6 +197,7 @@ function editar(cta_id) {
         $('#cta_nuevo_val').val(data.cta_monto);
         console.log(data);
     })
+    $('#cta_montoUpd').val('');
     $('#lbTitulo').html('Editar Registro');
     $('#modalUpdateCuenta').modal('show');
 }
@@ -411,6 +413,10 @@ function calcularValor() {
         }
     }
 
+}
+
+function verReporte(cta_id){
+    console.log("se genera reporte de la cuenta: " + cta_id)
 }
 
 init();

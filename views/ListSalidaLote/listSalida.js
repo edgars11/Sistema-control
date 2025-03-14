@@ -46,7 +46,7 @@ $(document).on("click", "#btnFiltro", function () {
     cli_id = $('#cli_id').val();
     tipo_prod = $('#tipo_prod').val();
 
-    if (lote_id !== 'Seleccionar') {
+    if (lote_id !== '0') {
         data.lote_id = lote_id;
     } else {
         data.lote_id = null;

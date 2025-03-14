@@ -18,7 +18,16 @@ switch ($_GET['op']) {
             $sub_array[] = $row['cta_estado'] === '1' ? '<span class="badge badge-soft-success text-uppercase fs-12">Activo</span>' : '<span class="badge badge-soft-danger text-uppercase">Inactivo</span>';
             $sub_array[] = $row['cta_fecha_upd'];
             $sub_array[] = $row['cta_obs'];
-            $sub_array[] = '<button type="button" onClick="listadoMovimientos(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-warning btn-icon waves-effect waves-light"><i class="ri-file-list-3-line"></i></button>';
+            $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
+                                <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Editar"
+                                    data-bs-original-title="Editar">
+                                    <button type="button" onClick="listadoMovimientos(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-warning btn-icon waves-effect waves-light"><i class="ri-file-list-3-line"></i></button>
+                                </li>
+                                <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Eliminar"
+                                    data-bs-original-title="Eliminar">
+                                    <button type="button" onClick="verReporte(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-primary btn-icon waves-effect waves-light"><i class="ri-printer-line"></i></button>
+                                </li>
+                            </ul>';
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">
                                 <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Editar"
                                     data-bs-original-title="Editar">
@@ -110,7 +119,8 @@ switch ($_GET['op']) {
 
     case 'update':
         $observaciones = $_POST['cta_obs'] == '' ? 'Actualizacióm cuenta' : $_POST['cta_obs'];
-        $datos = $cuentas->updateAccount($_POST['cta_monto'], $_POST['cta_fecha'], $observaciones, 0, $_POST['suc_id'], $_POST['usu_id'], $_POST['cta_id'], "+");
+        $tipoMovimiento = $_POST['mov_tipo'] == 'AD' ? '+' : '-';
+        $datos = $cuentas->updateAccount($_POST['cta_montoUpd'], $_POST['cta_fecha'], $observaciones, 0, $_POST['suc_id'], $_POST['usu_id'], $_POST['cta_id'], $tipoMovimiento);
         echo json_encode($datos);
         break;
     case 'delete':
