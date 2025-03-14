@@ -14,7 +14,7 @@ switch ($_GET['op']) {
             $sub_array = array();
             $sub_array[] = $row['cta_id'];
             $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_nombre'] . '</span>';
-            $sub_array[] = '<strong>$' . $row['cta_monto'] . '</strong>';
+            $sub_array[] = '<strong>$' . number_format($row['cta_monto'], 2 ,'.',',')  . '</strong>';
             $sub_array[] = $row['cta_estado'] === '1' ? '<span class="badge badge-soft-success text-uppercase fs-12">Activo</span>' : '<span class="badge badge-soft-danger text-uppercase">Inactivo</span>';
             $sub_array[] = $row['cta_fecha_upd'];
             $sub_array[] = $row['cta_obs'];
@@ -82,7 +82,7 @@ switch ($_GET['op']) {
             $sub_array = array();
             $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_nombre'] . '</span>';
             $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_ruc'] . '</span>';
-            $sub_array[] = '<strong>$' . $row['cta_monto'] . '</strong>';
+            $sub_array[] = '<strong>$' . number_format($row['cta_monto'], 2 ,'.',','). '</strong>';
             $sub_array[] = $row['cta_estado'] === '1' ? '<span class="badge badge-soft-success text-uppercase fs-12">Activo</span>' : '<span class="badge badge-soft-danger text-uppercase">Inactivo</span>';
             $sub_array[] = '<button type="button" onClick="selCuenta(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-success btn-label waves-effect waves-light rounded-pill"><i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> Seleccionar Cuenta</button>';
             $data[] = $sub_array;
@@ -104,7 +104,7 @@ switch ($_GET['op']) {
                 $outout["cta_id"] = $row["cta_id"];
                 $outout["cli_nombre"] = $row["cli_nombre"];
                 $outout["cli_telefono"] = $row["cli_telefono"];
-                $outout["cta_monto"] = $row["cta_monto"];
+                $outout["cta_monto"] = number_format($row['cta_monto'], 2 ,'.',',');
                 $outout["ult_fecha_sal"] = $row["ult_fecha_sal"];
                 $outout["ult_fecha_pago"] = $row["ult_fecha_pago"];
             }

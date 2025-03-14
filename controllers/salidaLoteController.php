@@ -26,11 +26,11 @@ switch ($_GET['op']) {
             $sub_array[] = $row['lote_descripcion'];
             $sub_array[] = $row['salida_tipo'] === 'PV' ? '<span class="badge badge-soft-success text-uppercase fs-12">POLLO VIVO</span>' : '<span class="badge badge-soft-danger text-uppercase fs-12">POLLO FAENADO</span>';
             $sub_array[] = '<span style="font-weight: 600;"># ' . $row['salida_cantidad'] . '</span>';
-            $sub_array[] = $row['salida_peso'];
+            $sub_array[] = number_format($row['salida_peso'], 2, '.', ',');
             $sub_array[] = $row['salida_tara'];
             $sub_array[] = '<span style="font-weight: 600;">' . $row['salida_peso_neto'] . ' lbs</span>';
-            $sub_array[] = $row['salida_precio'];
-            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . $row['salida_total'] . '</span>';
+            $sub_array[] = number_format($row['salida_precio'], 2, '.', ',');
+            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['salida_total'], 2, '.', ',') . '</span>';
             $sub_array[] = $row['salida_fecha'];
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0 w-100">
                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
@@ -117,9 +117,9 @@ switch ($_GET['op']) {
         $datos = $salidalote->getlistadoSalida('T', $lote_id, $cli_id, $salida_tipo, $_POST['fecha_desde'], $_POST['fecha_hasta'], $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             foreach ($datos as $row) {
-                $outout["cantidad"] = $row["cantidad"];
-                $outout["peso_neto"] = $row["peso_neto"];
-                $outout["total"] = $row["total"];
+                $outout["cantidad"] = number_format($row["cantidad"], 0 ,'',',');
+                $outout["peso_neto"] = number_format($row["peso_neto"], 2, '.',',') ;
+                $outout["total"] = number_format($row["total"],2,'.',',') ;
             }
             echo json_encode($outout);
         }

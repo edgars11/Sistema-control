@@ -98,7 +98,7 @@ $(document).on("click", "#btnFiltro", function () {
 
 
 
-    if (lote_id !== 'Seleccionar') {
+    if (lote_id !== '0') {
         data.lote_id = lote_id;
     } else {
         data.lote_id = null;

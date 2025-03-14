@@ -53,10 +53,10 @@ class GeneratePDF extends Conectar
                     <tr>
                         <td class="service text-fw-600">' . $tipoProd . '</td>
                         <td class="desc">' . $row["salida_fecha"] . '</td>
-                        <td class="unit"># ' . $row["salida_cantidad"] . '</td>
-                        <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
-                        <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
-                        <td class="subtotal">$ ' . $row["salida_total"] . '</td>
+                        <td class="unit"># ' . number_format($row["salida_cantidad"], 0, '', ',') . '</td>
+                        <td class="qty">' . number_format($row["salida_peso_neto"], 2, '.', ',') . ' Lbs</td>
+                        <td class="subtotal">$ ' . number_format($row["salida_precio"], 2, '.', ',') . '</td>
+                        <td class="subtotal">$ ' . number_format($row["salida_total"], 2, '.', ',')  . '</td>
                     </tr>
             ';
         }
@@ -110,15 +110,15 @@ class GeneratePDF extends Conectar
                         ' . $tbody . '
                         <tr>
                             <td colspan="5" class="totales">SUBTOTAL</td>
-                            <td class="subtotal totales">$ ' . $subtotal . '</td>
+                            <td class="subtotal totales">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
                         <tr>
-                            <td colspan="5" class="totales">IVA ' . $valorIva . '%</td>
+                            <td colspan="5" class="totales">IVA ' . number_format($valorIva, 2, '.', ',')  . '%</td>
                             <td class="subtotal totales">$ 0.00</td>
                         </tr>
                         <tr>
                             <td colspan="5" class="grand total totales">VALOR TOTAL</td>
-                            <td class="grand total totales tc-green">$ ' . $subtotal . '</td>
+                            <td class="grand total totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
                     </tbody>
                 </table>
@@ -182,19 +182,19 @@ class GeneratePDF extends Conectar
                 $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
                 $tbody .= '
                         <tr>
-                            <td class="service">' . $tipoProd . '</td>
-                            <td class="desc">' . $row["salida_fecha"] . '</td>
-                            <td class="unit"># ' . $row["salida_cantidad"] . '</td>
-                            <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
-                            <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
-                            <td class="subtotal">$ ' . $row["salida_total"] . '</td>
+                            <td class="ts-11">' . $tipoProd . '</td>
+                            <td class="ts-11">' . $row["salida_fecha"] . '</td>
+                            <td class="ts-11">#' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
+                            <td class="ts-11">' . number_format($row["salida_peso_neto"], 2, '.', ',') . 'Lbs</td>
+                            <td class="ts-11">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
+                            <td class="ts-11">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
                         </tr>
                 ';
             }
         } else {
             $colSpan = 6;
             $columns = '
-                        <th class="service text-fw-500">CLIENTE</th>
+                        <th class="service">CLIENTE</th>
                         <th class="service">PRODUCTO</th>
                         <th class="desc">FECHA</th>
                         <th>CANT.</th>
@@ -209,13 +209,13 @@ class GeneratePDF extends Conectar
                 $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
                 $tbody .= '
                 <tr>
-                    <td class="service text-fw-500">' . $row["cli_nombre"] . '</td>
+                    <td class="service">' . $row["cli_nombre"] . '</td>
                     <td class="service">' . $tipoProd . '</td>
-                    <td class="desc">' . $row["salida_fecha"] . '</td>
-                    <td class="unit"># ' . $row["salida_cantidad"] . '</td>
-                    <td class="qty">' . $row["salida_peso_neto"] . ' Lbs</td>
-                    <td class="subtotal">$ ' . $row["salida_precio"] . '</td>
-                    <td class="subtotal">$ ' . $row["salida_total"] . '</td>
+                    <td class="ts-11">' . $row["salida_fecha"] . '</td>
+                    <td class="ts-11">#' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
+                    <td class="ts-11">' . number_format($row["salida_peso_neto"], 2, '.', ',') . 'Lbs</td>
+                    <td class="ts-11">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
+                    <td class="ts-11">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
                 </tr>
                 ';
             }
@@ -250,7 +250,7 @@ class GeneratePDF extends Conectar
                         ' . $tbody . '
                         <tr>
                             <td colspan="' . $colSpan . '" class="grand total totales">VALOR TOTAL</td>
-                            <td class="grand total totales tc-green">$ ' . $subtotal . '</td>
+                            <td class="grand total totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
                     </tbody>
                 </table>

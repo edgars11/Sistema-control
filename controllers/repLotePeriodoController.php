@@ -55,11 +55,11 @@ switch ($_GET['op']) {
             $sub_array = array();
             $sub_array[] = '<span class="fw-medium fs-14 link-primary">' . $row['lote'] . '</span>';
             $sub_array[] = '<span class="fw-medium fs-14 link-secondary">' . $row['fecha'] . '</span>';
-            $sub_array[] = '<span class="badge badge-soft-warning text-uppercase fs-14">+' . $row['cantidad'] . '</span>';
-            $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . $row['peso_neto'] . ' Lbs</div>';
-            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . $row['totalMonto'] . '</span>';
-            $sub_array[] = '<span class="badge badge-soft-primary text-uppercase fs-14">' . "$ " . $row['consumo'] . '</span>';
-            $sub_array[] = '<span class="badge badge-soft-danger text-uppercase fs-14">- ' . $row['perdida'] . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-warning text-uppercase fs-14">+' . number_format($row['cantidad'],0,'',',') . '</span>';
+            $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . number_format($row['peso_neto'], 2, '.', ',') . ' Lbs</div>';
+            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['totalMonto'], 2, '.', ',') . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-primary text-uppercase fs-14">' . "$ " . number_format($row['consumo'],0,'',',')  . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-danger text-uppercase fs-14">- ' . number_format($row['perdida'],0,'',',')  . '</span>';
             $data[] = $sub_array;
         }
         // Usado en el DataTable
@@ -76,11 +76,11 @@ switch ($_GET['op']) {
         $datos = $reporte->getTotalesReporte($_POST['lote_id'], $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             foreach ($datos as $row) {
-                $outout["cantidad"] = $row["cantidad"];
-                $outout["peso_neto"] = $row["peso_neto"];
-                $outout["totalMonto"] = $row["totalMonto"];
-                $outout["consumo"] = $row["consumo"];
-                $outout["perdida"] = $row["perdida"];
+                $outout["cantidad"] = number_format($row['cantidad'], 2, '.', ',');
+                $outout["peso_neto"] = number_format($row['peso_neto'], 2, '.', ',');
+                $outout["totalMonto"] = number_format($row['totalMonto'], 2, '.', ',');
+                $outout["consumo"] = number_format($row['consumo'], 2, '.', ',');
+                $outout["perdida"] = number_format($row['perdida'], 2, '.', ',');
             }
             echo json_encode($outout);
         }
