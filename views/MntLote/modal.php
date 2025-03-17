@@ -12,16 +12,23 @@
                     <div class="row gy-2">
                         <div class="col-md-6">
                             <div>
-                                <label for="valueInput" class="form-label">Nombre:</label>
+                                <label for="lote_descripcion" class="form-label">Nombre:</label>
                                 <input type="text" class="form-control" id="lote_descripcion" name="lote_descripcion" placeholder="Ingrese Nombre" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div>
-                                <label for="valueInput" class="form-label">Capacidad Máxima:</label>
-                                <input type="number" class="form-control" id="lote_capacidad_max" name="lote_capacidad_max" placeholder="Ingrese Capacidad Máxima" required>
+                                <label for="lote_cap_maximaUpd" class="form-label">Capacidad Máxima:</label>
+                                <input type="number" class="form-control" id="lote_cap_maximaUpd" name="lote_cap_maximaUpd" placeholder="Ingrese Capacidad Máxima" required>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label for="lote_cant_actualUpd" class="form-label">Cantidad Actual:</label>
+                                <input type="number" class="form-control" id="lote_cant_actualUpd" name="lote_cant_actualUpd" placeholder="Ingrese Cantidad Actual" required>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="modal-footer">

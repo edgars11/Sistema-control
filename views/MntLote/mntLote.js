@@ -89,7 +89,7 @@ function guardarAlimentoLote(e) {
         processData: false,
         success: function (data) {
             data = JSON.parse(data);
-            if(data.success){
+            if (data.success) {
                 $('#table_data').DataTable().ajax.reload();
                 $('#modalIngAli').modal('hide');
                 swal.fire({
@@ -98,7 +98,7 @@ function guardarAlimentoLote(e) {
                     icon: "success"
                 });
             }
-            
+
         }
     });
 
@@ -117,7 +117,7 @@ $(document).ready(function () {
             $.post("../../controllers/loteController.php?op=mostrar", { lote_id: lote_id }, function (data) {
                 data = JSON.parse(data);
                 $('#lote_capacidad_maxIng').val(data.lote_capacidad_max);
-                $('#lote_cant_actual').val(data.lote_cant_actual);
+                $('#lote_cant_actualIng').val(data.lote_cant_actual);
             });
         });
     });
@@ -209,8 +209,9 @@ $(document).on("click", "#btn_ingreso", function () {
     $('#mov_tipo').val('sum');
     $('#mov_fecha_ing').val(fechaHoy);
     $('#lote_capacidad_max').val('0.00');
-    $('#lote_cant_actual').val('0.00');
-    $('#mov_descr').html('INGRESO');
+    $('#lote_cant_actualIng').val('0.00');
+    $('#mov_descr').attr('class', 'badge badge-soft-success fs-18');
+    $('#mov_descr').html('+ INGRESO');
     $('#lbTituloIng').html('Nuevo Ingreso Lote');
     $('#mantenimiento_formIng')[0].reset();
     // Mostramos el modal
@@ -226,8 +227,9 @@ $(document).on("click", "#btn_perdida", function () {
     // Limpiamos los campos del modal
     $('#mov_tipo').val('res');
     $('#lote_capacidad_max').val('0.00');
-    $('#lote_cant_actual').val('0.00');
-    $('#mov_descr').html('PÉRDIDA');
+    $('#lote_cant_actualIng').val('0.00');
+    $('#mov_descr').attr('class', 'badge badge-soft-danger fs-18');
+    $('#mov_descr').html('- PÉRDIDA');
     $('#lbTituloIng').html('Registro Pérdida Lote');
     $('#mantenimiento_formIng')[0].reset();
     // Mostramos el modal
@@ -256,8 +258,8 @@ function editar(lote_id) {
         data = JSON.parse(data);
         $('#lote_id').val(data.lote_id);
         $('#lote_descripcion').val(data.lote_descripcion);
-        $('#lote_capacidad_max').val(data.lote_capacidad_max);
-        console.log(data);
+        $('#lote_cant_actualUpd').val(data.lote_cant_actual);
+        $('#lote_cap_maximaUpd').val(data.lote_capacidad_max);
     })
     $('#lbTitulo').html('Editar Registro');
     $('#modalMantenimiento').modal('show');
@@ -294,7 +296,7 @@ function eliminar(lote_id) {
 
 function calcularTotal() {
     var capMax = $('#lote_capacidad_maxIng').val();
-    var canAct = $('#lote_cant_actual').val();
+    var canAct = $('#lote_cant_actualIng').val();
     var canIng = $('#mov_cant_ing').val();
     var mov_tipo = $('#mov_tipo').val();
     var mostrar = true;

@@ -35,7 +35,7 @@ switch ($_GET['op']) {
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0 w-100">
                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                         data-bs-original-title="Editar">
-                                        <button type="button" onClick="editar(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-pencil-fill fs-16"></i></button>
+                                        <button type="button" onClick="editar(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-warning btn-icon waves-effect waves-light"><i class="ri-pencil-fill fs-16"></i></button>
                                     </li>
                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                         data-bs-original-title="Eliminar">
@@ -44,6 +44,10 @@ switch ($_GET['op']) {
                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                         data-bs-original-title="Eliminar">
                                         <button type="button" onClick="verSalida(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-primary btn-icon waves-effect waves-light"><i class="ri-printer-line"></i></button>
+                                    </li>
+                                    <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
+                                        data-bs-original-title="Eliminar">
+                                        <a href="https://wa.me/593' . $row['cli_telefono'] . '?text=Reporte%20pedido%20para%20la%20fecha:%20'.$row['salida_fecha'].'" target="_blank" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-whatsapp-line"></i></a>
                                     </li>
                                 </ul>';
             $data[] = $sub_array;

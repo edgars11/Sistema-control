@@ -11,7 +11,7 @@ switch ($_GET['op']) {
         if (empty($_POST["lote_id"])) {
             $lote->insertarLote("C", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_capacidad_max']);
         } else {
-            $lote->updateLote("U", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_capacidad_max'], $_POST['lote_id']);
+            $lote->updateLote("U", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_cap_maximaUpd'], $_POST['lote_id'], $_POST['lote_cant_actualUpd']);
         }
         break;
     // TODO: Listado de registro en format JSON para Datatable JS
@@ -58,8 +58,8 @@ switch ($_GET['op']) {
                 $outout["lote_id"] = $row["lote_id"];
                 $outout["suc_id"] = $row["suc_id"];
                 $outout["lote_descripcion"] = $row["lote_descripcion"];
-                $outout["lote_capacidad_max"] = number_format($row["lote_capacidad_max"], 0, '', ',');
-                $outout["lote_cant_actual"] = number_format($row["lote_cant_actual"], 0, '', ',');
+                $outout["lote_capacidad_max"] = $row["lote_capacidad_max"];
+                $outout["lote_cant_actual"] = $row["lote_cant_actual"];
                 $outout["lote_fecha_upd"] = $row["lote_fecha_upd"];
                 $outout["lote_estado"] = $row["lote_estado"];
                 $outout["lote_consumo"] = $row["lote_consumo"];

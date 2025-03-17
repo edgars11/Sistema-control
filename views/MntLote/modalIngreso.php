@@ -23,7 +23,7 @@
                         <div class="col-md-3">
                             <div>
                                 <label for="mov_descr" class="form-label">Tipo Movimiento:</label>
-                                <a href="javascript:void(0);" id="mov_descr" class="badge badge-soft-warning fs-18"></a>
+                                <a href="javascript:void(0);" id="mov_descr" class="badge badge-soft-success fs-18"></a>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -37,8 +37,8 @@
                     <div class="row g-3">
                         <div class="col-md-3">
                             <div>
-                                <label for="lote_cant_actual" class="form-label">Cantidad Actual:</label>
-                                <input type="number" class="form-control" id="lote_cant_actual" name="lote_cant_actual" placeholder="Seleccione Lote" readonly>
+                                <label for="lote_cant_actualIng" class="form-label">Cantidad Actual:</label>
+                                <input type="number" class="form-control" id="lote_cant_actualIng" name="lote_cant_actualIng" placeholder="Seleccione Lote" readonly>
                             </div>
                         </div>
                         <div class="col-md-3">

@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 2/3/2025 16:46:42 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 14/3/2025 7:40:30 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -211,7 +211,8 @@ begin
 			salida_precio, 
 			salida_total, 
 			CONVERT(varchar, salida_fecha , 103) as salida_fecha,
-			salida_id
+			salida_id,
+			cl.cli_telefono
 		from tm_salida_lote sl
 		inner join tm_lote l on l.lote_id = sl.lote_id
 		inner join tm_cliente cl on cl.cli_id = sl.cli_id

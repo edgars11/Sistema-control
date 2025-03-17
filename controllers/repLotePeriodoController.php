@@ -76,11 +76,11 @@ switch ($_GET['op']) {
         $datos = $reporte->getTotalesReporte($_POST['lote_id'], $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             foreach ($datos as $row) {
-                $outout["cantidad"] = number_format($row['cantidad'], 2, '.', ',');
+                $outout["cantidad"] = number_format($row['cantidad'], 0, '', ',');
                 $outout["peso_neto"] = number_format($row['peso_neto'], 2, '.', ',');
                 $outout["totalMonto"] = number_format($row['totalMonto'], 2, '.', ',');
-                $outout["consumo"] = number_format($row['consumo'], 2, '.', ',');
-                $outout["perdida"] = number_format($row['perdida'], 2, '.', ',');
+                $outout["consumo"] = number_format($row['consumo'], 0, '', ',');
+                $outout["perdida"] = number_format($row['perdida'], 0, '', ',');
             }
             echo json_encode($outout);
         }

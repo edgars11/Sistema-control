@@ -49,16 +49,17 @@ class Lote extends Conectar
         $query->execute();
     }
     /* TODO: Actualizar registro  */
-    public function updateLote($i_operacion, $i_suc_id, $i_lote_descripcion, $i_lote_capacidad_max, $i_lote_id)
+    public function updateLote($i_operacion, $i_suc_id, $i_lote_descripcion, $i_lote_capacidad_max, $i_lote_id, $i_lote_cant_actual)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_lote @i_operacion=?, @i_suc_id=?, @i_lote_descripcion=?, @i_lote_capacidad_max=?, @i_lote_id=?";
+        $sql = "exec sp_crud_lote @i_operacion=?, @i_suc_id=?, @i_lote_descripcion=?, @i_lote_capacidad_max=?, @i_lote_id=?, @i_lote_cant_actual=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, $i_operacion);
         $query->bindValue(2, $i_suc_id);
         $query->bindValue(3, $i_lote_descripcion);
         $query->bindValue(4, $i_lote_capacidad_max);
         $query->bindValue(5, $i_lote_id);
+        $query->bindValue(6, $i_lote_cant_actual);
         $query->execute();
     }
     /* TODO: Ingreso alimento lote */
@@ -115,19 +116,19 @@ class Lote extends Conectar
         return $query->execute();
     }
 
-        /* TODO: Ingreso alimento lote */
-        public function updateRegAlimento($i_lote_id, $i_ali_cantidad, $i_ali_fecha, $i_user_id, $i_ali_desc, $i_ali_id)
-        {
-            $conectar = parent::Conexion();
-            $sql = "exec sp_crud_alimento_lote @i_operacion=?, @i_lote_id=?, @i_ali_cantidad=?, @i_ali_fecha=?, @i_user_id=?, @i_ali_desc=?, @i_ali_id=?";
-            $query = $conectar->prepare($sql);
-            $query->bindValue(1, 'U');
-            $query->bindValue(2, $i_lote_id);
-            $query->bindValue(3, $i_ali_cantidad);
-            $query->bindValue(4, $i_ali_fecha);
-            $query->bindValue(5, $i_user_id);
-            $query->bindValue(6, $i_ali_desc);
-            $query->bindValue(7, $i_ali_id);
-            return $query->execute();
-        }
+    /* TODO: Ingreso alimento lote */
+    public function updateRegAlimento($i_lote_id, $i_ali_cantidad, $i_ali_fecha, $i_user_id, $i_ali_desc, $i_ali_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_alimento_lote @i_operacion=?, @i_lote_id=?, @i_ali_cantidad=?, @i_ali_fecha=?, @i_user_id=?, @i_ali_desc=?, @i_ali_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'U');
+        $query->bindValue(2, $i_lote_id);
+        $query->bindValue(3, $i_ali_cantidad);
+        $query->bindValue(4, $i_ali_fecha);
+        $query->bindValue(5, $i_user_id);
+        $query->bindValue(6, $i_ali_desc);
+        $query->bindValue(7, $i_ali_id);
+        return $query->execute();
+    }
 }

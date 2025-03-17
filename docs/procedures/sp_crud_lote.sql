@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 4/3/2025 21:10:30 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 16/3/2025 16:38:57 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -53,7 +53,8 @@ end
 	begin
 		update tm_lote set 
 			lote_descripcion = @i_lote_descripcion,
-			lote_capacidad_max = @i_lote_capacidad_max
+			lote_capacidad_max = @i_lote_capacidad_max,
+			lote_cant_actual = @i_lote_cant_actual
 		where lote_id = @i_lote_id
 		and suc_id = @i_suc_id
 
