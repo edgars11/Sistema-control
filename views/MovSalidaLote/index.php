@@ -10,7 +10,7 @@ if (isset($_SESSION["usu_id"])) {
         <html lang="es" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none">
 
         <head>
-            <title>Fact-System | Salida Lote</title>
+            <title>Fact-System | Registro Pedido</title>
             <?php require_once("../html/head.php"); ?>
         </head>
 
@@ -36,12 +36,12 @@ if (isset($_SESSION["usu_id"])) {
                             <div class="row">
                                 <div class="col-12">
                                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                        <h4 class="mb-sm-0">Salida Lote</h4>
+                                        <h4 class="mb-sm-0">Registro Pedido</h4>
 
                                         <div class="page-title-right">
                                             <ol class="breadcrumb m-0">
                                                 <li class="breadcrumb-item"><a href="javascript: void(0);">Lote</a></li>
-                                                <li class="breadcrumb-item active">Salida Lote</li>
+                                                <li class="breadcrumb-item active">Registro Pedido</li>
                                             </ol>
                                         </div>
                                     </div>
@@ -106,7 +106,7 @@ if (isset($_SESSION["usu_id"])) {
 
                                         <div class="col-xl-3">
                                             <div class="mb-3">
-                                                <label for="lote_cant_act" class="form-label">Cantidad Lote</label>
+                                                <label for="lote_cant_act" class="form-label">Cantidad Disponible</label>
                                                 <input type="number" class="form-control" placeholder="Cantidad Actual" name="lote_cant_act" id="lote_cant_act" readonly>
                                             </div>
                                         </div><!-- end col -->

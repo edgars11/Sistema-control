@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 14/3/2025 7:40:30 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 16/3/2025 20:17:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -22,6 +22,8 @@ ALTER procedure [dbo].[sp_crud_salida_lote] (
  @i_salida_precio decimal(14,2) = null,
  @i_salida_total decimal(14,2) = null,
  @i_usu_id tinyint = null,
+ @i_year_report tinyint = null,
+ @i_month_report tinyint = null,
  @i_cli_id tinyint = null
 )
 as
@@ -299,16 +301,30 @@ begin
 	
 		if @i_tipo = 'A'
 		begin
-		select 
-			sl.lote_id , 
-			l.lote_descripcion , 
-			sum(salida_cantidad) as cantidad, 
-			sum(salida_peso_neto) as peso_neto, 
-			sum(salida_total) as total
-		from tm_salida_lote sl
-		inner join tm_lote l on l.lote_id = sl.lote_id 
-		where  CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
-		group by sl.lote_id, l.lote_descripcion
+			select 
+				sl.lote_id , 
+				l.lote_descripcion , 
+				sum(salida_cantidad) as cantidad, 
+				sum(salida_peso_neto) as peso_neto, 
+				sum(salida_total) as total
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id 
+			where  CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+			group by sl.lote_id, l.lote_descripcion
+		end
+	
+		if @i_tipo = 'D'
+		begin
+			select 
+				SUM(salida_total) as total_ventas , 
+				sum(salida_peso_neto) as total_peso, 
+				sum(salida_cantidad) as total_cantidad, 
+				COUNT(salida_id) as total_pedidos
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id
+			where YEAR(salida_fecha) = @i_year_report and 
+			month(salida_fecha) = @i_month_report
+			and l.suc_id = @i_suc_id
 		end
 	end
 	

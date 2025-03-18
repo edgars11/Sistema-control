@@ -144,4 +144,22 @@ class SalidaLote extends Conectar
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /* TODO: Listar salida */
+    public function getDatosDashboard($i_tipo, $i_lote_id, $i_cli_id, $i_salida_tipo, $i_fecha_desde, $i_fecha_hasta, $i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_salida_lote @i_operacion=?,@i_tipo=?,@i_lote_id=?, @i_cli_id=?, @i_salida_tipo=?, @i_fecha_desde=?, @i_fecha_hasta=?,@i_suc_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'L');
+        $query->bindValue(2, $i_tipo);
+        $query->bindValue(3, $i_lote_id);
+        $query->bindValue(4, $i_cli_id);
+        $query->bindValue(5, $i_salida_tipo);
+        $query->bindValue(6, $i_fecha_desde);
+        $query->bindValue(7, $i_fecha_hasta);
+        $query->bindValue(8, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }   
 }
