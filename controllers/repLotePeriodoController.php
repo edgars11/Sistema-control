@@ -4,6 +4,7 @@ require_once("../config/conexion.php");
 require_once("../models/ReporteLotePeriodo.php");
 // TODO: Inicializando clases
 $reporte = new ReporteLotePeriodo();
+$kilosXsaco = 40;
 
 switch ($_GET['op']) {
     // TODO: Listado de registro en format JSON para Datatable JS
@@ -55,11 +56,11 @@ switch ($_GET['op']) {
             $sub_array = array();
             $sub_array[] = '<span class="fw-medium fs-14 link-primary">' . $row['lote'] . '</span>';
             $sub_array[] = '<span class="fw-medium fs-14 link-secondary">' . $row['fecha'] . '</span>';
-            $sub_array[] = '<span class="badge badge-soft-warning text-uppercase fs-14">+' . number_format($row['cantidad'],0,'',',') . '</span>';
-            $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . number_format($row['peso_neto'], 2, '.', ',') . ' Lbs</div>';
+            $sub_array[] = '<span class="badge badge-soft-warning text-uppercase fs-14">+' . number_format($row['cantidad'], 0, '', ',') . '</span>';
+            $sub_array[] = '<div class="badge badge-soft-secondary fs-14">' . number_format($row['peso_neto'], 2, '.', ',') . ' Lbs</div>';
             $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['totalMonto'], 2, '.', ',') . '</span>';
-            $sub_array[] = '<span class="badge badge-soft-primary text-uppercase fs-14">' . "$ " . number_format($row['consumo'],0,'',',')  . '</span>';
-            $sub_array[] = '<span class="badge badge-soft-danger text-uppercase fs-14">- ' . number_format($row['perdida'],0,'',',')  . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-primary fs-14">' . "" . number_format($row['consumo'], 0, '', ',')  . ' Sacos</span>';
+            $sub_array[] = '<span class="badge badge-soft-danger text-uppercase fs-14">- ' . number_format($row['perdida'], 0, '', ',')  . '</span>';
             $data[] = $sub_array;
         }
         // Usado en el DataTable
@@ -75,13 +76,28 @@ switch ($_GET['op']) {
     case 'obtenerTotales':
         $datos = $reporte->getTotalesReporte($_POST['lote_id'], $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {
+            $consumido = 0;
+            $producido = 0;
             foreach ($datos as $row) {
+                $consumido = $row['consumo'];
+                $producido = $row['peso_neto'];
                 $outout["cantidad"] = number_format($row['cantidad'], 0, '', ',');
-                $outout["peso_neto"] = number_format($row['peso_neto'], 2, '.', ',');
+                $outout["peso_neto"] = number_format($producido, 2, '.', ',');
                 $outout["totalMonto"] = number_format($row['totalMonto'], 2, '.', ',');
-                $outout["consumo"] = number_format($row['consumo'], 0, '', ',');
+                $outout["consumo"] = number_format($consumido, 0, '', ',');
                 $outout["perdida"] = number_format($row['perdida'], 0, '', ',');
             }
+
+            if ($consumido > 0 && $producido > 0) {
+                $conversionAlim = ($consumido * $kilosXsaco) / ($producido / 2.205);
+                $outout["val_consumido"] = number_format(($consumido * $kilosXsaco), 2, '.', ',');
+                $outout["val_producido"] = number_format(($producido / 2.205), 2, '.', ',');
+            } else {
+                $conversionAlim = 0;
+                $outout["val_consumido"] = number_format($consumido, 2, '.', ',');
+                $outout["val_producido"] = number_format($consumido, 2, '.', ',');
+            }
+            $outout["convAlim"] = number_format($conversionAlim, 2, '.', ',');
             echo json_encode($outout);
         }
         break;

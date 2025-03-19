@@ -1,11 +1,11 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_reporte_periodo_lote]    Script Date: 13/3/2025 17:27:34 ******/
+/****** Object:  StoredProcedure [dbo].[sp_reporte_periodo_lote]    Script Date: 18/3/2025 21:39:47 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE procedure [dbo].[sp_reporte_periodo_lote] (
+ALTER procedure [dbo].[sp_reporte_periodo_lote] (
  @i_operacion char(1) ,
  @i_tipo char(2) = null,
  @i_suc_id int = null,
@@ -109,7 +109,7 @@ begin
 		-- Retorna la lista de reporte generado para el Lote
 		select 
 			l.lote_descripcion as lote,
-			repor_fecha_reg as fecha, 
+			CONVERT(varchar, repor_fecha_reg , 23)  as fecha, 
 			sum(repor_cantidad) as cantidad , 
 			sum(repor_peso_neto) as peso_neto, 
 			sum(repor_total) as totalMonto , 

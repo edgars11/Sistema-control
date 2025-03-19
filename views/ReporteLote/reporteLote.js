@@ -259,6 +259,15 @@ $(document).on("click", "#btnFiltro", function () {
         $('#peso_neto').html(data.peso_neto);
         $('#consumo_lote').html(data.consumo);
         $('#perdida_lote').html(data.perdida);
+        $('#valor_producido').html(data.val_producido + " kg");
+        $('#valor_consumido').html(data.val_consumido + " kg");
+        if (data.convAlim >= 1.8) {
+            $('#val_CAText').attr('class', 'fs-22 fw-semibold text-danger ff-secondary mb-4');
+        } else {
+            $('#val_CAText').attr('class', 'fs-22 fw-semibold text-success ff-secondary mb-4');
+        }
+        $('#val_CA').html(data.convAlim);
+
     })
 
 });

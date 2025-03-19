@@ -135,7 +135,7 @@ if (isset($_SESSION["usu_id"])) {
                                                         <div class="d-flex align-items-end justify-content-between mt-4">
                                                             <div>
                                                                 <h4 class="fs-22 fw-semibold text-success ff-secondary mb-4">$<span id="total_ventas" class="counter-value" data-target="0">0</span></h4>
-                                                                
+
                                                             </div>
                                                             <div class="avatar-sm flex-shrink-0">
                                                                 <span class="avatar-title bg-soft-success rounded fs-3">
@@ -158,8 +158,8 @@ if (isset($_SESSION["usu_id"])) {
                                                         </div>
                                                         <div class="d-flex align-items-end justify-content-between mt-4">
                                                             <div>
-                                                                <h4 class="fs-22 fw-semibold text-danger ff-secondary mb-4"><span id="cantidad_ventas" class="counter-value" data-target="0">0</span> Uni</h4>
-                                                                
+                                                                <h4 class="fs-22 fw-semibold text-warning ff-secondary mb-4"><span id="cantidad_ventas" class="counter-value" data-target="0">0</span> Uni</h4>
+
                                                             </div>
                                                             <div class="avatar-sm flex-shrink-0">
                                                                 <span class="avatar-title bg-soft-info rounded fs-3">
@@ -179,12 +179,18 @@ if (isset($_SESSION["usu_id"])) {
                                                             <div class="flex-grow-1 overflow-hidden">
                                                                 <p class="text-uppercase fw-medium text-muted text-truncate mb-0">PESO NETO</p>
                                                             </div>
-
+                                                            <div class="flex-shrink-0">
+                                                                <h5 class="text-warning fs-14 mb-0">
+                                                                    <!-- <i class="ri-arrow-right-up-line fs-13 align-middle"></i>  -->
+                                                                    <span id="valor_producido">0.00 kg</span>
+                                                                </h5>
+                                                            </div>
                                                         </div>
                                                         <div class="d-flex align-items-end justify-content-between mt-4">
                                                             <div>
-                                                                <h4 class="fs-22 fw-semibold text-primary ff-secondary mb-4"><span id="peso_neto" class="counter-value" data-target="0">0</span> Lbs</h4>
-                                                                
+                                                                <h4 class="fs-22 fw-semibold text-primary ff-secondary mb-4">
+                                                                    <span id="peso_neto" class="counter-value" data-target="0">0</span> Lbs
+                                                                </h4>
                                                             </div>
                                                             <div class="avatar-sm flex-shrink-0">
                                                                 <span class="avatar-title bg-soft-warning rounded fs-3">
@@ -202,14 +208,20 @@ if (isset($_SESSION["usu_id"])) {
                                                     <div class="card-body">
                                                         <div class="d-flex align-items-center">
                                                             <div class="flex-grow-1 overflow-hidden">
-                                                                <p class="text-uppercase fw-medium text-muted text-truncate mb-0"> CONSUMO LOTE</p>
+                                                                <p class="text-uppercase fw-medium text-muted text-truncate mb-0"> CONSUMO</p>
                                                             </div>
-                                                            
+                                                            <div class="flex-shrink-0">
+                                                                <h5 class="text-success fs-14 mb-0">
+                                                                    <!-- <i class="ri-arrow-right-up-line fs-13 align-middle"></i>  -->
+                                                                    <span id="valor_consumido"> 0.00 kg</span>
+                                                                </h5>
+                                                            </div>
                                                         </div>
                                                         <div class="d-flex align-items-end justify-content-between mt-4">
                                                             <div>
-                                                                <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span id="consumo_lote" class="counter-value" data-target="0">0</span> Sacos</h4>
-                                                                
+                                                                <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                                    <span id="consumo_lote" class="counter-value" data-target="0">0</span> Sacos
+                                                                </h4>
                                                             </div>
                                                             <div class="avatar-sm flex-shrink-0">
                                                                 <span class="avatar-title bg-soft-primary rounded fs-3">
@@ -229,12 +241,13 @@ if (isset($_SESSION["usu_id"])) {
                                                             <div class="flex-grow-1 overflow-hidden">
                                                                 <p class="text-uppercase fw-medium text-muted text-truncate mb-0"> PÉRDIDA LOTE</p>
                                                             </div>
-                                                            
+
                                                         </div>
                                                         <div class="d-flex align-items-end justify-content-between mt-4">
                                                             <div>
-                                                                <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span id="perdida_lote" class="counter-value" data-target="0">0</span> Uni</h4>
-                                                                
+                                                                <h4 class="fs-22 fw-semibold text-danger ff-secondary mb-4">
+                                                                    <span id="perdida_lote" class="counter-value" data-target="0">0</span> Uni
+                                                                </h4>
                                                             </div>
                                                             <div class="avatar-sm flex-shrink-0">
                                                                 <span class="avatar-title bg-soft-primary rounded fs-3">
@@ -254,12 +267,12 @@ if (isset($_SESSION["usu_id"])) {
                                                             <div class="flex-grow-1 overflow-hidden">
                                                                 <p class="text-uppercase fw-medium text-muted text-truncate mb-0"> INDICE DE CONVERSIÓN</p>
                                                             </div>
-                                                            
+
                                                         </div>
                                                         <div class="d-flex align-items-end justify-content-between mt-4">
                                                             <div>
-                                                                <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span class="counter-value" data-target="100">0</span> %</h4>
-                                                                
+                                                                <h4 id="val_CAText" class="fs-22 fw-semibold text-success ff-secondary mb-4"><span id="val_CA" class="counter-value" data-target="100">0</span> %</h4>
+
                                                             </div>
                                                             <div class="avatar-sm flex-shrink-0">
                                                                 <span class="avatar-title bg-soft-primary rounded fs-3">
