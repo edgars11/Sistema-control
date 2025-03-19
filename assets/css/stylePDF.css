@@ -110,7 +110,7 @@ table td.totales {
 
 
 table td.total {
-  font-size: 1.1em;
+  font-size: 1.3em;
   font-weight: bold;
 }
 
@@ -174,7 +174,7 @@ footer {
 }
 
 .tc-green{
-  color: rgb(96, 185, 6);
+  color: rgb(207, 172, 16);
 }
 .ts-11{
   font-size: 11px;

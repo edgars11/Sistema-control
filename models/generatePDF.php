@@ -118,7 +118,7 @@ class GeneratePDF extends Conectar
                         </tr>
                         <tr>
                             <td colspan="5" class="grand total totales">VALOR TOTAL</td>
-                            <td class="grand total totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
+                            <td class="grand ts-15 text-fw-600 totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
                     </tbody>
                 </table>
@@ -250,7 +250,7 @@ class GeneratePDF extends Conectar
                         ' . $tbody . '
                         <tr>
                             <td colspan="' . $colSpan . '" class="grand total totales">VALOR TOTAL</td>
-                            <td class="grand total totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
+                            <td class="grand total totales tc-green text-fw-200">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
                     </tbody>
                 </table>
