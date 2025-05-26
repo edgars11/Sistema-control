@@ -62,6 +62,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     <div class="col-sm-auto">
 
                                                         <div>
+                                                            <button class="btn btn-soft-success" id="btnWhatsappCli" onclick="openWhatsappview()"><i class="ri-whatsapp-line align-bottom me-1" ></i>Abrir whatsapp cliente</button>
                                                             <button class="btn btn-soft-danger" onclick="resetClient()"><i class="ri-delete-bin-2-line align-bottom me-1"></i>Limpiar Cliente</button>
                                                             <button type="button" onclick="generarReporte()" class="btn btn-outline-warning waves-effect waves-light"><i class="ri-file-download-line align-bottom me-1"></i> Descargar Reporte</button>
                                                         </div>

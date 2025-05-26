@@ -13,6 +13,9 @@ const dataFiltro = {
     fecha_hasta: null,
     suc_id: i_suc_id
 }
+
+var clienteContacto = "";
+
 function init() {
     $('#updateRegSalida').on("submit", function (e) {
         guardarMovimiento(e);
@@ -88,6 +91,7 @@ function guardarMovimiento(e) {
 }
 $(document).ready(function () {
 
+    $('#btnWhatsappCli').hide();
     fromDate = getDate(new Date());
     toDate = getDate(new Date());
 
@@ -152,6 +156,7 @@ function resetClient() {
     $('#cli_nombre').val('');
     $('#cli_id').val('');
     $('#modalClientes').modal('hide');
+    $('#btnWhatsappCli').hide();
 }
 function cargarTabla(dataFiltro) {
     $('#tb_listadoSalida').DataTable({
@@ -278,8 +283,11 @@ function selectCliente(cli_id) {
             data = JSON.parse(data);
             $('#cli_nombre').val(data.cli_nombre);
             $('#cli_id').val(data.cli_id);
+            clienteContacto = data.cli_telefono;
+            $('#btnWhatsappCli').show();
         } else {
             $('#cli_identificacion').val('');
+            $('#btnWhatsappCli').hide();
             swal.fire({
                 title: "Error consulta",
                 text: "Identificación no registrada!",
@@ -473,6 +481,12 @@ function validarCantidad(tipo) {
             $('#sal_total').val(total.toFixed(2));
         }
     }
+}
+function openWhatsappview() {
+    var mensaje = encodeURIComponent("Hola, se adjunta el reporte de listado de pedidos realizados. Gracias");
+    var url = "https://wa.me/593" + clienteContacto + "?text=" + mensaje;
+    window.open(url, "_blank");
+
 }
 
 init();

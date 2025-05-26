@@ -42,11 +42,11 @@ switch ($_GET['op']) {
                                         <button type="button" onClick="eliminar(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-danger btn-icon waves-effect waves-light"><i class="ri-delete-bin-5-line"></i></button>
                                     </li>
                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
-                                        data-bs-original-title="Eliminar">
+                                        data-bs-original-title="Visualizar">
                                         <button type="button" onClick="verSalida(' . $row['salida_id'] . ')" id="' . $row['salida_id'] . '" class="btn btn-primary btn-icon waves-effect waves-light"><i class="ri-printer-line"></i></button>
                                     </li>
                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
-                                        data-bs-original-title="Eliminar">
+                                        data-bs-original-title="Whatsapp">
                                         <a href="https://wa.me/593' . $row['cli_telefono'] . '?text=Reporte%20pedido%20para%20la%20fecha:%20' . $row['salida_fecha'] . '" target="_blank" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-whatsapp-line"></i></a>
                                     </li>
                                 </ul>';
