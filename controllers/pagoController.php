@@ -21,7 +21,7 @@ switch ($_GET['op']) {
 
     case 'guardarPago':
         $usu_id = $_SESSION["usu_id"];
-        $datos = $pago->registrarPago($_POST['cta_id'], $_POST['pago_id'], $_POST['pagc_obs'], $usu_id, $_POST['pagc_monto'], $_POST['suc_id']);
+        $datos = $pago->registrarPago($_POST['cta_id'], $_POST['pago_id'], $_POST['pagc_obs'], $usu_id, $_POST['pagc_monto'], $_POST['suc_id'], $_POST['salida_id'], $_POST['saldo_recibo'], $_POST['cli_id']);
 
         if ($datos) {
             $outout["success"] = true;
@@ -50,6 +50,7 @@ switch ($_GET['op']) {
             $sub_array[] = '<span class="fw-medium link-primary fs-14">' . $row['cli_nombre'] . '</span>';
             $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . $row['pago_nombre'] . '</div>';
             $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['pagc_monto'] , 2 ,'.',','). '</span>';
+            $sub_array[] = '<span class="badge badge-soft-primary text-uppercase fs-14">' . "# " . $row['salida_id']. '</span>';
             $sub_array[] = $row['pagc_obs'];
             $sub_array[] = $row['pagc_fecha'];
             $sub_array[] = $row['usu_nombre'];

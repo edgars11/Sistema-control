@@ -68,7 +68,7 @@ class GeneratePDF extends Conectar
             <html lang="en">
             <head>
                 <meta charset="utf-8">
-                <title>Registro Salida #' . $salida_id . '</title>
+                <title>Registro Pedido #' . $salida_id . '</title>
                 <style>' . $content_css . '</style>
             </head>
             <body>
@@ -76,7 +76,7 @@ class GeneratePDF extends Conectar
                 <div id="logo">
                     <img src="http://' . $rutaImg . '/Sistema-Control/assets/images/logo-lite.jpg" alt="Logo empresa" style="width: 100px"><br>
                 </div>
-                <h1>REGISTRO SALIDA <span class="tc-yellow"># ' . $salida_id . '</span></h1>
+                <h1>REGISTRO PEDIDO <span class="tc-yellow"># ' . $salida_id . '</span></h1>
                 <div id="company" class="clearfix">
                     <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
                     <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
@@ -136,7 +136,7 @@ class GeneratePDF extends Conectar
         $nombreReporte = 'Reg_' . $datosCliente["cli_nombre"] . '_#' . $salida_id . '.pdf';
 
 
-        generarPDF($html, $nombreReporte, $descarga);
+        generarPDF($html, $nombreReporte, $descarga, 'portrait');
     }
 
     public function generate_pdf_listado_salida($lote_id, $cli_id, $salida_tipo, $fecha_desde, $fecha_hasta, $suc_id, $emp_id, $com_id, $download)
@@ -154,7 +154,7 @@ class GeneratePDF extends Conectar
         $colSpan = 0;
         $tbody = "";
 
-        $content_css = file_get_contents('../assets/css/stylePDF.css');
+        $content_css = file_get_contents('../assets/css/stylePDFLand.css');
         $lote_id = $lote_id === 'null' ? null : $lote_id;
         $cli_id = $cli_id === 'null' ? null : $cli_id;
         $salida_tipo = $salida_tipo === 'null' ? null : $salida_tipo;
@@ -164,40 +164,68 @@ class GeneratePDF extends Conectar
         $textoDescripcion = 'El reporte generado muestra el listado de registro desde la fecha: <span class="text-fw-600">' . $fecha_desde . ' </span> hasta la fecha: <span class="text-fw-600">' .  $fecha_hasta . '</span>.<br>Total cantidad entregada: <span class="text-fw-600">#' . $totalesConsulta[0]['cantidad'] . '</span> Total libras entregadas: <span class="text-fw-600">' . $totalesConsulta[0]['peso_neto'] . ' Lbs </span>';
 
         $columns = "";
+        $textoCuenta = "";
+        $columnasSaldosCliente = "";
         if (!empty($cli_id)) {
 
-            $colSpan = 5;
+            $colSpan = 6;
             $columns = '
-                        <th class="service">PRODUCTO</th>
-                        <th class="desc">FECHA</th>
-                        <th>CANTIDAD</th>
+                        <th class="text-left"># RECIBO - ESTADO</th>
+                        <th class="text-left">PRODUCTO</th>
+                        <th class="wd-th-40">FECHA</th>
+                        <th class="wd-th-30">CANTIDAD</th>
                         <th>P.NETO</th>
                         <th>PRECIO</th>
                         <th>TOTAL</th>
             ';
 
+            $textoCuenta = '<br><span class="text-fw-600">Datos Cuenta Cliente:</span> Saldo abonado en el rango de fechas seleccionada: <span class="text-fw-600">$ ' . $totalesConsulta[0]['monto_abonado'] . '</span> - Saldo Total Pendiende Cuenta: <span class="text-fw-600">$ ' . $totalesConsulta[0]['saldo_total_cta'] . '</span>';
+
+            $columnasSaldosCliente = '<tr>
+                            <td colspan="' . $colSpan . '" class="totales">MONTO ABONADO:</td>
+                            <td class="totales tc-green ts-15 text-fw-200">$ ' . $totalesConsulta[0]["monto_abonado"] . '</td>
+                        </tr>
+                        <tr>
+                            <td colspan="' . $colSpan . '" class="totales">SALDO PENDIENTE:</td>
+                            <td class="totales tc-red ts-15 text-fw-200">$ ' . $totalesConsulta[0]["saldo_total_cta"] . '</td>
+                        </tr>';
+
             foreach ($detalle as $row) {
+                $estadoRecibo = $row["salida_vpagado"];
+                $colorTag = '';
+                if ($estadoRecibo == 'N') {
+                    $estadoRecibo = 'PENDIENTE';
+                    $colorTag = 'danger';
+                } else if ($estadoRecibo == 'A') {
+                    $estadoRecibo = 'ABONADO';
+                    $colorTag = 'warning';
+                } else if ($estadoRecibo == 'C') {
+                    $estadoRecibo = 'CANCELADO';
+                    $colorTag = 'success';
+                }
 
                 $subtotal = $subtotal + $row["salida_total"];
                 $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
                 $tbody .= '
                         <tr>
-                            <td class="ts-11">' . $tipoProd . '</td>
-                            <td class="ts-11">' . $row["salida_fecha"] . '</td>
-                            <td class="ts-11">#' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
-                            <td class="ts-11">' . number_format($row["salida_peso_neto"], 2, '.', ',') . 'Lbs</td>
-                            <td class="ts-11">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
-                            <td class="ts-11">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
+                            <td class="ts-13 text-left text-fw-500"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> </td>
+                            <td class="ts-13 text-left">' . $tipoProd . '</td>
+                            <td class="ts-13 text-fw-500">' . $row["salida_fecha"] . '</td>
+                            <td class="ts-13">' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
+                            <td class="ts-13 text-fw-500">' . number_format($row["salida_peso_neto"], 2, '.', ',') . ' Lbs</td>
+                            <td class="ts-13">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
+                            <td class="ts-13 text-fw-500">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
                         </tr>
                 ';
             }
         } else {
-            $colSpan = 6;
+            $colSpan = 7;
             $columns = '
+                        <th class="service"># RECIBO - ESTADO</th>
                         <th class="service">CLIENTE</th>
                         <th class="service">PRODUCTO</th>
-                        <th class="desc">FECHA</th>
-                        <th>CANT.</th>
+                        <th class="desc wd-th-50">FECHA</th>
+                        <th class="wd-th-30">CANT.</th>
                         <th>P.NETO</th>
                         <th>PRECIO</th>
                         <th>TOTAL</th>
@@ -205,17 +233,31 @@ class GeneratePDF extends Conectar
 
             foreach ($detalle as $row) {
 
+                $estadoRecibo = $row["salida_vpagado"];
+                $colorTag = '';
+                if ($estadoRecibo == 'N') {
+                    $estadoRecibo = 'PENDIENTE';
+                    $colorTag = 'danger';
+                } else if ($estadoRecibo == 'A') {
+                    $estadoRecibo = 'ABONADO';
+                    $colorTag = 'warning';
+                } else if ($estadoRecibo == 'C') {
+                    $estadoRecibo = 'CANCELADO';
+                    $colorTag = 'success';
+                }
+
                 $subtotal = $subtotal + $row["salida_total"];
                 $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
                 $tbody .= '
                 <tr>
-                    <td class="service">' . $row["cli_nombre"] . '</td>
+                    <td class="ts-12 text-left text-fw-500"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> </td>
+                    <td class="service text-fw-500">' . $row["cli_nombre"] . '</td>
                     <td class="service">' . $tipoProd . '</td>
-                    <td class="ts-11">' . $row["salida_fecha"] . '</td>
-                    <td class="ts-11">#' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
-                    <td class="ts-11">' . number_format($row["salida_peso_neto"], 2, '.', ',') . 'Lbs</td>
-                    <td class="ts-11">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
-                    <td class="ts-11">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
+                    <td class="ts-11 text-fw-500">' . $row["salida_fecha"] . '</td>
+                    <td class="ts-12">#' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
+                    <td class="ts-12 text-fw-500">' . number_format($row["salida_peso_neto"], 2, '.', ',') . 'Lbs</td>
+                    <td class="ts-12">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
+                    <td class="ts-12 text-fw-500">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
                 </tr>
                 ';
             }
@@ -236,7 +278,7 @@ class GeneratePDF extends Conectar
                 <div id="logo">
                     <img src="http://' . $rutaImg . '/Sistema-Control/assets/images/logo-lite.jpg" alt="Logo empresa" style="width: 100px"><br>
                 </div>
-                <h1>REGISTRO LISTADO SALIDA </h1>
+                <h1>REGISTRO LISTADO PEDIDOS</h1>
                 ' . $encabezado . '
                 </header>
                 <main>
@@ -249,14 +291,15 @@ class GeneratePDF extends Conectar
                     <tbody>
                         ' . $tbody . '
                         <tr>
-                            <td colspan="' . $colSpan . '" class="grand total totales">VALOR TOTAL</td>
-                            <td class="grand total totales tc-green text-fw-200">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
+                            <td colspan="' . $colSpan . '" class="grand totales">TOTAL REPORTE:</td>
+                            <td class="grand totales tc-yellow ts-15 text-fw-200">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
+                        ' . $columnasSaldosCliente . '
                     </tbody>
                 </table>
                 <div id="notices">
                     <div>OBSERVACIONES:</div>
-                    <div class="notice">' . $textoDescripcion . '</div>
+                    <div class="notice">' . $textoDescripcion . $textoCuenta . '</div>
                 </div>
                 </main>
                 <footer>
@@ -268,11 +311,11 @@ class GeneratePDF extends Conectar
 
         $nombreReporte = 'RegListadoSalida-From-' . $fecha_desde . '-to-' . $fecha_hasta . '.pdf';
 
-        generarPDF($html, $nombreReporte, $descarga);
+        generarPDF($html, $nombreReporte, $descarga, 'landscape');
     }
 }
 
-function generarPDF($html, $nombreReporte, $descarga)
+function generarPDF($html, $nombreReporte, $descarga, $typePaper)
 {
 
     $options = new Options();
@@ -281,7 +324,7 @@ function generarPDF($html, $nombreReporte, $descarga)
     $options->set('isRemoteEnabled', true);
 
     $dompdf = new Dompdf($options);
-    // $dompdf->set_paper('A4', 'portrait'); //landscape
+    $dompdf->set_paper('A4',  $typePaper); //landscape - 'portrait'
     $dompdf->loadHtml($html);
     $dompdf->render();
     header('Content-Type: application/pdf');

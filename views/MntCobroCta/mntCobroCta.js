@@ -2,6 +2,8 @@ var w_emp_idx = $('#emp_idx').val();
 var w_usu_idx = $('#usu_idx').val();
 var w_suc_idx = $('#suc_idx').val();
 
+var w_cli_id = 0;
+
 $(document).ready(function () {
 
     // Se obtienen las Formas de pago
@@ -25,6 +27,8 @@ $(document).on("click", "#btnAddPago", function () {
     var pagc_nuevo_monto = $('#pagc_nuevo_monto').val();
     var pagc_monto = $('#pagc_monto').val();
     var pagc_obs = $('#pagc_obs').val();
+    var recibo_id = $('#recibo_id').val();
+    var saldoRestante = $('#pagc_saldo_recibo').val();
 
     /* TODO: Validación de campos de ventas */
     if (cta_id.length == 0 || pagc_nuevo_monto.length == 0 || pago_id == 'Seleccionar') {
@@ -33,6 +37,15 @@ $(document).on("click", "#btnAddPago", function () {
             title: "Pago",
             text: "Error! Campos incompletos",
             icon: "error"
+        });
+        return;
+    }
+
+    if (recibo_id == 'Seleccionar') {
+        swal.fire({
+            title: "Recibo de Pago",
+            text: "Seleccione un recibo de pago válido!",
+            icon: "warning"
         });
         return;
     }
@@ -60,7 +73,10 @@ $(document).on("click", "#btnAddPago", function () {
         pago_id: pago_id,
         pagc_obs: pagc_obs,
         pagc_monto: pagc_monto,
-        suc_id: w_suc_idx
+        suc_id: w_suc_idx,
+        salida_id: recibo_id,
+        saldo_recibo: saldoRestante,
+        cli_id : w_cli_id
     }, function (data) {
         data = JSON.parse(data);
 
@@ -75,6 +91,7 @@ $(document).on("click", "#btnAddPago", function () {
             $('#cta_monto').val('');
             $('#ult_fecha_sal').val('');
             $('#ult_fecha_pago').val('');
+            $('#recibo_id').html('<option selected>Seleccionar cuenta</option>');
             swal.fire({
                 title: "Cobro Cuenta",
                 text: "El cobro de la cuenta se realizó correctamente!",
@@ -149,7 +166,14 @@ function selCuenta(cta_id) {
         $('#ult_fecha_sal').val(data.ult_fecha_sal);
         $('#ult_fecha_pago').val(data.ult_fecha_pago);
         $('#modalCuentas').modal('hide');
+        w_cli_id = data.cli_id;
         console.log(data);
+
+        if (w_cli_id > 0) {
+            $.post("../../controllers/salidaLoteController.php?op=ListadoRecibosSP", { tipo_val: 'C', cli_id: w_cli_id, suc_id: w_suc_idx }, function (data) {
+                $('#recibo_id').html(data);
+            })
+        }
     })
 
 }
@@ -161,7 +185,7 @@ function calcular() {
 
     if (cta_monto.length > 0 && pagc_monto.length > 0) {
 
-        total = (parseFloat(cta_monto.substring(2)) - parseFloat(pagc_monto))
+        total = (parseFloat(cta_monto.substring(2,cta_monto.length).replace(',','')) - parseFloat(pagc_monto.replace(',','')))
         if (total < 0) {
             swal.fire({
                 title: "Monto Inválido",
@@ -170,7 +194,12 @@ function calcular() {
             });
         } else {
             $('#pagc_nuevo_monto').val(String(total.toFixed(2)));
-
+            $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: $('#recibo_id').val() }, function (data) {
+                data = JSON.parse(data);
+                var montoRecibo =  data.salida_total - data.saldo;
+                var saldo = parseFloat(pagc_monto.replace(',','')) - montoRecibo; 
+                $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
+            })
         }
     }
 

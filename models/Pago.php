@@ -60,10 +60,10 @@ class Pago extends Conectar
         $query->execute();
     }
     /* TODO: Actualizar registro  */
-    public function registrarPago($i_cta_id, $i_pago_id, $i_pagc_obs, $i_usu_id, $i_pagc_monto, $i_suc_id)
+    public function registrarPago($i_cta_id, $i_pago_id, $i_pagc_obs, $i_usu_id, $i_pagc_monto, $i_suc_id, $i_salida_id, $i_saldo_recibo, $i_cli_id)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_pago @i_operacion=?, @i_cta_id=?, @i_pago_id=?, @i_pagc_obs=?, @i_usu_id=?, @i_pagc_monto=?, @i_suc_id=?";
+        $sql = "exec sp_crud_pago @i_operacion=?, @i_cta_id=?, @i_pago_id=?, @i_pagc_obs=?, @i_usu_id=?, @i_pagc_monto=?, @i_suc_id=?, @i_salida_id=?, @i_saldo_recibo=?, @i_cli_id=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, 'P');
         $query->bindValue(2, $i_cta_id);
@@ -72,6 +72,9 @@ class Pago extends Conectar
         $query->bindValue(5, $i_usu_id);
         $query->bindValue(6, $i_pagc_monto);
         $query->bindValue(7, $i_suc_id);
+        $query->bindValue(8, $i_salida_id);
+        $query->bindValue(9, $i_saldo_recibo);
+        $query->bindValue(10, $i_cli_id);
         return $query->execute();
     }
     /* TODO: Eliminar registro  */

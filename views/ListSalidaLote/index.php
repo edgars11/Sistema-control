@@ -129,18 +129,21 @@ if (isset($_SESSION["usu_id"])) {
                                                         <th>CLIENTE</th>
                                                         <th>PRODUCTO</th>
                                                         <th>FECHA</th>
+                                                        <th># RECIBO</th>
                                                         <th>CANTIDAD</th>
                                                         <th>PESO NETO</th>
                                                         <th>PRECIO</th>
                                                         <th>TOTAL MONTO</th>
                                                         <th>USUARIO</th>
                                                         <th>HORA</th>
+                                                        <th>OPCIONES</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
 
                                                 </tbody>
                                                 <tfoot>
+                                                    <th></th>
                                                     <th></th>
                                                     <th></th>
                                                     <th></th>
@@ -151,7 +154,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     <th id="total_vendido" class="fs-15 text-white bg-dark">TOTAL MONTO</th>
                                                     <th></th>
                                                     <th></th>
-
+                                                    <th></th>
                                                 </tfoot>
                                             </table>
 
@@ -178,6 +181,7 @@ if (isset($_SESSION["usu_id"])) {
 
             <!-- LLamado al Modal -->
             <?php require_once("modal.php") ?>
+            <?php require_once("modalEditSalida.php") ?>
             <!-- Fin Modal -->
 
             <!-- Librerias js -->

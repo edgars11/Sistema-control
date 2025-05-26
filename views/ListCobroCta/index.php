@@ -115,6 +115,7 @@ if (isset($_SESSION["usu_id"])) {
                                                         <th>CLIENTE</th>
                                                         <th>TIPO PAGO</th>
                                                         <th>MONTO</th>
+                                                        <th># RECIBO</th>
                                                         <th>OBSERVACIÓN</th>
                                                         <th>FECHA</th>
                                                         <th>USUARIO</th>
@@ -129,6 +130,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     <th></th>
                                                     <th class="fs-14 text-white bg-dark">TOTAL:</th>
                                                     <th id="total_vendido" class="fs-15 text-white bg-dark">TOTAL MONTO</th>
+                                                    <th></th>
                                                     <th></th>
                                                     <th></th>
                                                     <th></th>

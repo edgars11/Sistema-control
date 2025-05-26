@@ -162,4 +162,18 @@ class SalidaLote extends Conectar
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }   
+
+    /* TODO: Listar salida */
+    public function getRecibosSinPagar($i_tipo ,$i_cli_id, $i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_salida_lote @i_operacion=?,@i_tipo=?,@i_cli_id=?,@i_suc_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'L');
+        $query->bindValue(2, $i_tipo);
+        $query->bindValue(3, $i_cli_id);
+        $query->bindValue(4, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    } 
 }

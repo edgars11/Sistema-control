@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 16/3/2025 20:17:35 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 25/5/2025 7:05:11 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -39,7 +39,10 @@ declare
 @w_nueva_cant_upd decimal (14,2),
 @w_total_upd decimal (14,2),
 @w_cantidad_sal int ,
+@w_peso_total decimal (14,2),
 @w_valor_total_act  decimal (14,2),
+@w_monto_abonado  decimal (14,2),
+@w_saldo_total_cta  decimal (14,2),
 @w_exec tinyint
 
 begin
@@ -141,7 +144,7 @@ begin
 		where lote_id = @i_lote_id
 
 		-- OBSERVACION CUENTA CLIENE
-		select @w_cta_obs = 'Salida modificada # ' + CONVERT(varchar, @w_salida_id)
+		select @w_cta_obs = 'Salida modificada # ' + CONVERT(varchar, @i_salida_id)
 		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
 		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
 
@@ -239,7 +242,9 @@ begin
 				sl.salida_precio,
 				sl.salida_total,
 				CONCAT(u.usu_nombre, ' ',u.usu_apellido) as usu_nombre,
-				sl.salida_hora
+				CONVERT(varchar, sl.salida_hora , 120) as salida_hora,
+				sl.salida_id,
+				sl.salida_vpagado
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente c on c.cli_id = sl.cli_id
@@ -247,17 +252,25 @@ begin
 			where l.lote_id = ISNULL(@i_lote_id, l.lote_id)
 			and c.cli_id = ISNULL( @i_cli_id , c.cli_id)
 			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
-			and CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+			and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 			and l.suc_id = @i_suc_id
-			order by sl.salida_fecha desc
+			order by sl.cli_id, sl.salida_fecha desc
 		end 
 
 		if @i_tipo = 'T'
 		begin 
+
 			select 
-				sum(sl.salida_cantidad) as cantidad,
-				sum(sl.salida_peso_neto)as peso_neto,
-				sum(sl.salida_total) as total
+				@w_cantidad_sal = 0,
+				@w_peso_total = 0,
+				@w_valor_total_act = 0,
+				@w_monto_abonado = 0,
+				@w_saldo_total_cta = 0
+
+			select 
+				@w_cantidad_sal = sum(sl.salida_cantidad),
+				@w_peso_total = sum(sl.salida_peso_neto),
+				@w_valor_total_act = sum(sl.salida_total)
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente c on c.cli_id = sl.cli_id
@@ -265,8 +278,29 @@ begin
 			where l.lote_id = ISNULL(@i_lote_id, l.lote_id)
 			and c.cli_id = ISNULL( @i_cli_id , c.cli_id)
 			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
-			and CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+			and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 			and l.suc_id = @i_suc_id
+
+			if @i_cli_id is not null
+			begin
+				-- SE OBTIENE LOS VALORES ABONADOS DE LA CUENTA
+				select @w_monto_abonado = SUM(pagc_monto)
+				from tm_pago_cuenta pc 
+				inner join tm_salida_lote sl on sl.salida_id = pc.salida_id
+				where sl.cli_id = @i_cli_id
+				and sl.salida_vpagado in ('A','C')
+				and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
+				and pagc_estado = 1
+
+				select @w_saldo_total_cta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id
+			end
+			-- RETORNA LOS VALORES OBTENIDOS
+			select 
+				@w_cantidad_sal as 'cantidad',
+				@w_peso_total as 'peso_neto',
+				@w_valor_total_act as 'total',
+				@w_monto_abonado as 'monto_abonado',
+				@w_saldo_total_cta as 'saldo_total_cta'
 		end 
 
 		if @i_tipo = 'I'
@@ -290,7 +324,9 @@ begin
 				salida_id,
 				cl.cli_id,
 				l.lote_id,
-				l.lote_cant_actual
+				l.lote_cant_actual,
+				ISNULL((select SUM(pagc_monto) from tm_pago_cuenta pc where pc.salida_id = sl.salida_id and pagc_estado = 1 ),0) as saldo,
+				salida_vpagado
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente cl on cl.cli_id = sl.cli_id
@@ -325,6 +361,21 @@ begin
 			where YEAR(salida_fecha) = @i_year_report and 
 			month(salida_fecha) = @i_month_report
 			and l.suc_id = @i_suc_id
+		end
+
+		if @i_tipo = 'C'
+		begin
+			select 
+				salida_id, 
+				salida_total,
+				salida_vpagado,
+				ISNULL((select pagc_monto from tm_pago_cuenta pc where pc.salida_id = sl.salida_id and pagc_estado = 1),0) as saldo
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id
+			where salida_vpagado not in ('C')
+			and cli_id = @i_cli_id
+			and suc_id = @i_suc_id
+			order by salida_id
 		end
 	end
 	

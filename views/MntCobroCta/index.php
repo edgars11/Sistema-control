@@ -61,7 +61,7 @@ if (isset($_SESSION["usu_id"])) {
                                         <div class="card-body">
                                             <div class="live-preview">
                                                 <div class="row align-items-center g-3">
-                                                    <div class="col-lg-4">
+                                                    <div class="col-lg-2">
                                                         <label for="buscarCuenta"><b>&nbsp;</b></label> <br>
                                                         <button type="button" id="buscarCuenta" class="btn btn-primary w-100 btn-label waves-effect waves-light"><i class="ri-user-search-line label-icon align-middle fs-16 me-2"></i>Buscar Cuenta</button>
                                                     </div>
@@ -69,21 +69,24 @@ if (isset($_SESSION["usu_id"])) {
                                                         <label for="cli_nombre" class="form-label">Cliente</label>
                                                         <input type="text" class="form-control" id="cli_nombre" name="cli_nombre" placeholder="Nombre Cliente" readonly>
                                                     </div>
-                                                    <div class="col-lg-4 ">
+                                                    <div class="col-lg-3">
                                                         <label for="cli_telefono" class="form-label">Contacto</label>
-                                                        <input type="text" class="form-control" id="cli_telefono" name="cli_telefono" placeholder="Contacto">
+                                                        <input type="text" class="form-control" id="cli_telefono" name="cli_telefono" placeholder="Contacto" readonly>
                                                     </div>
-
-                                                    <div class="col-lg-4 ">
+                                                    <div class="col-lg-3">
                                                         <label for="cta_monto" class="form-label">Monto Cuenta</label>
                                                         <input type="text" class="form-control" id="cta_monto" name="cta_monto" placeholder="$ 0.00" readonly>
                                                     </div>
-
+                                                    <div class="col-lg-4">
+                                                        <label for="recibo_id" class="form-label">Recibo a cancelar</label>
+                                                        <select class="form-control form-select" id="recibo_id" name="recibo_id" aria-label="Seleccionar">
+                                                            <option selected>Seleccionar</option>
+                                                        </select>
+                                                    </div>
                                                     <div class="col-lg-4 ">
                                                         <label for="ult_fecha_sal" class="form-label">Fecha Salida</label>
                                                         <input type="text" class="form-control" id="ult_fecha_sal" name="ult_fecha_sal" placeholder="Sin fecha" readonly>
                                                     </div>
-
                                                     <div class="col-lg-4">
                                                         <label for="ult_fecha_pago" class="form-label">Fecha último Pago</label>
                                                         <input type="text" class="form-control" id="ult_fecha_pago" name="ult_fecha_pago" placeholder="Sin fecha" readonly>
@@ -105,23 +108,29 @@ if (isset($_SESSION["usu_id"])) {
                                         <div class="card-body">
                                             <div class="live-preview">
                                                 <div class="row align-items-center g-3">
-                                                    <div class="col-lg-3">
+                                                    <div class="col-lg-2">
                                                         <label for="pago_id" class="form-label">Tipo Pago</label>
-                                                        <select class="form-control form-select" id="pago_id" name="pago_id" aria-label="Seleccionar">
+                                                        <select class="form-control form-select" id="pago_id" name="pago_id" aria-label="Seleccionar" required>
                                                             <option selected>Seleccionar</option>
                                                         </select>
                                                     </div>
+
                                                     <div class="col-lg-2">
-                                                        <label for="pagc_monto" class="form-label">Monto a Cancelar</label>
-                                                        <input type="number" class="form-control" onblur="calcular()" id="pagc_monto" min="0" max="10000" step="0.01" name="pagc_monto" placeholder="Costo">
+                                                        <label for="pagc_monto" class="form-label">Monto a cancelar</label>
+                                                        <input type="number" class="form-control" onblur="calcular()" id="pagc_monto" min="0" max="10000" step="0.01" name="pagc_monto" placeholder="Monto">
                                                     </div>
 
                                                     <div class="col-lg-2">
-                                                        <label for="pagc_nuevo_monto" class="form-label">Nuevo Monto</label>
-                                                        <input type="number" class="form-control" id="pagc_nuevo_monto" name="pagc_nuevo_monto" placeholder="0.00" readonly>
+                                                        <label for="pagc_saldo_recibo" class="form-label">Saldo recibo</label>
+                                                        <input type="number" class="form-control" id="pagc_saldo_recibo" name="pagc_saldo_recibo" placeholder="0.00" readonly>
                                                     </div>
 
-                                                    <div class="col-lg-3">
+                                                    <div class="col-lg-2">
+                                                        <label for="pagc_nuevo_monto" class="form-label">Nuevo Monto Total</label>
+                                                        <input type="number" class="form-control" id="pagc_nuevo_monto" name="pagc_nuevo_monto" placeholder="0.00" readonly required>
+                                                    </div>
+
+                                                    <div class="col-lg-2">
                                                         <label for="pagc_obs" class="form-label">Observación</label>
                                                         <input type="text" class="form-control" id="pagc_obs" name="pagc_obs" placeholder="Observación">
                                                     </div>
