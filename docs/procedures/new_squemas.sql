@@ -12,6 +12,10 @@ ali_desc varchar(100),
 ali_estado tinyint
 );
 
+-- Sentencia para eliminar columna de una tabla
+ALTER TABLE nombreTabla
+DROP COLUMN nombreColumna;
+
 -- se crea primary key en la tabla nueva creada
 
 alter table tm_alimento_lote
@@ -36,3 +40,8 @@ ALTER TABLE tm_pago_cuenta
 ADD salida_id int
 CONSTRAINT cnstrt_not_null_pagado NOT NULL
 CONSTRAINT cnstrt_default_pagado DEFAULT 0;
+
+-- 26/05/2025
+-- se agrega el campo pagc_id para registrar el id del pago
+ALTER TABLE tm_movimiento_cuenta
+ADD pagc_id int NULL;

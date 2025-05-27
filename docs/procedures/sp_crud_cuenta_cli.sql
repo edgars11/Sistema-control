@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 12/5/2025 20:06:55 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 26/5/2025 20:11:21 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -14,6 +14,7 @@ ALTER procedure [dbo].[sp_crud_cuenta_cli] (
  @i_cta_id int = null,
  @i_movc_tipo char(1) = null,
  @i_salida_id int = null,
+ @i_pagc_id int = null,
  @i_cta_monto decimal(14,2) = null,
  @i_cta_obs varchar(75) = null,
  @i_cta_fecha varchar(70) = null
@@ -73,10 +74,10 @@ begin
 		-- SE REGISTRA EL MOVIMIENO DE LA CUENTA
 		insert into tm_movimiento_cuenta 
 		(salida_id,		movc_tipo,			movc_val_actual,	movc_valor,			movc_nuevo_val,		
-		cta_id,			movc_fecha,			usu_id ,		movc_obs)
+		cta_id,			movc_fecha,			usu_id ,		movc_obs,	pagc_id)
 		values
 		(@i_salida_id, 	@i_movc_tipo, 		@w_val_actual,		@i_cta_monto, 		@w_val_total, 		
-		@i_cta_id, 		@i_cta_fecha, 		@i_usu_id,		@i_cta_obs)
+		@i_cta_id, 		@i_cta_fecha, 		@i_usu_id,		@i_cta_obs,		@i_pagc_id)
 	end
 
 	if @i_operacion = 'R'

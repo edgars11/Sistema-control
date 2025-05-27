@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 21/5/2025 22:01:28 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 26/5/2025 19:54:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -220,7 +220,8 @@ begin
 		@i_cta_fecha = @w_fecha,
 		@i_usu_id = @i_usu_id,
 		@i_cta_obs = @w_cta_obs,
-		@i_salida_id = @w_pagc_id
+		@i_salida_id = @i_salida_id,
+		@i_pagc_id = @w_pagc_id
 
 		print 'Se actualiza el campo de salida'
 		print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
@@ -293,7 +294,8 @@ begin
 				@i_cta_fecha = @w_fecha,
 				@i_usu_id = @i_usu_id,
 				@i_cta_obs = @w_cta_obs,
-				@i_salida_id = @w_pagc_id
+				@i_salida_id = @i_salida_id,
+				@i_pagc_id = @w_pagc_id
 
 				print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
 				print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)

@@ -414,17 +414,17 @@ function editar(salida_id) {
             $('#salida_estado').html(estadoRecibo);
 
             if (data.salida_vpagado === 'C' || data.salida_vpagado === 'A') {
-                $('#salida_cantidad').prop('readonly', true);
-                $('#salida_peso').prop('readonly', true);
-                $('#salida_tara').prop('readonly', true);
-                $('#salida_peso_neto').prop('readonly', true);
-                $('#salida_total').prop('readonly', true);
-                $('#salida_precio').prop('readonly', true);
+                $('#sal_cantidad').prop('readonly', true);
+                $('#sal_peso').prop('readonly', true);
+                $('#sal_tara').prop('readonly', true);
+                $('#sal_peso_neto').prop('readonly', true);
+                $('#sal_total').prop('readonly', true);
+                $('#sal_precio').prop('readonly', true);
             } else {
-                $('#salida_cantidad').prop('readonly', false);
-                $('#salida_peso').prop('readonly', false);
-                $('#salida_tara').prop('readonly', false);
-                $('#salida_precio').prop('readonly', false);
+                $('#sal_cantidad').prop('readonly', false);
+                $('#sal_peso').prop('readonly', false);
+                $('#sal_tara').prop('readonly', false);
+                $('#sal_precio').prop('readonly', false);
             }
         });
 
