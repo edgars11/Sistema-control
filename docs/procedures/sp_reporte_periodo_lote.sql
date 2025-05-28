@@ -79,6 +79,7 @@ begin
 		 lote_id, salida_tipo, salida_cantidad, salida_peso_neto, salida_total, salida_fecha , GETDATE(),0 ,@i_suc_id ,0
 		from tm_salida_lote
 		where lote_id = @i_lote_id
+		and salida_estado = 1
 		and salida_fecha between @i_fecha_periodo and @i_fecha_fin
 		order by salida_fecha
 

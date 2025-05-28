@@ -45,3 +45,15 @@ CONSTRAINT cnstrt_default_pagado DEFAULT 0;
 -- se agrega el campo pagc_id para registrar el id del pago
 ALTER TABLE tm_movimiento_cuenta
 ADD pagc_id int NULL;
+
+-- se agrega el campo salida_estado para una eliminación lógica
+ALTER TABLE tm_salida_lote
+ADD salida_estado tinyint
+CONSTRAINT cnst_salida_estado NOT NULL
+CONSTRAINT cnst_salida_estado_def DEFAULT 1;
+
+-- se agrega el campo movc_estado para una eliminación lógica
+ALTER TABLE tm_movimiento_cuenta
+ADD movc_estado tinyint
+CONSTRAINT cnst_movc_estado NOT NULL
+CONSTRAINT cnst_movc_estado_def DEFAULT 1;

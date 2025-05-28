@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 2/3/2025 16:37:15 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 28/5/2025 17:52:45 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

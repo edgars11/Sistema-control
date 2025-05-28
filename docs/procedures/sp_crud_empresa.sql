@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_empresa]    Script Date: 20/2/2025 20:53:22 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_empresa]    Script Date: 28/5/2025 18:47:56 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -58,7 +58,7 @@ begin
 		if @i_tipo = 'I'
 		begin
 			select * from tm_empresa
-			where emp_estado = 1
+			where emp_estado = @i_emp_estado
 			and emp_id = @i_emp_id
 			and com_id = @i_com_id
 		end

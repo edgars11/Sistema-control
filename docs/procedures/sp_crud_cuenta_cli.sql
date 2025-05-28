@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 26/5/2025 20:11:21 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 28/5/2025 17:50:59 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -114,6 +114,7 @@ begin
 		where cc.cta_id = @i_cta_id
 		and cc.suc_id = @i_suc_id
 		and cc.cta_estado = 1
+		and movc_estado = 1
 		order by movc_fecha desc
 	end
 
@@ -125,10 +126,10 @@ begin
 			cli_telefono,
 			cta_monto,
 			(select top 1 CONVERT(varchar,movc_fecha,22) from tm_movimiento_cuenta 
-			where cta_id = @i_cta_id and movc_tipo = '+' 
+			where cta_id = @i_cta_id and movc_tipo = '+' and movc_estado = 1
 			order by movc_fecha desc) as ult_fecha_sal,
 			(select top 1 CONVERT(varchar,movc_fecha,22) from tm_movimiento_cuenta 
-			where cta_id = @i_cta_id and movc_tipo = '-' 
+			where cta_id = @i_cta_id and movc_tipo = '-' and movc_estado = 1
 			order by movc_fecha desc) as ult_fecha_pago,
 			c.cli_id
 		from 

@@ -102,7 +102,7 @@ begin
 		where cta_id = @w_cta_id
 
 		-- SE VALIDA EL ESTADO DEL PAGO DEL RECIBO
-		select @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @w_prox_recibo
+		select @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @w_prox_recibo and salida_estado = 1
 
 		if @w_estado_recibo = 'C'
 			set @w_estado_recibo = 'N'
@@ -164,7 +164,7 @@ begin
 			@w_saldo_pago = 0
 
 		-- SE OBTIENE EL SALDO COMPLETO DE SALIDA
-		select @w_saldo_recibo = salida_total, @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @i_salida_id
+		select @w_saldo_recibo = salida_total, @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @i_salida_id and salida_estado = 1
 		
 		-- SE VALIDA SI HAY SALDO DE PAGO
 		if @w_estado_recibo = 'A'
@@ -242,7 +242,7 @@ begin
 
 				select top 1 @w_prox_recibo = salida_id , @w_saldo_recibo = salida_total
 				from tm_salida_lote 
-				where salida_id > @w_prox_recibo and cli_id = @i_cli_id and salida_vpagado not in ('C')
+				where salida_id > @w_prox_recibo and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1
 
 				select @w_val_total_w = @w_val_total - @w_saldo_recibo
 

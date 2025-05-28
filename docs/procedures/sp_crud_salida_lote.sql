@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 26/5/2025 20:45:53 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 28/5/2025 17:11:45 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -119,6 +119,7 @@ begin
 			@w_cliente_id = cli_id
 		from tm_salida_lote
 		where salida_id = @i_salida_id
+		and salida_estado = 1
 
 		update tm_salida_lote set
 		salida_fecha = @i_salida_fecha, 
@@ -135,6 +136,7 @@ begin
 		salida_hora = @w_fecha
 		where 
 		salida_id = @i_salida_id
+		and salida_estado = 1
 
 		update tm_lote 
 		set lote_cant_actual = (isnull(lote_cant_actual,0)+@w_cantidad_sal),
@@ -167,6 +169,7 @@ begin
 		select @w_total_registros = COUNT(1) from tm_movimiento_cuenta mc
 		inner join tm_salida_lote sl on sl.salida_id = mc.salida_id
 		where cta_id = @w_cta_cli 
+		and sl.salida_estado = 1
 		and mc.movc_id > @w_movc_id
 
 		if @w_total_registros > 0
@@ -181,6 +184,7 @@ begin
 				inner join tm_salida_lote sl on sl.salida_id = mc.salida_id
 				where cta_id = @w_cta_cli  
 				and mc.movc_id > @w_movc_id
+				and sl.salida_estado = 1
 				order by movc_id, movc_fecha
 
 				if @w_signo_ope = '+'
@@ -221,7 +225,7 @@ begin
 			@w_cant_actual_upd = salida_cantidad,
 			@w_total_upd = salida_total,
 			@w_lote_id = lote_id
-		from tm_salida_lote where salida_id =  @i_salida_id
+		from tm_salida_lote where salida_id =  @i_salida_id and salida_estado = 1
 
 		-- SE ACTUALIZA LA CANTIDAD DISPONIBLE DEL LOTE
 		update tm_lote 
@@ -243,8 +247,13 @@ begin
 		and cta_estado = 1
 
 		-- SE ELIMINA REGISTRO DE MOVIMIENTO Y SALIDA LOTE
-		delete from tm_movimiento_cuenta where salida_id = @i_salida_id
-		delete from tm_salida_lote where salida_id = @i_salida_id
+		update tm_movimiento_cuenta 
+			set movc_estado = 0
+		where salida_id = @i_salida_id
+
+		update tm_salida_lote 
+		set salida_estado = 0
+		where salida_id = @i_salida_id
 		
 		select @w_exec = 0
 	end
@@ -269,6 +278,7 @@ begin
 		inner join tm_cliente cl on cl.cli_id = sl.cli_id
 		where l.suc_id = @i_suc_id
 		and sl.usu_id = @i_usu_id
+		and sl.salida_estado = 1
 		and CAST(sl.salida_hora as date) = @i_salida_fecha
 		order by sl.salida_hora desc
 
@@ -300,6 +310,7 @@ begin
 			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
 			and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 			and l.suc_id = @i_suc_id
+			and sl.salida_estado = 1
 			order by sl.cli_id, sl.salida_fecha desc
 		end 
 
@@ -326,6 +337,7 @@ begin
 			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
 			and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 			and l.suc_id = @i_suc_id
+			and sl.salida_estado = 1
 
 			if @i_cli_id is not null
 			begin
@@ -337,6 +349,7 @@ begin
 				and sl.salida_vpagado in ('A','C')
 				and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 				and pagc_estado = 1
+				and sl.salida_estado = 1
 
 				select @w_saldo_total_cta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id
 			end
@@ -378,6 +391,7 @@ begin
 			inner join tm_cliente cl on cl.cli_id = sl.cli_id
 			inner join tm_cuenta_cliente cc on cc.cli_id = cl.cli_id 
 			where sl.salida_id = @i_salida_id
+			and sl.salida_estado = 1
 
 		end
 	
@@ -392,6 +406,7 @@ begin
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id 
 			where  CAST(sl.salida_hora as date) between @i_fecha_desde and @i_fecha_hasta
+			and  sl.salida_estado = 1
 			group by sl.lote_id, l.lote_descripcion
 		end
 	
@@ -407,6 +422,7 @@ begin
 			where YEAR(salida_fecha) = @i_year_report and 
 			month(salida_fecha) = @i_month_report
 			and l.suc_id = @i_suc_id
+			and sl.salida_estado = 1
 		end
 
 		if @i_tipo = 'C'
@@ -421,6 +437,7 @@ begin
 			where salida_vpagado not in ('C')
 			and cli_id = @i_cli_id
 			and suc_id = @i_suc_id
+			and salida_estado = 1
 			order by salida_id
 		end
 	end

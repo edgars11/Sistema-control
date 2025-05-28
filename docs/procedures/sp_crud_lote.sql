@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 16/3/2025 16:38:57 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 28/5/2025 18:48:29 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
