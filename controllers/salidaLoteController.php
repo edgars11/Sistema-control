@@ -154,7 +154,7 @@ switch ($_GET['op']) {
         }
         break;
     case 'deleteout':
-        $datos =  $salidalote->deleteSalida($_POST['salida_id']);
+        $datos =  $salidalote->deleteSalida($_POST['salida_id'], $_POST['suc_id']);
         $outout["exec"] = $datos;
 
         echo json_encode($outout);

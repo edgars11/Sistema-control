@@ -38,13 +38,14 @@ class SalidaLote extends Conectar
         $query->execute();
     }
     /* TODO: Eliminar registro por id */
-    public function deleteSalida($i_salida_id)
+    public function deleteSalida($i_salida_id, $i_suc_id)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_salida_lote @i_operacion=?, @i_salida_id= ?";
+        $sql = "exec sp_crud_salida_lote @i_operacion=?, @i_salida_id= ?, @i_suc_id=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, 'D');
         $query->bindValue(2, $i_salida_id);
+        $query->bindValue(3, $i_suc_id);
         return $query->execute();
     }
     /* TODO: Insertar nuevo registro */
@@ -161,10 +162,10 @@ class SalidaLote extends Conectar
         $query->bindValue(8, $i_suc_id);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
-    }   
+    }
 
     /* TODO: Listar salida */
-    public function getRecibosSinPagar($i_tipo ,$i_cli_id, $i_suc_id)
+    public function getRecibosSinPagar($i_tipo, $i_cli_id, $i_suc_id)
     {
         $conectar = parent::Conexion();
         $sql = "exec sp_crud_salida_lote @i_operacion=?,@i_tipo=?,@i_cli_id=?,@i_suc_id=?";
@@ -175,5 +176,5 @@ class SalidaLote extends Conectar
         $query->bindValue(4, $i_suc_id);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
-    } 
+    }
 }

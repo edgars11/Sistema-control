@@ -350,7 +350,7 @@ function eliminar(salida_id) {
                     if (result.value) {
                         // Elimina el registro
                         $.post("../../controllers/salidaLoteController.php?op=deleteout",
-                            { salida_id: salida_id },
+                            { salida_id: salida_id, suc_id: i_suc_id },
                             function (data) {
                                 data = JSON.parse(data);
                                 console.log(data);

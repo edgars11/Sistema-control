@@ -401,7 +401,6 @@ function limpiarCampos() {
 }
 
 function eliminar(salida_id) {
-    console.log(salida_id);
     swal.fire({
         title: "Confirmación!",
         text: "Desea eliminar el registro de salida?",
@@ -413,7 +412,7 @@ function eliminar(salida_id) {
         if (result.value) {
             // Elimina el registro
             $.post("../../controllers/salidaLoteController.php?op=deleteout",
-                { salida_id: salida_id },
+                { salida_id: salida_id, suc_id: suc_idx },
                 function (data) {
                     data = JSON.parse(data);
                     console.log(data);

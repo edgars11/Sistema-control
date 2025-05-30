@@ -148,6 +148,7 @@ class GeneratePDF extends Conectar
 
         $descarga = $download === "1" ? true : false;
 
+        $nombreClienteReporte = '';
         $subtotal = 0;
         $valorIva = 15;
         $iva = 0;
@@ -263,7 +264,7 @@ class GeneratePDF extends Conectar
             }
         }
 
-        $encabezado = getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta);
+        $encabezado = getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta, $nombreClienteReporte);
 
         $html = '
             <!DOCTYPE html>
@@ -309,7 +310,7 @@ class GeneratePDF extends Conectar
             </html>
         ';
 
-        $nombreReporte = 'RegListadoSalida-From-' . $fecha_desde . '-to-' . $fecha_hasta . '.pdf';
+        $nombreReporte = 'RegListadoPedido'.$nombreClienteReporte.'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
 
         generarPDF($html, $nombreReporte, $descarga, 'landscape');
     }
@@ -375,7 +376,7 @@ function datosEmpresa($emp_id, $com_id)
     return $datosEmpresa;
 }
 
-function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta)
+function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta, $nombreClienteReporte)
 {
     $datosEmpresa = datosEmpresa($emp_id, $com_id);
 
@@ -387,6 +388,7 @@ function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id,
 
     if (!empty($cli_id) && $lote_id == null) {
         $datosCliente = buscarCliente($cli_id);
+        $nombreClienteReporte = '-'.$datosCliente["cli_nombre"].'-';
         $html = '
         <div id="company" class="clearfix">
                         <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>

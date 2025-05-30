@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 28/5/2025 17:11:45 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 28/5/2025 18:57:13 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -45,6 +45,7 @@ declare
 @w_valor_total_act  decimal (14,2),
 @w_movc_nuevo_val  decimal (14,2),
 @w_monto_abonado  decimal (14,2),
+@w_movc_val_actual  decimal (14,2),
 @w_saldo_total_cta  decimal (14,2),
 @w_exec tinyint,
 @w_signo_ope char(1),
@@ -72,7 +73,7 @@ begin
 		where lote_id = @i_lote_id
 
 		-- OBSERVACION CUENTA CLIENE
-		select @w_cta_obs = 'Salida # ' + CONVERT(varchar, @w_salida_id)
+		select @w_cta_obs = 'Pedido # ' + CONVERT(varchar, @w_salida_id)
 
 		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
 		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
@@ -151,25 +152,34 @@ begin
 		where lote_id = @i_lote_id
 
 		-- OBSERVACION CUENTA CLIENTE
-		select @w_cta_obs = 'Salida modificada # ' + CONVERT(varchar, @i_salida_id)
+		select @w_cta_obs = 'Pedido modificado # ' + CONVERT(varchar, @i_salida_id)
 		-- SE OBTIENE LA CUENTA DEL CLIENTE PARA LA ACTUALIZACIÓN
-		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
+		Select @w_cta_cli = cta_id from tm_cuenta_cliente 
+		where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
+
+		-- SE OBTIEN EL ID DE MOVIMIENTO DE LA CUENTA SEGÚN EL ID DE SALIDA Y CUENTA CLIENTE
+		select @w_movc_id = movc_id from tm_movimiento_cuenta mc 
+		where mc.salida_id = @i_salida_id and cta_id = @w_cta_cli and movc_estado = 1
+
+		-- PARA LA MODIFICACIÓN SE VA A TOMAR EL ULTIMO SALDO REGISTRADO Y POSTERIOR CON ESE SALDO CALCULAR EL VALOR A MODIFICAR
+		select top 1 @w_movc_val_actual = movc_nuevo_val from tm_movimiento_cuenta mc 
+		where movc_id < @w_movc_id and cta_id = @w_cta_cli and movc_estado = 1 order by movc_id desc
 
 		update tm_movimiento_cuenta 
-		set movc_valor = @i_salida_total,
-		movc_nuevo_val = (movc_val_actual + @i_salida_total),
+		set movc_val_actual = @w_movc_val_actual,
+		movc_valor = @i_salida_total,
+		movc_nuevo_val = (@w_movc_val_actual + @i_salida_total),
 		movc_obs = @w_cta_obs,
 		movc_fecha = @w_fecha
 		where salida_id = @i_salida_id
 		and cta_id = @w_cta_cli
+		and movc_estado = 1
 
-		select @w_movc_id = movc_id from tm_movimiento_cuenta mc where mc.salida_id = @i_salida_id and cta_id = @w_cta_cli
 
 		-- SE VALIDA SI EXISTEN MÁS REGISTROS DE SALIDA PARA MODIFICAR EL SALDO.
 		select @w_total_registros = COUNT(1) from tm_movimiento_cuenta mc
-		inner join tm_salida_lote sl on sl.salida_id = mc.salida_id
 		where cta_id = @w_cta_cli 
-		and sl.salida_estado = 1
+		and movc_estado = 1
 		and mc.movc_id > @w_movc_id
 
 		if @w_total_registros > 0
@@ -177,14 +187,14 @@ begin
 			while(@w_total_registros > 0)
 			begin
 				-- se obtiene el nuevo monto del salida modificado
-				select @w_monto_abonado = mc.movc_nuevo_val from tm_movimiento_cuenta mc where movc_id = @w_movc_id and cta_id = @w_cta_cli
+				select @w_monto_abonado = mc.movc_nuevo_val from tm_movimiento_cuenta mc 
+				where movc_id = @w_movc_id and cta_id = @w_cta_cli and movc_estado = 1
 
 				select top 1 @w_movc_id = movc_id, @w_signo_ope = movc_tipo ,@w_saldo_total_cta = movc_valor 
 				from tm_movimiento_cuenta mc
-				inner join tm_salida_lote sl on sl.salida_id = mc.salida_id
 				where cta_id = @w_cta_cli  
 				and mc.movc_id > @w_movc_id
-				and sl.salida_estado = 1
+				and mc.movc_estado = 1
 				order by movc_id, movc_fecha
 
 				if @w_signo_ope = '+'
@@ -201,6 +211,7 @@ begin
 				movc_nuevo_val = @w_movc_nuevo_val
 				where movc_id = @w_movc_id
 				and cta_id = @w_cta_cli
+				and movc_estado = 1
 
 				set @w_total_registros = @w_total_registros - 1
 			end
@@ -237,24 +248,41 @@ begin
 		-- SE OBTIENE LA CTA POR MEDIO DEL MOVIEMIENTO REGISTRADO
 		select @w_cta_id = cta_id from tm_movimiento_cuenta
 		where salida_id = @i_salida_id
+		and movc_estado = 1
+		and movc_tipo = '+'
 
 		-- SE ACTUALIZA LA CUENTA DEL CLIENTE
-		update tm_cuenta_cliente
-		set cta_monto = cta_monto - @w_total_upd,
-		cta_fecha_upd = @w_fecha,
-		cta_obs = 'Actualizado'
-		where cta_id = @w_cta_id
-		and cta_estado = 1
+		--update tm_cuenta_cliente
+		--set cta_monto = cta_monto - @w_total_upd,
+		--cta_fecha_upd = @w_fecha,
+		--cta_obs = 'Actualizado'
+		--where cta_id = @w_cta_id
+		--and cta_estado = 1
+
+		select @w_cta_obs = 'Se elimina pedido #' + CONVERT(varchar, @i_salida_id)
 
 		-- SE ELIMINA REGISTRO DE MOVIMIENTO Y SALIDA LOTE
 		update tm_movimiento_cuenta 
-			set movc_estado = 0
+			set movc_obs = @w_cta_obs
 		where salida_id = @i_salida_id
+		and movc_tipo = '+'
 
 		update tm_salida_lote 
 		set salida_estado = 0
 		where salida_id = @i_salida_id
 		
+		exec sp_crud_cuenta_cli  
+		@i_operacion = 'U',
+		@i_cta_id = @w_cta_id, 
+		@i_suc_id = @i_suc_id,
+		@i_movc_tipo = '-',
+		@i_cta_monto = @w_total_upd,
+		@i_cta_fecha = @w_fecha,
+		@i_usu_id = @i_usu_id,
+		@i_cta_obs = @w_cta_obs,
+		@i_salida_id = @i_salida_id,
+		@i_pagc_id = 0
+
 		select @w_exec = 0
 	end
 
@@ -280,7 +308,7 @@ begin
 		and sl.usu_id = @i_usu_id
 		and sl.salida_estado = 1
 		and CAST(sl.salida_hora as date) = @i_salida_fecha
-		order by sl.salida_hora desc
+		order by sl.cli_id, sl.salida_fecha desc
 
 	end
 
