@@ -67,8 +67,8 @@ if (isset($_SESSION["usu_id"])) {
                                                         <th>TOTAL</th>
                                                         <th>FECHA</th>
                                                         <th>USUARIO</th>
-                                                        <th></th>
-                                                        <th></th>
+                                                        <th>OPCIONES</th>
+                                                        <th>OPCIONES</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>

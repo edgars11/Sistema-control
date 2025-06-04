@@ -81,4 +81,16 @@ class Cuentas extends Conectar
         $query->bindValue(3, $i_cta_id);
         return $query->execute();
     }
+    /* TODO: Listar registro por sucursal */
+    public function getCtaByClientId($i_cli_id, $i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_cuenta_cli @i_operacion=?, @i_cli_id=?, @i_suc_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'B');
+        $query->bindValue(2, $i_cli_id);
+        $query->bindValue(3, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -57,3 +57,9 @@ ALTER TABLE tm_movimiento_cuenta
 ADD movc_estado tinyint
 CONSTRAINT cnst_movc_estado NOT NULL
 CONSTRAINT cnst_movc_estado_def DEFAULT 1;
+
+---------------------------------------------------------------------
+-- 03/06/2025 --
+-- Se crea un nuevo campo para registrar los pagos con pedido id 0. PENDIENTE
+ALTER TABLE tm_movimiento_cuenta
+ADD movc_est_saldcero char(1) NULL;

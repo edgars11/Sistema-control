@@ -70,6 +70,38 @@ $datos = $menu->getMenuPorRol("M",$_SESSION['rol_id']);
                 }
                 ?> <!-- end Dashboard Mantenimiento -->
 
+                <!-- Compra -->
+                <li class="menu-title"><span data-key="t-menu">Compra</span></li>
+                <?php
+                foreach ($datos as $row) {
+                    if ($row["men_grupo"] == 'Compra' && $row["mend_permiso"] == 'S') {
+                ?>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="<?php echo $row["men_ruta"] ?>" role="button" aria-expanded="false" aria-controls="sidebarDashboards">
+                                <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards"><?php echo $row["men_nombre"] ?></span>
+                            </a>
+                        </li> 
+                <?php
+                    }
+                }
+                ?> <!-- end Dashboard Compra -->
+
+                <!-- Venta -->
+                <li class="menu-title"><span data-key="t-menu">Venta</span></li>
+                <?php
+                foreach ($datos as $row) {
+                    if ($row["men_grupo"] == 'Venta' && $row["mend_permiso"] == 'S') {
+                ?>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="<?php echo $row["men_ruta"] ?>" role="button" aria-expanded="false" aria-controls="sidebarDashboards">
+                                <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards"><?php echo $row["men_nombre"] ?></span>
+                            </a>
+                        </li> 
+                <?php
+                    }
+                }
+                ?> <!-- end Dashboard Venta -->
+
 
                 <!-- Lote -->
                 <li class="menu-title"><span data-key="t-menu">Lote</span></li>

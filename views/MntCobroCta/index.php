@@ -121,7 +121,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     </div>
 
                                                     <div class="col-lg-2">
-                                                        <label for="pagc_saldo_recibo" class="form-label">Saldo recibo</label>
+                                                        <label for="pagc_saldo_recibo" class="form-label">Saldo a favor</label>
                                                         <input type="number" class="form-control" id="pagc_saldo_recibo" name="pagc_saldo_recibo" placeholder="0.00" readonly>
                                                     </div>
 

@@ -195,12 +195,17 @@ switch ($_GET['op']) {
         $datos = $salidalote->getRecibosSinPagar($_POST['tipo_val'], $cli_id, $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             $html = "";
-            $html .= '<option selected>Seleccionar</option>';
+            $html .= '<option value="0" selected>Cancelar saldo pendiente anterior</option>';
             foreach ($datos as $row) {
                 $estado = $row['salida_vpagado'] == 'N' ? 'Pendiente' : 'Abonado: $ ' . $row['saldo'] . ' - Saldo : $ ' . ($row['salida_total'] - $row['saldo']);
                 $html .= "<option value='" . $row['salida_id'] . "'> # " . $row['salida_id'] . " - $ " . ($row['salida_total']) . " - " . $estado . "</option>";
             }
             echo $html;
+        }else{
+            // $cuentas = new Cuentas();
+            // $datoCta = $cuentas->getCtaByClientId($cli_id,$_POST['suc_id']);
+
+            echo '<option value="0" selected>Cancelar saldo pendiente anterior</option>';
         }
         break;
 }

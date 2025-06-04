@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 28/5/2025 17:50:59 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 2/6/2025 23:00:02 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -49,9 +49,10 @@ begin
 	begin
 		select @w_val_actual = cta_monto from tm_cuenta_cliente where cta_id = @i_cta_id and suc_id = @i_suc_id and cta_estado = 1
 		
-		print @w_val_actual
-		print @i_movc_tipo
-		print @i_cta_monto
+		print ' @@w_val_actual : '+ convert(varchar, @w_val_actual)
+		print ' @@i_movc_tipo : '+ convert(varchar, @i_movc_tipo)
+		print ' @@i_cta_monto : '+ convert(varchar, @i_cta_monto)
+		print ' @@i_cta_id : '+ convert(varchar, @i_cta_id)
 
 		if @i_movc_tipo = '+'
 		begin 
@@ -146,6 +147,28 @@ begin
 		set cta_estado = 0
 		where cta_id = @i_cta_id
 		and suc_id = @i_suc_id
+	end
+
+	if @i_operacion = 'B'
+	begin
+		select 
+			cta_id,
+			cli_nombre,
+			cli_telefono,
+			cta_monto,
+			(select top 1 CONVERT(varchar,movc_fecha,22) from tm_movimiento_cuenta 
+			where cta_id = @i_cta_id and movc_tipo = '+' and movc_estado = 1
+			order by movc_fecha desc) as ult_fecha_sal,
+			(select top 1 CONVERT(varchar,movc_fecha,22) from tm_movimiento_cuenta 
+			where cta_id = @i_cta_id and movc_tipo = '-' and movc_estado = 1
+			order by movc_fecha desc) as ult_fecha_pago,
+			c.cli_id
+		from 
+		tm_cuenta_cliente cc
+		inner join tm_cliente c on c.cli_id = cc.cli_id
+		where suc_id = @i_suc_id
+		and c.cli_id = @i_cli_id
+		and cta_estado = 1
 	end
 
 end

@@ -9,22 +9,24 @@
 
             <div class="modal-body">
 
-                <div class="table-responsive">
-                    <table id="detalle_data" class="table table-borderless text-center table-nowrap align-middle mb-0">
-                        <thead>
-                            <tr class="table-active">
-                                <th scope="col" style="width: 50px;">ID</th>
-                                <th scope="col">Categoria</th>
-                                <th scope="col">Producto</th>
-                                <th scope="col">P.Venta</th>
-                                <th scope="col">Cantidad</th>
-                                <th scope="col" class="text-end">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <div class="table-responsive ">
+                    <div class="container">
+                        <table id="detalle_data" class="table table-borderless text-center table-nowrap align-middle mb-0">
+                            <thead>
+                                <tr class="table-active">
+                                    <th scope="col" style="width: 50px;">ID</th>
+                                    <th scope="col">Categoria</th>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col">P.Venta</th>
+                                    <th scope="col">Cantidad</th>
+                                    <th scope="col" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                        </tbody>
-                    </table><!--end table-->
+                            </tbody>
+                        </table><!--end table-->
+                    </div>
                 </div>
                 <div class="border-top border-top-dashed mt-2">
                     <table class="table table-borderless table-nowrap align-middle mb-0 ms-auto" style="width:250px">

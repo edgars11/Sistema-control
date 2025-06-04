@@ -117,7 +117,7 @@ switch ($_GET['op']) {
         $datos = $venta->getListadoVentaRegistradas("A", $_POST['suc_id']);
         $data = array();
         foreach ($datos as $row) {
-            $sub_array = array();
+            $sub_array = array(); 
             $sub_array[] = "C-".$row['ven_id'];
             $sub_array[] = $row['cli_nombre'];
             $sub_array[] = $row['cli_ruc'];

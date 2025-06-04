@@ -68,6 +68,10 @@ $(document).on("click", "#btnAddPago", function () {
         return;
     }
 
+    if (saldoRestante.length == 0) {
+        saldoRestante = 0;
+    }
+
     $.post("../../controllers/pagoController.php?op=guardarPago", {
         cta_id: cta_id,
         pago_id: pago_id,
@@ -76,7 +80,7 @@ $(document).on("click", "#btnAddPago", function () {
         suc_id: w_suc_idx,
         salida_id: recibo_id,
         saldo_recibo: saldoRestante,
-        cli_id : w_cli_id
+        cli_id: w_cli_id
     }, function (data) {
         data = JSON.parse(data);
 
@@ -93,13 +97,13 @@ $(document).on("click", "#btnAddPago", function () {
             $('#ult_fecha_pago').val('');
             $('#recibo_id').html('<option selected>Seleccionar cuenta</option>');
             swal.fire({
-                title: "Cobro Cuenta",
+                title: "Cobro Exitoso",
                 text: "El cobro de la cuenta se realizó correctamente!",
                 icon: "success"
             });
         } else {
             swal.fire({
-                title: "Cobro Cuenta",
+                title: "Cobro Errado",
                 text: "Hubo un error al guardar el cobro de cuenta!",
                 icon: "warning"
             });
@@ -174,6 +178,18 @@ function selCuenta(cta_id) {
                 $('#recibo_id').html(data);
             })
         }
+
+        if(data.cta_monto == 0){
+            $("#btnAddPago").prop('disabled', true);
+            swal.fire({
+                title: "Cuenta por cobrar",
+                text: "El valor de la cuenta es $0.00!",
+                icon: "warning"
+            });
+        } else {
+            $("#btnAddPago").prop('disabled', false);
+        }
+
     })
 
 }
@@ -185,7 +201,7 @@ function calcular() {
 
     if (cta_monto.length > 0 && pagc_monto.length > 0) {
 
-        total = (parseFloat(cta_monto.substring(2,cta_monto.length).replace(',','')) - parseFloat(pagc_monto.replace(',','')))
+        total = (parseFloat(cta_monto.substring(2, cta_monto.length).replace(',', '')) - parseFloat(pagc_monto.replace(',', '')))
         if (total < 0) {
             swal.fire({
                 title: "Monto Inválido",
@@ -194,12 +210,21 @@ function calcular() {
             });
         } else {
             $('#pagc_nuevo_monto').val(String(total.toFixed(2)));
-            $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: $('#recibo_id').val() }, function (data) {
-                data = JSON.parse(data);
-                var montoRecibo =  data.salida_total - data.saldo;
-                var saldo = parseFloat(pagc_monto.replace(',','')) - montoRecibo; 
+            var idRecibo = $('#recibo_id').val();
+            console.log(idRecibo);
+            if (idRecibo !== null) {
+                $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: idRecibo }, function (data) {
+                    data = JSON.parse(data);
+                    var montoRecibo = data.salida_total - data.saldo;
+                    var saldo = parseFloat(pagc_monto.replace(',', '')) - montoRecibo;
+                    $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
+                });
+            } else{
+                var saldo = 0;
+                idRecibo = 0;
                 $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
-            })
+            }
+
         }
     }
 

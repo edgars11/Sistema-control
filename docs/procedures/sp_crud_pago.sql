@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 30/5/2025 17:28:50 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 2/6/2025 17:40:29 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -162,148 +162,188 @@ begin
 	begin
 		select @w_fecha = GETDATE(),
 			@w_saldo_pago = 0
-
-		-- SE OBTIENE EL SALDO COMPLETO DE SALIDA
-		select @w_saldo_recibo = salida_total, @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @i_salida_id and salida_estado = 1
+			
+		if @i_salida_id > 0
+		begin
+			-- SE OBTIENE EL SALDO COMPLETO DE SALIDA
+			select @w_saldo_recibo = salida_total, @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @i_salida_id and salida_estado = 1
 		
-		-- SE VALIDA SI HAY SALDO DE PAGO
-		if @w_estado_recibo = 'A'
-			select @w_saldo_pago = pagc_monto from tm_pago_cuenta where salida_id = @i_salida_id and pagc_estado = 1
+			-- SE VALIDA SI HAY SALDO DE PAGO
+			if @w_estado_recibo = 'A'
+				select @w_saldo_pago = pagc_monto from tm_pago_cuenta where salida_id = @i_salida_id and pagc_estado = 1
 
-		-- SE CALCULAN LOS VALORES A RESTAR
-		select @w_saldo_recibo = @w_saldo_recibo - isnull(@w_saldo_pago, 0)
+			-- SE CALCULAN LOS VALORES A RESTAR
+			select @w_saldo_recibo = @w_saldo_recibo - isnull(@w_saldo_pago, 0)
 
-		select @w_val_total = @i_pagc_monto - @w_saldo_recibo
+			select @w_val_total = @i_pagc_monto - @w_saldo_recibo
 
-		if @w_val_total = 0 or @w_val_total > 0
-		begin
-			select @w_estado_recibo = 'C'
-		end
-		else if @w_val_total < 0
-		begin
-			select @w_estado_recibo = 'A',
-				@w_saldo_recibo = @i_pagc_monto -- @w_val_total * (-1)
-		end
-
-		print 'valores: @w_val_total:' + convert(varchar, @w_val_total)  + ', @w_saldo_recibo : ' + convert(varchar,  @w_saldo_recibo )
-		+ ', @i_salida_id:' + convert(varchar,  @i_salida_id )+ ' , @i_pagc_monto : '+ convert(varchar,  @i_pagc_monto) + ' @w_estado_recibo:' + convert(varchar, @w_estado_recibo)
-
-		if LEN(@i_pagc_obs) = 0
-			set @i_pagc_obs = 'Sin observación'
-
-		insert into tm_pago_cuenta 
-		(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
-		salida_id)
-		values 
-		(@i_cta_id, @i_pago_id, @i_pagc_obs, @w_fecha,		1,				@i_usu_id,  @w_saldo_recibo,
-		@i_salida_id)
-
-		print 'Se inserta en la tm_pago_cuenta'
-
-		select @w_pagc_id = SCOPE_IDENTITY()
-
-		if @i_pagc_obs = 'Sin observación'
-		begin 
-			select @w_cta_obs = 'Pago # ' + CONVERT(varchar, @w_pagc_id)
-		end
-		else
-		begin
-			select @w_cta_obs = @i_pagc_obs
-		end
-
-		exec sp_crud_cuenta_cli  
-		@i_operacion = 'U',
-		@i_cta_id = @i_cta_id, 
-		@i_suc_id = @i_suc_id,
-		@i_movc_tipo = '-',
-		@i_cta_monto = @w_saldo_recibo,
-		@i_cta_fecha = @w_fecha,
-		@i_usu_id = @i_usu_id,
-		@i_cta_obs = @w_cta_obs,
-		@i_salida_id = @i_salida_id,
-		@i_pagc_id = @w_pagc_id
-
-		print 'Se actualiza el campo de salida'
-		print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
-		print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
-
-		update tm_salida_lote
-		set salida_vpagado = @w_estado_recibo
-		where salida_id = @i_salida_id
-
-		print 'Validación @w_val_total : '+ convert(varchar,  @w_val_total)
-		if @w_val_total > 0
-		begin
-			select @w_prox_recibo = @i_salida_id
-
-			while (@w_val_total > 0)
+			if @w_val_total = 0 or @w_val_total > 0
 			begin
-				print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
-
-				select top 1 @w_prox_recibo = salida_id , @w_saldo_recibo = salida_total
-				from tm_salida_lote 
-				where salida_id > @w_prox_recibo and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1
-
-				select @w_val_total_w = @w_val_total - @w_saldo_recibo
-
-				print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
-				print 'Validación @w_saldo_recibo : '+ convert(varchar,  @w_saldo_recibo)
-				print 'Validación @w_val_total_w : '+ convert(varchar,  @w_val_total_w)
-
-				if @w_val_total_w < 0
-				begin
-					select @w_val_total_w =  @w_val_total
-					select @w_val_total = 0, 
-					@w_estado_recibo = 'A'
-				end
-				else
-				begin
-					select @w_val_total = @w_val_total_w, 
-					@w_estado_recibo = 'C'
-					select @w_val_total_w = @w_saldo_recibo
-				end 
-
-				print ' Despues de validación @w_val_total_w : '+ convert(varchar,  @w_val_total_w)
-				print ' @w_val_total : '+ convert(varchar,  @w_val_total)
-				print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
-
-				insert into tm_pago_cuenta 
-				(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
-				salida_id)
-				values 
-				(@i_cta_id, @i_pago_id, @i_pagc_obs, @w_fecha,		1,				@i_usu_id,  @w_val_total_w,
-				@w_prox_recibo)
-
-				select @w_pagc_id = SCOPE_IDENTITY()
-
-				if LEN(@i_pagc_obs) = 0
-				begin 
-					select @w_cta_obs = 'Pago # ' + CONVERT(varchar, @w_pagc_id)
-				end
-				else
-				begin
-					select @w_cta_obs = @i_pagc_obs
-				end
-
-				exec sp_crud_cuenta_cli  
-				@i_operacion = 'U',
-				@i_cta_id = @i_cta_id, 
-				@i_suc_id = @i_suc_id,
-				@i_movc_tipo = '-',
-				@i_cta_monto = @w_val_total_w,
-				@i_cta_fecha = @w_fecha,
-				@i_usu_id = @i_usu_id,
-				@i_cta_obs = @w_cta_obs,
-				@i_salida_id = @i_salida_id,
-				@i_pagc_id = @w_pagc_id
-
-				print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
-				print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
-
-				update tm_salida_lote
-				set salida_vpagado = @w_estado_recibo
-				where salida_id = @w_prox_recibo
+				select @w_estado_recibo = 'C'
 			end
+			else if @w_val_total < 0
+			begin
+				select @w_estado_recibo = 'A',
+					@w_saldo_recibo = @i_pagc_monto -- @w_val_total * (-1)
+			end
+
+			print 'valores: @w_val_total:' + convert(varchar, @w_val_total)  + ', @w_saldo_recibo : ' + convert(varchar,  @w_saldo_recibo )
+			+ ', @i_salida_id:' + convert(varchar,  @i_salida_id )+ ' , @i_pagc_monto : '+ convert(varchar,  @i_pagc_monto) + ' @w_estado_recibo:' + convert(varchar, @w_estado_recibo)
+
+			if LEN(@i_pagc_obs) = 0
+				set @i_pagc_obs = 'Sin observación'
+
+			insert into tm_pago_cuenta 
+			(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
+			salida_id)
+			values 
+			(@i_cta_id, @i_pago_id, @i_pagc_obs, @w_fecha,		1,				@i_usu_id,  @w_saldo_recibo,
+			@i_salida_id)
+
+			print 'Se inserta en la tm_pago_cuenta'
+
+			select @w_pagc_id = SCOPE_IDENTITY()
+
+			if @i_pagc_obs = 'Sin observación'
+			begin 
+				select @w_cta_obs = 'Pago # ' + CONVERT(varchar, @w_pagc_id)
+			end
+			else
+			begin
+				select @w_cta_obs = @i_pagc_obs
+			end
+
+			exec sp_crud_cuenta_cli  
+			@i_operacion = 'U',
+			@i_cta_id = @i_cta_id, 
+			@i_suc_id = @i_suc_id,
+			@i_movc_tipo = '-',
+			@i_cta_monto = @w_saldo_recibo,
+			@i_cta_fecha = @w_fecha,
+			@i_usu_id = @i_usu_id,
+			@i_cta_obs = @w_cta_obs,
+			@i_salida_id = @i_salida_id,
+			@i_pagc_id = @w_pagc_id
+
+			print 'Se actualiza el campo de salida'
+			print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
+			print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
+
+			update tm_salida_lote
+			set salida_vpagado = @w_estado_recibo
+			where salida_id = @i_salida_id
+
+			print 'Validación @w_val_total : '+ convert(varchar,  @w_val_total)
+			if @w_val_total > 0
+			begin
+				select @w_prox_recibo = @i_salida_id
+
+				while (@w_val_total > 0)
+				begin
+					print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
+
+					select top 1 @w_prox_recibo = salida_id , @w_saldo_recibo = salida_total
+					from tm_salida_lote 
+					where salida_id > @w_prox_recibo and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1
+
+					select @w_val_total_w = @w_val_total - @w_saldo_recibo
+
+					print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
+					print 'Validación @w_saldo_recibo : '+ convert(varchar,  @w_saldo_recibo)
+					print 'Validación @w_val_total_w : '+ convert(varchar,  @w_val_total_w)
+
+					if @w_val_total_w < 0
+					begin
+						select @w_val_total_w =  @w_val_total
+						select @w_val_total = 0, 
+						@w_estado_recibo = 'A'
+					end
+					else
+					begin
+						select @w_val_total = @w_val_total_w, 
+						@w_estado_recibo = 'C'
+						select @w_val_total_w = @w_saldo_recibo
+					end 
+
+					print ' Despues de validación @w_val_total_w : '+ convert(varchar,  @w_val_total_w)
+					print ' @w_val_total : '+ convert(varchar,  @w_val_total)
+					print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
+
+					insert into tm_pago_cuenta 
+					(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
+					salida_id)
+					values 
+					(@i_cta_id, @i_pago_id, @i_pagc_obs, @w_fecha,		1,				@i_usu_id,  @w_val_total_w,
+					@w_prox_recibo)
+
+					select @w_pagc_id = SCOPE_IDENTITY()
+
+					if LEN(@i_pagc_obs) = 0
+					begin 
+						select @w_cta_obs = 'Pago # ' + CONVERT(varchar, @w_pagc_id)
+					end
+					else
+					begin
+						select @w_cta_obs = @i_pagc_obs
+					end
+				
+					print '---- Se actualiza el estado del registro de salida ----'
+					print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
+					print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
+					print ' @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
+
+					update tm_salida_lote
+					set salida_vpagado = @w_estado_recibo
+					where salida_id = @w_prox_recibo
+
+					exec sp_crud_cuenta_cli  
+					@i_operacion = 'U',
+					@i_cta_id = @i_cta_id, 
+					@i_suc_id = @i_suc_id,
+					@i_movc_tipo = '-',
+					@i_cta_monto = @w_val_total_w,
+					@i_cta_fecha = @w_fecha,
+					@i_usu_id = @i_usu_id,
+					@i_cta_obs = @w_cta_obs,
+					@i_salida_id = @w_prox_recibo,
+					@i_pagc_id = @w_pagc_id
+
+				end
+			end
+
+		end
+		else 
+		begin
+			insert into tm_pago_cuenta 
+			(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
+			salida_id)
+			values 
+			(@i_cta_id, @i_pago_id, @i_pagc_obs, @w_fecha,		1,				@i_usu_id,  @i_pagc_monto,
+			@i_salida_id)
+
+			select @w_pagc_id = SCOPE_IDENTITY()
+
+			if @i_pagc_obs = 'Sin observación'
+			begin 
+				select @w_cta_obs = 'Pago # ' + CONVERT(varchar, @w_pagc_id)
+			end
+			else
+			begin
+				select @w_cta_obs = @i_pagc_obs
+			end
+
+			exec sp_crud_cuenta_cli  
+			@i_operacion = 'U',
+			@i_cta_id = @i_cta_id, 
+			@i_suc_id = @i_suc_id,
+			@i_movc_tipo = '-',
+			@i_cta_monto = @i_pagc_monto,
+			@i_cta_fecha = @w_fecha,
+			@i_usu_id = @i_usu_id,
+			@i_cta_obs = @w_cta_obs,
+			@i_salida_id = @i_salida_id,
+			@i_pagc_id = @w_pagc_id
+
 		end
 	end
 

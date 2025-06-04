@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_venta]    Script Date: 28/5/2025 18:53:19 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_venta]    Script Date: 3/6/2025 23:14:14 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -75,7 +75,7 @@ set nocount on
 	begin
 		SELECT        
 		tm_ventas.ven_id, 
-		(select pago_nombre from tm_pago where pago_id = tm_ventas.pago_id) as pago_nom, 
+		(select pago_nombre from tm_tipo_pago where pago_id = tm_ventas.pago_id) as pago_nom, 
 		(select cli_nombre from tm_cliente where cli_id = tm_ventas.cli_id) as cli_nombre, 
 		tm_ventas.ven_subtotal, 
 		tm_ventas.ven_iva, 
@@ -106,7 +106,7 @@ set nocount on
 	begin
 		SELECT        
 		tm_ventas.ven_id, 
-		(select pago_nombre from tm_pago where pago_id = tm_ventas.pago_id) as pago_nom, 
+		(select pago_nombre from tm_tipo_pago where pago_id = tm_ventas.pago_id) as pago_nom, 
 		(select cli_nombre from tm_cliente where cli_id = tm_ventas.cli_id) as cli_nombre, 
 		(select cli_ruc from tm_cliente where cli_id = tm_ventas.cli_id) as cli_ruc, 
 		tm_ventas.ven_subtotal, 
