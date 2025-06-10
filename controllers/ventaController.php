@@ -92,7 +92,7 @@ switch ($_GET['op']) {
         break;
         // TODO: Guardar detalle de la venta
     case 'updateVenta':
-        $venta->updateVenta("U", $_POST['pago_id'], $_POST['cli_id'], $_POST['ven_coment'], $_POST['tipo_venta'], $_POST['ven_id']);
+        $venta->updateVenta("U", $_POST['pago_id'], $_POST['cli_id'], $_POST['ven_coment'], $_POST['tipo_venta'], $_POST['ven_id'], $_POST['suc_id'], $_POST['ven_total']);
         break;
     case 'listaDetalleVenta':
         $datos = $venta->getListadoDetalleVenta("L", $_POST['ven_id']);

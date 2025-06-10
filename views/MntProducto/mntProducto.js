@@ -123,7 +123,6 @@ function editar(prod_id) {
 }
 
 function eliminar(prod_id) {
-    console.log(prod_id);
     swal.fire({
         title: "Eliminar!",
         text: "¿Desea eliminar el registro?",

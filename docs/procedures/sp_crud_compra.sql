@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_compra]    Script Date: 28/5/2025 17:53:25 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_compra]    Script Date: 4/6/2025 20:15:06 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -40,7 +40,7 @@ set nocount on
 	if @i_operacion = 'T'
 	begin
 		select @w_subtotal = SUM(detc_total) FROM [SistemaControl].[dbo].[tm_detalle_compra] where comp_id = @i_comp_id  and detc_estado = 1
-		select @w_iva = @w_subtotal * 0.15
+		select @w_iva =  0.00 --@w_subtotal * 0.15
 		select @w_total = @w_subtotal + @w_iva
 
 		update tm_compra
@@ -75,7 +75,7 @@ set nocount on
 	begin
 		SELECT        
 		tm_compra.comp_id, 
-		(select pago_nombre from tm_pago where pago_id = tm_compra.pago_id) as pago_nom, 
+		(select pago_nombre from tm_tipo_pago where pago_id = tm_compra.pago_id) as pago_nom, 
 		(select prov_nombre from tm_proveedor where prov_id = tm_compra.prov_id) as prov_nombre, 
 		tm_compra.comp_subtotal, 
 		tm_compra.comp_iva, 
@@ -106,7 +106,7 @@ set nocount on
 	begin
 		SELECT        
 		tm_compra.comp_id, 
-		(select pago_nombre from tm_pago where pago_id = tm_compra.pago_id) as pago_nom, 
+		(select pago_nombre from tm_tipo_pago where pago_id = tm_compra.pago_id) as pago_nom, 
 		(select prov_nombre from tm_proveedor where prov_id = tm_compra.prov_id) as prov_nombre, 
 		(select prov_ruc from tm_proveedor where prov_id = tm_compra.prov_id) as prov_ruc, 
 		tm_compra.comp_subtotal, 

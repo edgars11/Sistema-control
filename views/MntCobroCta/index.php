@@ -77,17 +77,25 @@ if (isset($_SESSION["usu_id"])) {
                                                         <label for="cta_monto" class="form-label">Monto Cuenta</label>
                                                         <input type="text" class="form-control" id="cta_monto" name="cta_monto" placeholder="$ 0.00" readonly>
                                                     </div>
-                                                    <div class="col-lg-4">
+                                                    <div class="col-lg-3">
+                                                        <label for="recibo_id" class="form-label">Tipo Cobro</label>
+                                                        <select class="form-control form-select" id="recibo_id" name="recibo_id" aria-label="Seleccionar">
+                                                            <option selected>Seleccione</option>
+                                                            <option value="PE">Pedidos</option>
+                                                            <option value="VE">Ventas</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-5">
                                                         <label for="recibo_id" class="form-label">Recibo a cancelar</label>
                                                         <select class="form-control form-select" id="recibo_id" name="recibo_id" aria-label="Seleccionar">
                                                             <option selected>Seleccionar</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-lg-4 ">
+                                                    <div class="col-lg-2">
                                                         <label for="ult_fecha_sal" class="form-label">Fecha Salida</label>
                                                         <input type="text" class="form-control" id="ult_fecha_sal" name="ult_fecha_sal" placeholder="Sin fecha" readonly>
                                                     </div>
-                                                    <div class="col-lg-4">
+                                                    <div class="col-lg-2">
                                                         <label for="ult_fecha_pago" class="form-label">Fecha último Pago</label>
                                                         <input type="text" class="form-control" id="ult_fecha_pago" name="ult_fecha_pago" placeholder="Sin fecha" readonly>
                                                     </div>

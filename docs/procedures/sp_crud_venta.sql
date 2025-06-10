@@ -23,13 +23,21 @@ ALTER procedure [dbo].[sp_crud_venta] (
 as
 begin
 declare 
-@w_subtotal decimal(18,2), 
-@w_iva decimal(18,2),
-@w_total decimal(18,2)
+@w_subtotal 	decimal(18,2), 
+@w_iva 			decimal(18,2),
+@w_total 		decimal(18,2),
+@w_fecha 		datetime,
+@w_cta_obs 		varchar(100),
+@w_pago_des 	varchar(50),
+@w_pago_cred 	int,
+@w_cta_cli		int
 
 set nocount on
 	if @i_operacion = 'C'
 	begin
+		delete from tm_ventas
+		where ven_estado = 2 and usu_id = @i_usu_id and suc_id = @i_suc_id
+
 		insert into tm_ventas 
 		(ven_estado	,usu_id,	suc_id)
 		values
@@ -40,7 +48,7 @@ set nocount on
 	if @i_operacion = 'T'
 	begin
 		select @w_subtotal = SUM(detv_total) FROM [SistemaControl].[dbo].[tm_detalle_venta] where ven_id = @i_ven_id  and detv_estado = 1
-		select @w_iva = @w_subtotal * 0.15
+		select @w_iva = 0.00 -- @w_subtotal * 0.15
 		select @w_total = @w_subtotal + @w_iva
 
 		update tm_ventas
@@ -57,18 +65,67 @@ set nocount on
 
 	if @i_operacion = 'U'
 	begin
+
+		select  @w_fecha = GETDATE(),
+				@w_pago_cred = 5
+
 		update tm_ventas
 		set 
 		pago_id = @i_pago_id,
 		cli_id = @i_cli_id,
 		tc_id = @i_tc_id,
 		ven_coment = @i_ven_comment,
-		ven_fecha_crea = GETDATE(),
+		ven_fecha_crea = @w_fecha,
 		ven_estado = 1
 		where ven_id = @i_ven_id
 
 		exec sp_update_stock @i_operacion= 'SV', @i_ven_id = @i_ven_id
 
+		-- SE VALIDA SI LA CUENTA ES A CRÉDITO PARA AGREGAR EL SALDO A LA CUENTA
+		select @w_pago_des = pago_nombre from tm_tipo_pago where pago_id = @i_pago_id and pago_estado = 1
+
+		if @w_pago_des = 'CREDITO' or @w_pago_cred = @i_pago_id
+		begin
+			-- OBSERVACION CUENTA CLIENE
+			select @w_cta_obs = 'Venta # ' + CONVERT(varchar, @i_ven_id)
+
+			-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
+			Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
+
+			if ISNULL(@w_cta_cli,0) = 0
+			begin
+				exec sp_crud_cuenta_cli 
+					@i_operacion = 'C',
+					@i_cli_id	 = @i_cli_id,
+					@i_cta_monto = @i_ven_total,
+					@i_cta_fecha = @w_fecha,
+					@i_cta_obs	 = @w_cta_obs,
+					@i_ven_id 	 = @i_ven_id,
+					@i_suc_id	 = @i_suc_id,
+					@i_usu_id	 = @i_usu_id,
+					@o_cta_cli	 = @w_cta_cli
+
+			end 
+			else if @w_cta_cli > 0
+			begin
+				exec sp_crud_cuenta_cli 
+					@i_operacion = 'U', 
+					@i_cta_id	 = @w_cta_cli,
+					@i_cli_id	 = @i_cli_id,
+					@i_cta_monto = @i_ven_total,
+					@i_cta_fecha = @w_fecha,
+					@i_cta_obs	 = @w_cta_obs,
+					@i_ven_id 	 = @i_ven_id,
+					@i_suc_id	 = @i_suc_id,
+					@i_usu_id	 = @i_usu_id,
+					@i_movc_tipo = '+'
+			end	
+
+			-- SE REGISTRA LA VENTA A CREDITO
+			INSERT INTO tm_registro_vencred
+			(ven_id,		rvc_monto,		rvc_abonado,	rvc_est_cta,	rvc_fecha_upd,	rvc_estado,		rvc_observacion)VALUES
+			(@i_ven_id,	@i_ven_total,	0,				'P',			@w_fecha,		1,				'Ingresado')
+		end
 	end
 
 	if @i_operacion = 'L'

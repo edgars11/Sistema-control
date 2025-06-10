@@ -136,7 +136,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     </div>
 
                                                     <div class="col-lg-1">
-                                                        <label for="btnAddProd" class="form-label">O</label>
+                                                        <label for="btnAddProd" class="form-label">Agregar</label>
                                                         <button type="button" id="btnAddProd" name="btnAddProd" class="form-control btn btn-success  waves-effect waves-light"><i class="ri-add-fill"></i></button>
                                                     </div>
                                                 </div>

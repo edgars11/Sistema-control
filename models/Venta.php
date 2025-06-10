@@ -64,10 +64,10 @@ class Venta extends Conectar
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
     /* TODO: Actualiza datos de la venta */
-    public function updateVenta($i_operacion, $i_pago_id, $i_cli_id, $ven_comment, $tipo_venta, $i_ven_id)
+    public function updateVenta($i_operacion, $i_pago_id, $i_cli_id, $ven_comment, $tipo_venta, $i_ven_id, $i_suc_id, $i_ven_total)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_venta @i_operacion=?, @i_pago_id=? , @i_cli_id=? , @i_ven_comment=? , @i_tc_id=?, @i_ven_id=?";
+        $sql = "exec sp_crud_venta @i_operacion=?, @i_pago_id=? , @i_cli_id=? , @i_ven_comment=? , @i_tc_id=?, @i_ven_id=?, @i_suc_id=?, @i_ven_total=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, $i_operacion);
         $query->bindValue(2, $i_pago_id);
@@ -75,6 +75,8 @@ class Venta extends Conectar
         $query->bindValue(4, $ven_comment);
         $query->bindValue(5, $tipo_venta);
         $query->bindValue(6, $i_ven_id);
+        $query->bindValue(7, $i_suc_id);
+        $query->bindValue(8, $i_ven_total);
         $query->execute();
     }
 

@@ -60,6 +60,24 @@ CONSTRAINT cnst_movc_estado_def DEFAULT 1;
 
 ---------------------------------------------------------------------
 -- 03/06/2025 --
+-- SE CREA NUEVO CAMPO PARA VINCULAR EL ID DE VENTA
+ALTER TABLE tm_movimiento_cuenta
+ADD ven_id int NULL;
+
 -- Se crea un nuevo campo para registrar los pagos con pedido id 0. PENDIENTE
 ALTER TABLE tm_movimiento_cuenta
 ADD movc_est_saldcero char(1) NULL;
+
+-- SE CREA TABLA PARA REGISTRO VENTAS A CREDITO
+CREATE TABLE [dbo].[tm_registro_vencred](
+	[rvc_id] [int] IDENTITY(1,1) NOT NULL,
+	[ven_id] [int] NULL,
+	[rvc_monto] [decimal](18, 2) NULL,
+	[rvc_abonado] [decimal](18, 2) NULL,
+	[rvc_est_cta] [char](1) NULL,
+	[rvc_fecha_upd] [datetime] NULL,
+	[rvc_estado] [tinyint] NULL,
+	[rvc_observacion] [varchar](80) NULL
+) ON [PRIMARY]
+
+

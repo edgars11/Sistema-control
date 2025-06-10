@@ -2,6 +2,7 @@ var w_emp_idx = $('#emp_idx').val();
 var w_usu_idx = $('#usu_idx').val();
 var w_suc_idx = $('#suc_idx').val();
 
+var w_valTotalVenta = 0;
 $(document).ready(function () {
 
     // Se crea el registro de la venta
@@ -92,11 +93,10 @@ $(document).ready(function () {
             // Se obtienen las Formas de pago
             $.post("../../controllers/ventaController.php?op=addDetalle", { ven_id: ven_id, prod_id: prod_id, prod_pventa: prod_pventa, detv_cant: detv_cant }, function (data) {
                 data = JSON.parse(data);
-                console.log(data);
-                $('#txtsubtotal').html('$' + (data.subtotal < 1 ? "0"+ data.subtotal : data.subtotal));
+                $('#txtsubtotal').html('$' + (data.subtotal < 1 ? "0" + data.subtotal : data.subtotal));
                 $('#txtiva').html('$' + (data.iva < 1 ? "0" + data.iva : data.iva));
                 $('#txttotal').html('$' + (data.total < 1 ? "0" + data.total : data.total));
-                totalVenta = data.total;
+                w_valTotalVenta = data.total;
             });
             cargarDetalle(ven_id);
         }
@@ -122,7 +122,7 @@ $(document).on("click", "#btnGuardar", function () {
         });
     } else {
         /* TODO: Valida que haya registro de productos en la venta */
-        if (totalVenta <= 0) {
+        if (w_valTotalVenta <= 0) {
             swal.fire({
                 title: "Venta",
                 text: "Agregue productos a la venta para continuar!",
@@ -136,15 +136,17 @@ $(document).on("click", "#btnGuardar", function () {
                     cli_id: cli_id,
                     ven_coment: ven_coment,
                     tipo_venta: tipo_venta,
-                    ven_id: ven_id
+                    ven_id: ven_id,
+                    suc_id: w_usu_idx,
+                    ven_total: w_valTotalVenta
                 },
                 function (data) {
 
                     swal.fire({
                         title: "Venta",
-                        text: "Venta # C-"+ ven_id+" guardada exitosamente!",
+                        text: "Venta # C-" + ven_id + " guardada exitosamente!",
                         icon: "success",
-                        footer: '<a href="../ViewVenta/?id='+ven_id+'" target="_blank">¿Desea imprimir el comprobante?</a>'
+                        footer: '<a href="../ViewVenta/?id=' + ven_id + '" target="_blank">¿Desea imprimir el comprobante?</a>'
                     });
                 });
         }
@@ -217,9 +219,9 @@ function deleteItem(detv_id, ven_id) {
                 data = JSON.parse(data);
                 console.log(data);
                 var iva = "";
-                if(data.iva == null ){
+                if (data.iva == null) {
                     iva = "0.00";
-                }else{
+                } else {
                     iva = data.iva < 1 ? "0" + data.iva : data.iva;
                 }
                 $('#txtsubtotal').html('$' + (data.subtotal === null ? "0.00" : data.subtotal));

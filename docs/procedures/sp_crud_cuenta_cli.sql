@@ -15,9 +15,11 @@ ALTER procedure [dbo].[sp_crud_cuenta_cli] (
  @i_movc_tipo char(1) = null,
  @i_salida_id int = null,
  @i_pagc_id int = null,
+ @i_ven_id int = null,
  @i_cta_monto decimal(14,2) = null,
  @i_cta_obs varchar(75) = null,
- @i_cta_fecha varchar(70) = null
+ @i_cta_fecha varchar(70) = null,
+ @o_cta_cli int = 0 out
 )
 as
 declare
@@ -39,10 +41,12 @@ begin
 
 		insert into tm_movimiento_cuenta 
 		(salida_id,		movc_tipo,	movc_val_actual,	movc_valor,			movc_nuevo_val,		cta_id,		movc_fecha,
-		usu_id,		movc_obs)
+		usu_id,		movc_obs, 		ven_id)
 		values
 		(@i_salida_id, 	'+', 		0, 					@i_cta_monto, 		@i_cta_monto, 		@w_cta_id, 	@i_cta_fecha,
-		@i_usu_id,  @i_cta_obs)
+		@i_usu_id,  @i_cta_obs,     @i_ven_id)
+
+		select @o_cta_cli = @w_cta_id
 	end
 
 	if @i_operacion = 'U'
@@ -75,10 +79,10 @@ begin
 		-- SE REGISTRA EL MOVIMIENO DE LA CUENTA
 		insert into tm_movimiento_cuenta 
 		(salida_id,		movc_tipo,			movc_val_actual,	movc_valor,			movc_nuevo_val,		
-		cta_id,			movc_fecha,			usu_id ,		movc_obs,	pagc_id)
+		cta_id,			movc_fecha,			usu_id ,		movc_obs,	pagc_id,  	ven_id)
 		values
 		(@i_salida_id, 	@i_movc_tipo, 		@w_val_actual,		@i_cta_monto, 		@w_val_total, 		
-		@i_cta_id, 		@i_cta_fecha, 		@i_usu_id,		@i_cta_obs,		@i_pagc_id)
+		@i_cta_id, 		@i_cta_fecha, 		@i_usu_id,		@i_cta_obs,		@i_pagc_id,  @i_ven_id)
 	end
 
 	if @i_operacion = 'R'
