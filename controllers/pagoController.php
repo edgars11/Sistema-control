@@ -5,8 +5,9 @@ require_once("../models/Pago.php");
 // TODO: Inicializando clases
 $pago = new Pago();
 
+$saldo = 0;
 switch ($_GET['op']) {
-        // TODO: Listar combo
+    // TODO: Listar combo
     case 'combo':
         $datos = $pago->getListadoPagos("R");
         if (is_array($datos) == true and count($datos) > 0) {
@@ -20,14 +21,35 @@ switch ($_GET['op']) {
         break;
 
     case 'guardarPago':
-        $usu_id = $_SESSION["usu_id"];
+        $usu_id = 1 ; //$_SESSION["usu_id"];
         $datos = $pago->registrarPago($_POST['cta_id'], $_POST['pago_id'], $_POST['pagc_obs'], $usu_id, $_POST['pagc_monto'], $_POST['suc_id'], $_POST['salida_id'], $_POST['saldo_recibo'], $_POST['cli_id']);
 
-        if ($datos) {
-            $outout["success"] = true;
-        } else {
-            $outout["success"] = false;
+        if (is_array($datos) == true and count($datos) > 0) {
+            $saldo = $datos[0]["total"];
+            $prox_recibo = intval($datos[0]["prox_recibo"]);
+            $counter = 0;
+            $outout["val".$counter] = $saldo;
+            while($saldo > 0 and $prox_recibo > 0){
+                $datos = $pago->registrarPago(
+                $_POST['cta_id'], 
+                $_POST['pago_id'], 
+                $_POST['pagc_obs'], 
+                $usu_id, 
+                $saldo, 
+                $_POST['suc_id'], 
+                $prox_recibo, 
+                $_POST['saldo_recibo'], 
+                $_POST['cli_id']);
+
+                $saldo = $datos[0]["total"];
+                $prox_recibo = intval($datos[0]["prox_recibo"]);
+
+                $counter ++;
+                $outout["val".$counter] = $saldo;
+            }
         }
+
+        $outout["success"] = true;
 
         echo json_encode($outout);
 
@@ -49,8 +71,8 @@ switch ($_GET['op']) {
             $sub_array[] = '<span style="font-weight: 600;"># ' . $row['cta_id'] . '</span>';
             $sub_array[] = '<span class="fw-medium link-primary fs-14">' . $row['cli_nombre'] . '</span>';
             $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . $row['pago_nombre'] . '</div>';
-            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['pagc_monto'] , 2 ,'.',','). '</span>';
-            $sub_array[] = '<span class="badge badge-soft-primary text-uppercase fs-14">' . "# " . $row['salida_id']. '</span>';
+            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['pagc_monto'], 2, '.', ',') . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-primary text-uppercase fs-14">' . "# " . $row['salida_id'] . '</span>';
             $sub_array[] = $row['pagc_obs'];
             $sub_array[] = $row['pagc_fecha'];
             $sub_array[] = $row['usu_nombre'];
@@ -82,7 +104,7 @@ switch ($_GET['op']) {
                 $outout["pagc_id"] = $row["pagc_id"];
                 $outout["cta_id"] = $row["cta_id"];
                 $outout["pago_id"] = $row["pago_id"];
-                $outout["pagc_monto"] = number_format($row['pagc_monto'] , 2 ,'.',',');
+                $outout["pagc_monto"] = number_format($row['pagc_monto'], 2, '.', ',');
                 $outout["pagc_obs"] = $row["pagc_obs"];
                 $outout["pagc_fecha"] = $row["pagc_fecha"];
                 $outout["cli_nombre"] = $row["cli_nombre"];

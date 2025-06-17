@@ -11,12 +11,12 @@
                     <table id="tb_listadoClientes" class="table table-borderless text-center table-nowrap align-middle mb-0">
                         <thead>
                             <tr class="table-active">
+                                <th scope="col">OPCIONES</th>
                                 <th scope="col" style="width: 50px;">NOMBRE</th>
                                 <th scope="col">IDENTIFICACIÓN</th>
                                 <th scope="col">DIRECCIÓN</th>
                                 <th scope="col" class="text-end">TELÉFONO</th>
                                 <th scope="col">EMAIL</th>
-                                <th scope="col">OPCIONES</th>
                             </tr>
                         </thead>
                         <tbody>

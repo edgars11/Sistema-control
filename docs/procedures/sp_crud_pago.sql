@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 2/6/2025 17:40:29 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 14/6/2025 17:41:54 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -38,6 +38,9 @@ declare
 @w_saldo_pago decimal(14,2)
 
 begin
+	set nocount on
+	select @w_prox_recibo = -1
+
 	if @i_operacion = 'C'
 	begin
 		insert into tm_tipo_pago 
@@ -114,7 +117,7 @@ begin
 
 		-- SE ELIMINA EL MOVIMIENTO DE LA CUENTA
 		delete from tm_movimiento_cuenta
-		where salida_id = @i_pagc_id 
+		where pagc_id = @i_pagc_id 
 		and movc_tipo = '-'
 
 		update tm_pago_cuenta set 
@@ -234,85 +237,21 @@ begin
 			where salida_id = @i_salida_id
 
 			print 'Validación @w_val_total : '+ convert(varchar,  @w_val_total)
-			if @w_val_total > 0
-			begin
-				select @w_prox_recibo = @i_salida_id
 
-				while (@w_val_total > 0)
-				begin
-					print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
+            if @w_val_total > 0
+            begin
+                select top 1 @w_prox_recibo = salida_id 
+                from tm_salida_lote 
+                where salida_id > @i_salida_id and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1
+            end
 
-					select top 1 @w_prox_recibo = salida_id , @w_saldo_recibo = salida_total
-					from tm_salida_lote 
-					where salida_id > @w_prox_recibo and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1
-
-					select @w_val_total_w = @w_val_total - @w_saldo_recibo
-
-					print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
-					print 'Validación @w_saldo_recibo : '+ convert(varchar,  @w_saldo_recibo)
-					print 'Validación @w_val_total_w : '+ convert(varchar,  @w_val_total_w)
-
-					if @w_val_total_w < 0
-					begin
-						select @w_val_total_w =  @w_val_total
-						select @w_val_total = 0, 
-						@w_estado_recibo = 'A'
-					end
-					else
-					begin
-						select @w_val_total = @w_val_total_w, 
-						@w_estado_recibo = 'C'
-						select @w_val_total_w = @w_saldo_recibo
-					end 
-
-					print ' Despues de validación @w_val_total_w : '+ convert(varchar,  @w_val_total_w)
-					print ' @w_val_total : '+ convert(varchar,  @w_val_total)
-					print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
-
-					insert into tm_pago_cuenta 
-					(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
-					salida_id)
-					values 
-					(@i_cta_id, @i_pago_id, @i_pagc_obs, @w_fecha,		1,				@i_usu_id,  @w_val_total_w,
-					@w_prox_recibo)
-
-					select @w_pagc_id = SCOPE_IDENTITY()
-
-					if LEN(@i_pagc_obs) = 0
-					begin 
-						select @w_cta_obs = 'Pago # ' + CONVERT(varchar, @w_pagc_id)
-					end
-					else
-					begin
-						select @w_cta_obs = @i_pagc_obs
-					end
-				
-					print '---- Se actualiza el estado del registro de salida ----'
-					print ' @i_salida_id : '+ convert(varchar,  @i_salida_id)
-					print ' @w_estado_recibo : '+ convert(varchar,  @w_estado_recibo)
-					print ' @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
-
-					update tm_salida_lote
-					set salida_vpagado = @w_estado_recibo
-					where salida_id = @w_prox_recibo
-
-					exec sp_crud_cuenta_cli  
-					@i_operacion = 'U',
-					@i_cta_id = @i_cta_id, 
-					@i_suc_id = @i_suc_id,
-					@i_movc_tipo = '-',
-					@i_cta_monto = @w_val_total_w,
-					@i_cta_fecha = @w_fecha,
-					@i_usu_id = @i_usu_id,
-					@i_cta_obs = @w_cta_obs,
-					@i_salida_id = @w_prox_recibo,
-					@i_pagc_id = @w_pagc_id
-
-				end
-			end
+            -- SE RETORNAN VALORES PARA EL CALCULO DESDE PHP
+            select 
+				@w_val_total as 'total', 
+                @w_prox_recibo as 'prox_recibo'
 
 		end
-		else 
+		else if @i_salida_id = 0
 		begin
 			insert into tm_pago_cuenta 
 			(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
@@ -344,6 +283,11 @@ begin
 			@i_salida_id = @i_salida_id,
 			@i_pagc_id = @w_pagc_id
 
+			-- SE RETORNAN VALORES PARA EL CALCULO DESDE PHP
+            select 
+				@w_val_total as 'total', 
+                @w_prox_recibo as 'prox_recibo'
+
 		end
 	end
 
@@ -373,5 +317,7 @@ begin
 		order by pc.pagc_fecha desc
 
 	end
-
+	
+	set nocount off
+	return 0
 end

@@ -221,13 +221,13 @@ function eliminar(cta_id) {
 
                     // Muestra notificación de la eliminación
                     swal.fire({
-                        title: "Categoria",
+                        title: "Cuenta Cliente",
                         text: "Eliminado Correctamente!",
                         icon: "success"
                     });
                 } else {
                     swal.fire({
-                        title: "Categoria",
+                        title: "Cliente Cliente",
                         text: "Hubo un error al eliminar la cuenta del cliente!",
                         icon: "error"
                     });

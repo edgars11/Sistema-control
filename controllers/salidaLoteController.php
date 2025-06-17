@@ -2,8 +2,10 @@
 // TODO: Llamando clases
 require_once("../config/conexion.php");
 require_once("../models/SalidaLote.php");
+require_once("../models/Pago.php");
 // TODO: Inicializando clases
 $salidalote = new SalidaLote();
+$modelPago = new Pago();
 
 switch ($_GET['op']) {
     // TODO: Guardar y editar registro
@@ -107,7 +109,7 @@ switch ($_GET['op']) {
             $sub_array[] = $row['cli_nombre'];
             $sub_array[] = $row['salida_tipo'] === 'PV' ? '<span class="badge badge-soft-warning text-uppercase fs-12">POLLO VIVO</span>' : '<span class="badge badge-soft-primary text-uppercase fs-12">POLLO FAENADO</span>';
             $sub_array[] = $row['salida_fecha'];
-            $sub_array[] = '<span class="badge badge-soft-'.$colorTag.' text-uppercase fs-14">' . "# " . $row['salida_id'] . ' - ' . $estadoRecibo . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-' . $colorTag . ' text-uppercase fs-14">' . "# " . $row['salida_id'] . ' - ' . $estadoRecibo . '</span>';
             $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . $row['salida_cantidad'] . '</div>';
             $sub_array[] = $row['salida_peso_neto'] . " Lbs";
             $sub_array[] = "$ " . $row['salida_precio'];
@@ -195,17 +197,27 @@ switch ($_GET['op']) {
         $datos = $salidalote->getRecibosSinPagar($_POST['tipo_val'], $cli_id, $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             $html = "";
-            $html .= '<option value="0" selected>Cancelar saldo pendiente anterior</option>';
+            $valSaldoPendiente = $modelPago->validaSaldoPendiente($cli_id);
+            if ($valSaldoPendiente["valida"] == false) {
+                $html .= '<option value="0" selected>Cuenta Pendiente($' . $valSaldoPendiente["SaldoPendienteTotal"] . ') - Abonado: $' . $valSaldoPendiente["saldoCancelado"] . ' - Saldo : $' . $valSaldoPendiente["saldoPendiente"] . '</option>';
+            } else {
+                $html .= '<option value="-1" selected>Seleccione un registro</option>';
+            }
+
             foreach ($datos as $row) {
                 $estado = $row['salida_vpagado'] == 'N' ? 'Pendiente' : 'Abonado: $ ' . $row['saldo'] . ' - Saldo : $ ' . ($row['salida_total'] - $row['saldo']);
                 $html .= "<option value='" . $row['salida_id'] . "'> # " . $row['salida_id'] . " - $ " . ($row['salida_total']) . " - " . $estado . "</option>";
             }
             echo $html;
-        }else{
-            // $cuentas = new Cuentas();
-            // $datoCta = $cuentas->getCtaByClientId($cli_id,$_POST['suc_id']);
-
-            echo '<option value="0" selected>Cancelar saldo pendiente anterior</option>';
+        } else {
+            $valSaldoPendiente = $modelPago->validaSaldoPendiente($cli_id);
+            if ($valSaldoPendiente["valida"] == false) {
+                $html .= '<option value="0" selected>Cuenta Pendiente($' . $valSaldoPendiente["SaldoPendienteTotal"] . ') - Abonado: $' . $valSaldoPendiente["saldoCancelado"] . ' - Saldo : $' . $valSaldoPendiente["saldoPendiente"] . '</option>';
+            } else {
+                $html .= '<option value="-1" selected>No hay registros</option>';
+            }
+            echo $html;
+            // echo json_encode($valSaldoPendiente);
         }
         break;
 }

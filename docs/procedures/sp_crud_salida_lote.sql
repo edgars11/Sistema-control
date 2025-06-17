@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 28/5/2025 18:57:13 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 14/6/2025 21:56:56 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -52,6 +52,8 @@ declare
 @w_total_registros tinyint
 
 begin
+set nocount on
+
 	if @i_operacion = 'C'
 	begin
 		select  @w_fecha = GETDATE()
@@ -469,6 +471,7 @@ begin
 			order by salida_id
 		end
 	end
-	
+
+set nocount off
 	return 0
 end

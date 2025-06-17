@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 2/6/2025 23:00:02 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 11/6/2025 19:29:48 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -24,9 +24,11 @@ ALTER procedure [dbo].[sp_crud_cuenta_cli] (
 as
 declare
 @w_cta_id int,
+@w_cli_id int,
 @w_val_actual decimal(14,2),
 @w_val_nuevo decimal(14,2),
 @w_val_total decimal(14,2)
+
 begin
 	if @i_operacion = 'C'
 	begin
@@ -147,10 +149,28 @@ begin
 
 	if @i_operacion = 'D'
 	begin
+
+		select @w_cli_id = cli_id from tm_cuenta_cliente
+		where cta_id = @i_cta_id
+
+		update tm_movimiento_cuenta
+		set movc_estado = 0
+		where cta_id = @i_cta_id
+
+		update tm_pago_cuenta
+		set pagc_estado = 0
+		where cta_id = @i_cta_id
+
 		update tm_cuenta_cliente
 		set cta_estado = 0
 		where cta_id = @i_cta_id
 		and suc_id = @i_suc_id
+
+		update tm_salida_lote
+		set salida_vpagado = 'C', 
+		salida_estado = 0
+		where cli_id = @w_cli_id
+
 	end
 
 	if @i_operacion = 'B'

@@ -41,7 +41,7 @@ $(document).on("click", "#btnAddPago", function () {
         return;
     }
 
-    if (recibo_id == 'Seleccionar') {
+    if (parseInt(recibo_id) < 0) {
         swal.fire({
             title: "Recibo de Pago",
             text: "Seleccione un recibo de pago válido!",
@@ -212,7 +212,7 @@ function calcular() {
             $('#pagc_nuevo_monto').val(String(total.toFixed(2)));
             var idRecibo = $('#recibo_id').val();
             console.log(idRecibo);
-            if (idRecibo !== null) {
+            if (idRecibo !== null && parseInt(idRecibo) > 0) {
                 $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: idRecibo }, function (data) {
                     data = JSON.parse(data);
                     var montoRecibo = data.salida_total - data.saldo;

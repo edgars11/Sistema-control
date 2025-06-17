@@ -98,12 +98,12 @@ switch ($_GET['op']) {
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();
+            $sub_array[] = '<button type="button" onClick="selectCliente(' . $row['cli_id'] . ')" id="' . $row['cli_id'] . '" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-edit-2-line"></i></button>';
             $sub_array[] = $row['cli_nombre'];
             $sub_array[] = $row['cli_ruc'];
             $sub_array[] = $row['cli_direccion'];
             $sub_array[] = $row['cli_telefono'];
             $sub_array[] = $row['cli_correo'];
-            $sub_array[] = '<button type="button" onClick="selectCliente(' . $row['cli_id'] . ')" id="' . $row['cli_id'] . '" class="btn btn-success btn-icon waves-effect waves-light"><i class="ri-edit-2-line"></i></button>';
             $data[] = $sub_array;
         }
         // Usado en el DataTable

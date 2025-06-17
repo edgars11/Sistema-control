@@ -60,7 +60,7 @@ class Pago extends Conectar
         $query->execute();
     }
     /* TODO: Actualizar registro  */
-    public function registrarPago($i_cta_id, $i_pago_id, $i_pagc_obs, $i_usu_id, $i_pagc_monto, $i_suc_id, $i_salida_id, $i_saldo_recibo, $i_cli_id)
+    public function registrarPago(int $i_cta_id, int $i_pago_id, string $i_pagc_obs, int $i_usu_id, float $i_pagc_monto, int $i_suc_id, int $i_salida_id, float $i_saldo_recibo, int $i_cli_id)
     {
         $conectar = parent::Conexion();
         $sql = "exec sp_crud_pago @i_operacion=?, @i_cta_id=?, @i_pago_id=?, @i_pagc_obs=?, @i_usu_id=?, @i_pagc_monto=?, @i_suc_id=?, @i_salida_id=?, @i_saldo_recibo=?, @i_cli_id=?";
@@ -75,7 +75,8 @@ class Pago extends Conectar
         $query->bindValue(8, $i_salida_id);
         $query->bindValue(9, $i_saldo_recibo);
         $query->bindValue(10, $i_cli_id);
-        return $query->execute();
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
     }
     /* TODO: Eliminar registro  */
     public function eliminarPago($i_pagc_id)
@@ -126,5 +127,55 @@ class Pago extends Conectar
         $query->bindValue(4, $i_pago_id);
         $query->bindValue(5, $i_pagc_id);
         return $query->execute();
+    }
+
+    /* TODO: Listado de Pagos  */
+    public function getValSaldoPendiente($i_cli_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "select SUM(movc_valor) as valor, movc_tipo 
+                from tm_movimiento_cuenta mc
+                inner join tm_cuenta_cliente cc on cc.cta_id = mc.cta_id
+                where cc.cli_id = ? and salida_id = 0 and movc_estado = 1 and cc.cta_estado = 1 group by movc_tipo";
+        $query = $conectar->prepare($sql);
+        $query->bindParam(1, $i_cli_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+
+        $query->close();
+    }
+
+    public function validaSaldoPendiente($i_cli_id)
+    {
+
+        $valTotal = 0;
+        $valCancelado = 0;
+        $pendiente = 0;
+        $valida = false;
+        $valSaldoPen = $this->getValSaldoPendiente($i_cli_id);
+        if (is_array($valSaldoPen) and count($valSaldoPen) > 0) {
+            foreach ($valSaldoPen as $row) {
+                $tipoMov = $row['movc_tipo'];
+                if ($tipoMov == '+') {
+                    $valTotal = $row['valor'];
+                } else {
+                    $valCancelado = $row['valor'];
+                }
+            }
+            $pendiente = $valTotal - $valCancelado;
+            $valida = $pendiente == 0 ? true : false;
+        } else {
+            $valTotal = 0;
+            $valCancelado = 0;
+            $pendiente = 0;
+            $valida = true;
+        }
+
+        $outout["SaldoPendienteTotal"] = $valTotal;
+        $outout["saldoCancelado"] = $valCancelado;
+        $outout["saldoPendiente"] = $pendiente;
+        $outout["valida"] = $valida;
+
+        return $outout;
     }
 }
