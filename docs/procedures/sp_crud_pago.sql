@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 14/6/2025 17:41:54 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 21/6/2025 18:05:40 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -31,6 +31,8 @@ declare
 @w_monto_trn decimal(14,2),
 @w_cta_id int,
 @w_prox_recibo int,
+@w_salida_id int,
+@w_venta_id int,
 @w_saldo_recibo decimal(14,2),
 @w_val_total decimal(14,2),
 @w_val_total_w decimal(14,2),
@@ -93,7 +95,8 @@ begin
 		select 
 			@w_monto_trn = pagc_monto,
 			@w_cta_id = cta_id,
-			@w_prox_recibo = salida_id
+			@w_salida_id = salida_id,
+			@w_venta_id = ven_id
 		from tm_pago_cuenta
 		where pagc_id = @i_pagc_id
 
@@ -105,15 +108,32 @@ begin
 		where cta_id = @w_cta_id
 
 		-- SE VALIDA EL ESTADO DEL PAGO DEL RECIBO
-		select @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @w_prox_recibo and salida_estado = 1
+		if @w_salida_id is not null
+		begin
+			select @w_estado_recibo = salida_vpagado from tm_salida_lote where salida_id = @w_salida_id and salida_estado = 1
 
-		if @w_estado_recibo = 'C'
-			set @w_estado_recibo = 'N'
+			if @w_estado_recibo = 'C'
+				set @w_estado_recibo = 'N'
 
-		-- SE MODIFICA EL ESTADO DEL RECIBO DE SALIDA
-		update tm_salida_lote
-		set salida_vpagado = @w_estado_recibo
-		where salida_id = @w_prox_recibo
+			-- SE MODIFICA EL ESTADO DEL RECIBO DE SALIDA
+			update tm_salida_lote
+			set salida_vpagado = @w_estado_recibo
+			where salida_id = @w_salida_id
+		end
+
+		-- SE VALIDA EL ESTADO DEL PAGO DEL RECIBO
+		if @w_venta_id is not null
+		begin
+			select @w_estado_recibo = rvc_est_cta from tm_registro_vencred where ven_id = @w_venta_id and rvc_estado = 1
+
+			if @w_estado_recibo = 'C'
+				set @w_estado_recibo = 'P'
+
+			-- SE MODIFICA EL ESTADO DEL RECIBO DE SALIDA
+			update tm_registro_vencred
+			set rvc_est_cta = @w_estado_recibo
+			where ven_id = @w_venta_id
+		end
 
 		-- SE ELIMINA EL MOVIMIENTO DE LA CUENTA
 		delete from tm_movimiento_cuenta
@@ -302,7 +322,8 @@ begin
 			pagc_fecha,
 			concat(u.usu_nombre, ' ' , u.usu_apellido) as usu_nombre,
 			pc.pagc_id,
-			salida_id
+			salida_id,
+			ven_id
 		from tm_pago_cuenta pc
 		inner join tm_tipo_pago p on p.pago_id = pc.pago_id
 		inner join tm_cuenta_cliente cc on cc.cta_id = pc.cta_id

@@ -80,4 +80,7 @@ CREATE TABLE [dbo].[tm_registro_vencred](
 	[rvc_observacion] [varchar](80) NULL
 ) ON [PRIMARY]
 
-
+-- 18/06/2025
+-- SE AGREGA CAMPO VEN_ID A LA TABLA TM_PAGO_CUENTA
+ALTER TABLE tm_pago_cuenta
+ADD ven_id int NULL;

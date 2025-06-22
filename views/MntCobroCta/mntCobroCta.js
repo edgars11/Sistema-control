@@ -3,12 +3,46 @@ var w_usu_idx = $('#usu_idx').val();
 var w_suc_idx = $('#suc_idx').val();
 
 var w_cli_id = 0;
+var w_cta_id = 0;
+var w_monto_cta = 0;
 
 $(document).ready(function () {
 
     // Se obtienen las Formas de pago
     $.post("../../controllers/pagoController.php?op=combo", function (data) {
         $('#pago_id').html(data);
+    });
+
+
+    // Obtiene datos del producto seleccionado
+    $("#tipo_compro").change(function () {
+        $("#tipo_compro").each(function () {
+            tipo_comprobante = $(this).val();
+
+            if (tipo_comprobante == 'PE') {
+                if (w_cli_id > 0) {
+                    $.post("../../controllers/salidaLoteController.php?op=ListadoRecibosSP", { tipo_val: 'C', cli_id: w_cli_id, suc_id: w_suc_idx }, function (data) {
+                        $('#recibo_id').html(data);
+                    })
+                }
+
+                if (w_monto_cta == 0) {
+                    $("#btnAddPago").prop('disabled', true);
+                    swal.fire({
+                        title: "Cuenta por cobrar",
+                        text: "El valor de la cuenta es $0.00!",
+                        icon: "warning"
+                    });
+                } else {
+                    $("#btnAddPago").prop('disabled', false);
+                }
+            } else if (tipo_comprobante == 'VE') {
+                $.post("../../controllers/ventaCreditoController.php?op=combo", { cta_id: w_cta_id }, function (data) {
+                    $('#recibo_id').html(data);
+                })
+            }
+            console.log(tipo_comprobante);
+        });
     });
 
 });
@@ -29,6 +63,7 @@ $(document).on("click", "#btnAddPago", function () {
     var pagc_obs = $('#pagc_obs').val();
     var recibo_id = $('#recibo_id').val();
     var saldoRestante = $('#pagc_saldo_recibo').val();
+    var tipoCobroCta = $('#tipo_compro').val();
 
     /* TODO: Validación de campos de ventas */
     if (cta_id.length == 0 || pagc_nuevo_monto.length == 0 || pago_id == 'Seleccionar') {
@@ -72,43 +107,63 @@ $(document).on("click", "#btnAddPago", function () {
         saldoRestante = 0;
     }
 
-    $.post("../../controllers/pagoController.php?op=guardarPago", {
-        cta_id: cta_id,
-        pago_id: pago_id,
-        pagc_obs: pagc_obs,
-        pagc_monto: pagc_monto,
-        suc_id: w_suc_idx,
-        salida_id: recibo_id,
-        saldo_recibo: saldoRestante,
-        cli_id: w_cli_id
-    }, function (data) {
-        data = JSON.parse(data);
+    if(tipoCobroCta == 'PE'){
+        $.post("../../controllers/pagoController.php?op=guardarPago", {
+            cta_id: cta_id,
+            pago_id: pago_id,
+            pagc_obs: pagc_obs,
+            pagc_monto: pagc_monto,
+            suc_id: w_suc_idx,
+            salida_id: recibo_id,
+            saldo_recibo: saldoRestante,
+            cli_id: w_cli_id
+        }, function (data) {
+            data = JSON.parse(data);
 
-        if (data.success == true) {
-            $('#cta_id').val('');
-            $('#pago_id').val('Seleccionar');
-            $('#pagc_nuevo_monto').val('');
-            $('#pagc_monto').val('');
-            $('#pagc_obs').val('');
-            $('#cli_nombre').val('');
-            $('#cli_telefono').val('');
-            $('#cta_monto').val('');
-            $('#ult_fecha_sal').val('');
-            $('#ult_fecha_pago').val('');
-            $('#recibo_id').html('<option selected>Seleccionar cuenta</option>');
-            swal.fire({
-                title: "Cobro Exitoso",
-                text: "El cobro de la cuenta se realizó correctamente!",
-                icon: "success"
-            });
-        } else {
-            swal.fire({
-                title: "Cobro Errado",
-                text: "Hubo un error al guardar el cobro de cuenta!",
-                icon: "warning"
-            });
-        }
-    })
+            if (data.success == true) {
+                limpiarCampos();
+                swal.fire({
+                    title: "Cobro Exitoso",
+                    text: "El cobro de la cuenta se realizó correctamente!",
+                    icon: "success"
+                });
+            } else {
+                swal.fire({
+                    title: "Cobro Errado",
+                    text: "Hubo un error al guardar el cobro de cuenta!",
+                    icon: "warning"
+                });
+            }
+        });
+    } else{
+        $.post("../../controllers/ventaCreditoController.php?op=guardarPago", {
+            cta_id: cta_id,
+            pago_id: pago_id,
+            pagc_obs: pagc_obs,
+            pagc_monto: pagc_monto,
+            suc_id: w_suc_idx,
+            ven_id: recibo_id,
+            cli_id: w_cli_id
+        }, function (data) {
+            data = JSON.parse(data);
+
+            if (data.success == true) {
+                limpiarCampos();
+                swal.fire({
+                    title: "Cobro Exitoso",
+                    text: "El cobro de la cuenta se realizó correctamente!",
+                    icon: "success"
+                });
+            } else {
+                swal.fire({
+                    title: "Cobro Errado",
+                    text: "Hubo un error al guardar el cobro de cuenta!",
+                    icon: "warning"
+                });
+            }
+        });
+    }
+
 
 });
 
@@ -160,6 +215,7 @@ function cargarTablaCuentas(suc_idx) {
 }
 
 function selCuenta(cta_id) {
+    w_cta_id = cta_id;
 
     $.post("../../controllers/cuentasController.php?op=byCta", { cta_id: cta_id, suc_id: w_suc_idx }, function (data) {
         data = JSON.parse(data);
@@ -171,25 +227,7 @@ function selCuenta(cta_id) {
         $('#ult_fecha_pago').val(data.ult_fecha_pago);
         $('#modalCuentas').modal('hide');
         w_cli_id = data.cli_id;
-        console.log(data);
-
-        if (w_cli_id > 0) {
-            $.post("../../controllers/salidaLoteController.php?op=ListadoRecibosSP", { tipo_val: 'C', cli_id: w_cli_id, suc_id: w_suc_idx }, function (data) {
-                $('#recibo_id').html(data);
-            })
-        }
-
-        if(data.cta_monto == 0){
-            $("#btnAddPago").prop('disabled', true);
-            swal.fire({
-                title: "Cuenta por cobrar",
-                text: "El valor de la cuenta es $0.00!",
-                icon: "warning"
-            });
-        } else {
-            $("#btnAddPago").prop('disabled', false);
-        }
-
+        w_monto_cta = data.cta_monto;
     })
 
 }
@@ -198,6 +236,7 @@ function calcular() {
 
     var cta_monto = $('#cta_monto').val();
     var pagc_monto = $('#pagc_monto').val();
+    var tipoCobroCta = $('#tipo_compro').val();
 
     if (cta_monto.length > 0 && pagc_monto.length > 0) {
 
@@ -211,15 +250,25 @@ function calcular() {
         } else {
             $('#pagc_nuevo_monto').val(String(total.toFixed(2)));
             var idRecibo = $('#recibo_id').val();
-            console.log(idRecibo);
+
             if (idRecibo !== null && parseInt(idRecibo) > 0) {
-                $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: idRecibo }, function (data) {
-                    data = JSON.parse(data);
-                    var montoRecibo = data.salida_total - data.saldo;
-                    var saldo = parseFloat(pagc_monto.replace(',', '')) - montoRecibo;
-                    $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
-                });
-            } else{
+                if(tipoCobroCta == 'PE'){
+                    $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: idRecibo }, function (data) {
+                        data = JSON.parse(data);
+                        var montoRecibo = data.salida_total - data.saldo;
+                        var saldo = parseFloat(pagc_monto.replace(',', '')) - montoRecibo;
+                        $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
+                    });
+                }else{
+                    $.post("../../controllers/ventaCreditoController.php?op=getById", { ven_id: idRecibo }, function (data) {
+                        data = JSON.parse(data);
+                        var montoRecibo = data.ven_total - data.rvc_abonado;
+                        var saldo = parseFloat(pagc_monto.replace(',', '')) - montoRecibo;
+                        $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
+                    });
+                }
+
+            } else {
                 var saldo = 0;
                 idRecibo = 0;
                 $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
@@ -228,4 +277,18 @@ function calcular() {
         }
     }
 
+}
+
+function limpiarCampos (){
+    $('#cta_id').val('');
+    $('#pago_id').val('Seleccionar');
+    $('#pagc_nuevo_monto').val('');
+    $('#pagc_monto').val('');
+    $('#pagc_obs').val('');
+    $('#cli_nombre').val('');
+    $('#cli_telefono').val('');
+    $('#cta_monto').val('');
+    $('#ult_fecha_sal').val('');
+    $('#ult_fecha_pago').val('');
+    $('#recibo_id').html('<option selected>Seleccionar cuenta</option>');
 }

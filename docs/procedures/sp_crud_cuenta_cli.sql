@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 11/6/2025 19:29:48 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 18/6/2025 21:01:25 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -66,7 +66,7 @@ begin
 		end
 
 		if @i_movc_tipo = '-'
-			begin 
+		begin 
 			select @w_val_total = @w_val_actual - @i_cta_monto
 		end
 

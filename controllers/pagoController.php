@@ -21,7 +21,7 @@ switch ($_GET['op']) {
         break;
 
     case 'guardarPago':
-        $usu_id = 1 ; //$_SESSION["usu_id"];
+        $usu_id = $_SESSION["usu_id"];
         $datos = $pago->registrarPago($_POST['cta_id'], $_POST['pago_id'], $_POST['pagc_obs'], $usu_id, $_POST['pagc_monto'], $_POST['suc_id'], $_POST['salida_id'], $_POST['saldo_recibo'], $_POST['cli_id']);
 
         if (is_array($datos) == true and count($datos) > 0) {

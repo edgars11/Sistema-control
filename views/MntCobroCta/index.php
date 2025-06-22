@@ -78,7 +78,7 @@ if (isset($_SESSION["usu_id"])) {
                                                         <input type="text" class="form-control" id="cta_monto" name="cta_monto" placeholder="$ 0.00" readonly>
                                                     </div>
                                                     <div class="col-lg-3">
-                                                        <label for="tipo_compro" class="form-label">Recibo a cancelar</label>
+                                                        <label for="tipo_compro" class="form-label">Tipo de Cobro</label>
                                                         <select class="form-control form-select" id="tipo_compro" name="tipo_compro" aria-label="Seleccionar">
                                                             <option selected>Seleccionar</option>
                                                             <option value="PE">Pedidos</option>
@@ -86,7 +86,7 @@ if (isset($_SESSION["usu_id"])) {
                                                         </select>
                                                     </div>
                                                     <div class="col-lg-5">
-                                                        <label for="recibo_id" class="form-label">Tipo Cobro</label>
+                                                        <label for="recibo_id" class="form-label">Recibo a cancelar</label>
                                                         <select class="form-control form-select" id="recibo_id" name="recibo_id" aria-label="Seleccionar">
                                                             <option selected>Seleccione</option>
                                                         </select>
