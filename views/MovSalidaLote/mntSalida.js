@@ -21,6 +21,7 @@ function guardarMovimiento(e) {
     console.log(formData.get('salida_id'));
 
     var idCliente = $('#cli_id').val();
+    var numIdClient = $('#cli_identificacion').val();
     var idLote = $('#lote_idIng').val();
     formData.append('lote_id', idLote);
     console.log(idLote);
@@ -29,6 +30,7 @@ function guardarMovimiento(e) {
     var sal_peso = $('#sal_peso').val();
     var sal_fecha = $('#sal_fecha').val();
     var sal_tipo = $('#sal_tipo').val();
+    var pago_id = $('#pago_id').val();
     var salida_id = $('#salida_id').val();
 
     if (idCliente.length == 0) {
@@ -58,6 +60,15 @@ function guardarMovimiento(e) {
         return;
     }
 
+    if (pago_id === 'Seleccionar') {
+        swal.fire({
+            title: "Datos incompletos",
+            text: "Seleccione una forma de pago!",
+            icon: "warning"
+        });
+        return;
+    }
+
     if (sal_total.length === 0 || sal_cantidad.length === 0 || sal_peso.length === 0 || sal_fecha.length === 0) {
         swal.fire({
             title: "Datos incompletos",
@@ -66,6 +77,17 @@ function guardarMovimiento(e) {
         });
         return;
     }
+
+    if (pago_id == 5 && numIdClient == '9999999999999') {
+        swal.fire({
+            title: "Error Cliente",
+            text: "Consumidor final no puede tener una cuenta a crédito!",
+            icon: "warning"
+        });
+        return;
+    }
+
+    formData.append('pago_id', pago_id);
 
     if (salida_id.length > 0) {
         swal.fire({
@@ -93,6 +115,8 @@ function guardarMovimiento(e) {
                                 data = JSON.parse(data);
                                 $('#lote_cant_act').val(data.lote_cant_actual);
                             });
+                            // Se carga cliente por defecto
+                            defaultClient('9999999999999');
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Modificación exitosa!",
@@ -133,6 +157,8 @@ function guardarMovimiento(e) {
                                 data = JSON.parse(data);
                                 $('#lote_cant_act').val(data.lote_cant_actual);
                             });
+                            // Se carga cliente por defecto
+                            defaultClient('9999999999999');
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Ejecución exitosa!",
@@ -152,6 +178,9 @@ $(document).ready(function () {
 
     var dateSalida = getDate(new Date());
 
+    // Se carga cliente por defecto
+    defaultClient('9999999999999');
+
     // Se obtienen los lotes disponibles
     $.post("../../controllers/loteController.php?op=combo", { suc_id: suc_idx }, function (data) {
         $('#lote_idIng').html(data);
@@ -167,6 +196,11 @@ $(document).ready(function () {
                 $('#lote_cant_act').val(data.lote_cant_actual);
             });
         });
+    });
+
+    // SE CARGAN LAS FORMAS DE PAGO
+    $.post("../../controllers/pagoController.php?op=combo", function (data) {
+        $('#pago_id').html(data);
     });
 
     $('#table_data').DataTable({
@@ -388,6 +422,28 @@ function selectCliente(cli_id) {
     })
     $('#modalClientes').modal('hide');
 }
+
+function defaultClient(cli_ruc) {
+
+    $.post("../../controllers/clienteController.php?op=byCED", { cli_ruc: cli_ruc, emp_id: emp_idx }, function (data) {
+        if (data.length > 0) {
+            data = JSON.parse(data);
+            $('#cli_nom').val(data.cli_nombre);
+            $('#cli_contacto').val(data.cli_telefono);
+            $('#cta_cli').val(data.cta_monto);
+            $('#cli_id').val(data.cli_id);
+            $('#cli_identificacion').val(data.cli_ruc);
+        } else {
+            $('#cli_identificacion').val('');
+            swal.fire({
+                title: "Error consulta",
+                text: "Identificación no registrada!",
+                icon: "warning"
+            });
+        }
+    });
+}
+
 function limpiarCampos() {
     $('#lote_cant_act').val('');
     $('#sal_total').val('');
@@ -472,6 +528,7 @@ function editar(salida_id) {
                     $('#sal_precio').val(data.salida_precio);
                     $('#sal_total').val(data.salida_total);
                     $('#sal_tipo').val(data.salida_tipo);
+                    $('#pago_id').val(data.pago_id);
                     var fecha = new Date(data.salida_fecha);
                     $('#sal_fecha').val(formatDate(fecha));
                     $('#agregarSalida').html('<i class="ri-add-circle-line label-icon align-middle fs-16 me-2"></i>Modificar');

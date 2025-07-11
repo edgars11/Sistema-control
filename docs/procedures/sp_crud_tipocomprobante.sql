@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_tipocomprobante]    Script Date: 28/5/2025 18:52:15 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_tipocomprobante]    Script Date: 8/7/2025 20:06:26 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -10,6 +10,7 @@ ALTER procedure [dbo].[sp_crud_tipocomprobante] (
  @i_tipo char(1) = null,
  @i_tc_descripcion varchar(100) = null,
  @i_tc_id tinyint = null,
+ @i_pago_id tinyint = null,
  @i_tc_codigo varchar(3) = null,
  @i_tc_estado tinyint = null
 )
@@ -62,6 +63,13 @@ begin
 			select * from tm_tipo_comprobante
 			where tc_estado = 1
 			and tc_id = @i_tc_id
+		end
+
+		if @i_tipo = 'P'
+		begin
+			select * from tm_tipo_pago
+			where pago_estado = 1
+			and pago_id = @i_pago_id
 		end
 	end
 

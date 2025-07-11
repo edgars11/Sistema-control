@@ -86,12 +86,12 @@ if (isset($_SESSION["usu_id"])) {
                                                         <input type="text" class="form-control" id="cli_correo" name="cli_correo" placeholder="Correo" readonly>
                                                     </div>
 
-                                                    <div class="col-lg-4">
+                                                    <!-- <div class="col-lg-4">
                                                         <label for="btn_updCli" class="form-label">Opciones</label>
                                                         <button type="button" id="btn_updCli" name="btn_updCli" class="form-control btn btn-primary btn-label waves-effect right waves-light">
                                                             <i class="ri-user-smile-line label-icon align-middle fs-16 ms-2"></i> Editar
                                                         </button>
-                                                    </div>
+                                                    </div> -->
                                                 </div>
                                             </div>
                                         </div>

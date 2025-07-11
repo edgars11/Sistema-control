@@ -486,7 +486,6 @@ function openWhatsappview() {
     var mensaje = encodeURIComponent("Hola, se adjunta el reporte de listado de pedidos realizados. Gracias");
     var url = "https://wa.me/593" + clienteContacto + "?text=" + mensaje;
     window.open(url, "_blank");
-
 }
 
 init();

@@ -114,11 +114,13 @@ switch ($_GET['op']) {
         break;
         // TODO: Listado de registro en format JSON para Datatable JS
     case 'listarVentasReg':
-        $datos = $venta->getListadoVentaRegistradas("A", $_POST['suc_id']);
+        $cli_id = $_POST['cli_id'] == '' ? null : $_POST['cli_id'];
+        $pago_id = $_POST['tipo_pago'] == '' ? null : $_POST['tipo_pago'];
+        $datos = $venta->getListadoVentaRegistradas("A", $_POST['suc_id'], $_POST['fecha_ini'], $_POST['fecha_hasta'], $cli_id , $pago_id);
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array(); 
-            $sub_array[] = "C-".$row['ven_id'];
+            $sub_array[] = "V-".$row['ven_id'];
             $sub_array[] = $row['cli_nombre'];
             $sub_array[] = $row['cli_ruc'];
             $sub_array[] = $row['pago_nom'];

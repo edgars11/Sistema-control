@@ -76,4 +76,16 @@ class Empresa extends Conectar
         $query->bindValue(4, $i_emp_ruc);
         $query->execute();
     }
+    /* TODO: Obtener Empresa por id sucursal */
+    public function getEmpresaBySucursal($i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_empresa @i_operacion=?,@i_tipo =?, @i_suc_id=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'R');
+        $query->bindValue(2, 'S');
+        $query->bindValue(3, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -13,7 +13,6 @@ $(document).ready(function () {
         $('#pago_id').html(data);
     });
 
-
     // Obtiene datos del producto seleccionado
     $("#tipo_compro").change(function () {
         $("#tipo_compro").each(function () {
@@ -41,7 +40,9 @@ $(document).ready(function () {
                     $('#recibo_id').html(data);
                 })
             }
-            console.log(tipo_comprobante);
+            // Elimina la opción de crédito del combo de formas de pago
+            $('#pago_id').children('option[value="5"]').remove();
+            $('#pago_id').find('[value="5"]').remove();
         });
     });
 
@@ -107,7 +108,7 @@ $(document).on("click", "#btnAddPago", function () {
         saldoRestante = 0;
     }
 
-    if(tipoCobroCta == 'PE'){
+    if (tipoCobroCta == 'PE') {
         $.post("../../controllers/pagoController.php?op=guardarPago", {
             cta_id: cta_id,
             pago_id: pago_id,
@@ -135,7 +136,7 @@ $(document).on("click", "#btnAddPago", function () {
                 });
             }
         });
-    } else{
+    } else {
         $.post("../../controllers/ventaCreditoController.php?op=guardarPago", {
             cta_id: cta_id,
             pago_id: pago_id,
@@ -252,14 +253,14 @@ function calcular() {
             var idRecibo = $('#recibo_id').val();
 
             if (idRecibo !== null && parseInt(idRecibo) > 0) {
-                if(tipoCobroCta == 'PE'){
+                if (tipoCobroCta == 'PE') {
                     $.post("../../controllers/salidaLoteController.php?op=mostrarByID", { salida_id: idRecibo }, function (data) {
                         data = JSON.parse(data);
                         var montoRecibo = data.salida_total - data.saldo;
                         var saldo = parseFloat(pagc_monto.replace(',', '')) - montoRecibo;
                         $('#pagc_saldo_recibo').val(parseFloat(saldo.toFixed(2)));
                     });
-                }else{
+                } else {
                     $.post("../../controllers/ventaCreditoController.php?op=getById", { ven_id: idRecibo }, function (data) {
                         data = JSON.parse(data);
                         var montoRecibo = data.ven_total - data.rvc_abonado;
@@ -279,7 +280,7 @@ function calcular() {
 
 }
 
-function limpiarCampos (){
+function limpiarCampos() {
     $('#cta_id').val('');
     $('#pago_id').val('Seleccionar');
     $('#pagc_nuevo_monto').val('');

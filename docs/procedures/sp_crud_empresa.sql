@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_empresa]    Script Date: 28/5/2025 18:47:56 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_empresa]    Script Date: 8/7/2025 19:42:15 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -12,6 +12,7 @@ ALTER procedure [dbo].[sp_crud_empresa] (
  @i_emp_ruc varchar(15) = null,
  @i_com_id tinyint = null,
  @i_emp_id tinyint = null,
+ @i_suc_id tinyint = null,
  @i_emp_estado tinyint = 1
 )
 as
@@ -69,7 +70,12 @@ begin
 			and emp_ruc = @i_emp_ruc
 			and com_id = @i_com_id
 		end
-
+		if @i_tipo = 'S'
+		begin
+			select e.* from tm_empresa e
+			inner join tm_sucursal s on s.emp_id = e.emp_id
+			where s.suc_id = @i_suc_id
+		end
 	end
 
 end

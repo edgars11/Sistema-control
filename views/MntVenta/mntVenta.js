@@ -6,35 +6,9 @@ var w_valTotalVenta = 0;
 $(document).ready(function () {
 
     // Se crea el registro de la venta
-    $.post("../../controllers/ventaController.php?op=registrar", { suc_id: w_suc_idx, usu_id: w_usu_idx }, function (data) {
-        data = JSON.parse(data);
-        $('#ven_id').val(data.ven_id);
-        console.log(data);
-    });
+    nuevaVenta();
 
-    $('#cli_id').select2();
-    $('#cat_id').select2();
-    $('#prod_id').select2();
-    $('#pago_id').select2();
-    $('#tipo_venta').select2();
 
-    // Se crea el registro de la venta
-    $.post("../../controllers/clienteController.php?op=combo", { emp_id: w_emp_idx }, function (data) {
-        $('#cli_id').html(data);
-    });
-
-    // Se obtienen las categorias
-    $.post("../../controllers/categoriaController.php?op=combo", { suc_id: w_suc_idx }, function (data) {
-        $('#cat_id').html(data);
-    });
-    // Se obtienen las Formas de pago
-    $.post("../../controllers/pagoController.php?op=combo", function (data) {
-        $('#pago_id').html(data);
-    });
-    // Se obtienen los tipos de comprobantes
-    $.post("../../controllers/tipoComprobanteController.php?op=combo", function (data) {
-        $('#tipo_venta').html(data);
-    });
 
     /* Evente change cuando se selecciona un cliente de la lista */
     $("#cli_id").change(function () {
@@ -148,6 +122,9 @@ $(document).on("click", "#btnGuardar", function () {
                         icon: "success",
                         footer: '<a href="../ViewVenta/?id=' + ven_id + '" target="_blank">¿Desea imprimir el comprobante?</a>'
                     });
+
+                    nuevaVenta();
+
                 });
         }
 
@@ -240,4 +217,54 @@ function deleteItem(detv_id, ven_id) {
             });
         }
     });
+}
+
+function nuevaVenta() {
+    // Se crea el registro de la venta
+    $.post("../../controllers/ventaController.php?op=registrar", { suc_id: w_suc_idx, usu_id: w_usu_idx }, function (data) {
+        data = JSON.parse(data);
+        console.log(data.ven_id);
+        $('#ven_id').val(data.ven_id);
+    });
+
+    cargarDetalle(0);
+    $('#cli_id').select2();
+    $('#cat_id').select2();
+    $('#prod_id').select2();
+    $('#pago_id').select2();
+    $('#tipo_venta').select2();
+
+    // Se crea el registro de la venta
+    $.post("../../controllers/clienteController.php?op=combo", { emp_id: w_emp_idx }, function (data) {
+        $('#cli_id').html(data);
+    });
+
+    // Se obtienen las categorias
+    $.post("../../controllers/categoriaController.php?op=combo", { suc_id: w_suc_idx }, function (data) {
+        $('#cat_id').html(data);
+    });
+    // Se obtienen las Formas de pago
+    $.post("../../controllers/pagoController.php?op=combo", function (data) {
+        $('#pago_id').html(data);
+    });
+    // Se obtienen los tipos de comprobantes
+    $.post("../../controllers/tipoComprobanteController.php?op=combo", function (data) {
+        $('#tipo_venta').html(data);
+    });
+
+    $('#prod_id').html('<option>Seleccione categoria</option>');
+    $('#cli_ruc').val("");
+    $('#cli_correo').val("");
+    $('#cli_telefono').val("");
+    $('#cli_direccion').val("");
+
+    $('#prod_pventa').val("");
+    $('#unm_nombre').val("");
+    $('#prod_stock').val("");
+    $('#detv_cant').val("");
+
+    $('#txtsubtotal').html('$0.00');
+    $('#txtiva').html('$0.00' );
+    $('#txttotal').html('$0.00');
+
 }

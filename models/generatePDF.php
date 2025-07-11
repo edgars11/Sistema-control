@@ -180,17 +180,18 @@ class GeneratePDF extends Conectar
                         <th>TOTAL</th>
             ';
 
-            $textoCuenta = '<br><span class="text-fw-600">Datos Cuenta Cliente:</span> Saldo abonado en el rango de fechas seleccionada: <span class="text-fw-600">$ ' . $totalesConsulta[0]['monto_abonado'] . '</span> - Saldo Total Pendiende Cuenta: <span class="text-fw-600">$ ' . $totalesConsulta[0]['saldo_total_cta'] . '</span>';
-
-            $columnasSaldosCliente = '<tr>
-                            <td colspan="' . $colSpan . '" class="totales">MONTO ABONADO:</td>
-                            <td class="totales tc-green ts-15 text-fw-200">$ ' . $totalesConsulta[0]["monto_abonado"] . '</td>
+            $textoCuenta = '<br><span class="text-fw-600">Datos Cuenta Cliente:</span> Saldo Total Pendiende Cuenta: <span class="text-fw-600">$ ' . $totalesConsulta[0]['saldo_total_cta'] . '</span>';
+//  Saldo abonado en el rango de fechas seleccionada: <span class="text-fw-600">$ ' . $totalesConsulta[0]['monto_abonado'] . '</span> -
+            $columnasSaldosCliente = '
+                        <tr>
+                            <td colspan="' . $colSpan  . '" class="totales">INFORMACIÓN CUENTA</td>
+                            
                         </tr>
                         <tr>
                             <td colspan="' . $colSpan . '" class="totales">SALDO PENDIENTE:</td>
                             <td class="totales tc-red ts-15 text-fw-200">$ ' . $totalesConsulta[0]["saldo_total_cta"] . '</td>
                         </tr>';
-
+            // <td class="totales tc-green ts-15 text-fw-200">$ ' . $totalesConsulta[0]["monto_abonado"] . '</td>
             foreach ($detalle as $row) {
                 $estadoRecibo = $row["salida_vpagado"];
                 $colorTag = '';

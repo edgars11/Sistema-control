@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_venta]    Script Date: 3/6/2025 23:14:14 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_venta]    Script Date: 8/7/2025 20:26:26 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -17,6 +17,8 @@ ALTER procedure [dbo].[sp_crud_venta] (
  @i_usu_id int = null,
  @i_suc_id int = null,
  @i_tc_id int = null,
+ @i_fecha_ini varchar(20) = null,
+ @i_fecha_hasta varchar(20) = null,
  @i_ven_estado tinyint = null,
  @i_ven_comment varchar(100) = null
 )
@@ -47,7 +49,7 @@ set nocount on
 	end
 	if @i_operacion = 'T'
 	begin
-		select @w_subtotal = SUM(detv_total) FROM [SistemaControl].[dbo].[tm_detalle_venta] where ven_id = @i_ven_id  and detv_estado = 1
+		select @w_subtotal = SUM(detv_total) FROM tm_detalle_venta where ven_id = @i_ven_id  and detv_estado = 1
 		select @w_iva = 0.00 -- @w_subtotal * 0.15
 		select @w_total = @w_subtotal + @w_iva
 
@@ -157,6 +159,7 @@ set nocount on
 				tm_empresa ON tm_sucursal.emp_id = tm_empresa.emp_id INNER JOIN
 				tm_compania ON tm_empresa.com_id = tm_compania.com_id
 		where tm_ventas.ven_id = @i_ven_id
+		
 	end
 
 	if @i_operacion = 'A'
@@ -191,7 +194,32 @@ set nocount on
 				tm_compania ON tm_empresa.com_id = tm_compania.com_id
 		where tm_ventas.suc_id = @i_suc_id
 		and tm_ventas.ven_estado = 1
+		and CAST(ven_fecha_crea as date) between ISNULL(@i_fecha_ini,CAST(ven_fecha_crea as date)) and ISNULL(@i_fecha_hasta,CAST(ven_fecha_crea as date))
+		and tm_ventas.cli_id = isnull(@i_cli_id, tm_ventas.cli_id)
+		and tm_ventas.pago_id = ISNULL(@i_pago_id , tm_ventas.pago_id)
+		order by ven_fecha_crea desc
 	end
+
+	if @i_operacion = 'P'
+	begin
+		select 
+		ven_id, 
+		ven_total, 
+		ven_fecha_crea, 
+		ven_coment, 
+		pago_nombre, 
+		cli_nombre ,
+		v.suc_id
+		from tm_ventas v
+		inner join tm_tipo_pago p on v.pago_id = p.pago_id
+		inner join tm_cliente cl on cl.cli_id = v.cli_id
+		where v.ven_estado = 1
+		and CAST(ven_fecha_crea as date) between @i_fecha_ini and @i_fecha_hasta
+		and v.pago_id = ISNULL(@i_pago_id, v.pago_id)
+		and v.suc_id = @i_suc_id
+		and v.cli_id = @i_cli_id
+	end
+
 
 set nocount off
 end

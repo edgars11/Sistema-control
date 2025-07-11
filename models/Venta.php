@@ -81,13 +81,17 @@ class Venta extends Conectar
     }
 
     /* TODO: Insertar nuevo registro */
-    public function getListadoVentaRegistradas($i_operacion, $i_suc_id)
+    public function getListadoVentaRegistradas($i_operacion, $i_suc_id, $i_fecha_ini, $i_fecha_hasta, $i_cli_id, $i_pago_id)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_venta @i_operacion=?, @i_suc_id=?";
+        $sql = "exec sp_crud_venta @i_operacion=?, @i_suc_id=?, @i_fecha_ini=?, @i_fecha_hasta=?, @i_cli_id=?, @i_pago_id=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, $i_operacion);
         $query->bindValue(2, $i_suc_id);
+        $query->bindValue(3, $i_fecha_ini);
+        $query->bindValue(4, $i_fecha_hasta);
+        $query->bindValue(5, $i_cli_id);
+        $query->bindValue(6, $i_pago_id);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }

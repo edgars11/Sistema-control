@@ -94,7 +94,7 @@ if (isset($_SESSION["usu_id"])) {
                                 <div class="mt-2">
                                     <h5 class="fs-14 mb-3 text-muted">Lote</h5>
                                     <div class="row">
-                                        <div class="col-xl-3">
+                                        <div class="col-xl-2">
                                             <div class="mb-3">
                                                 <label for="lote_idIng" class="form-label">Lote:</label>
                                                 <select type="text" class="form-control form-select" name="lote_idIng" id="lote_idIng" aria-label="Seleccionar">
@@ -104,12 +104,21 @@ if (isset($_SESSION["usu_id"])) {
 
                                         </div><!-- end col -->
 
-                                        <div class="col-xl-3">
+                                        <div class="col-xl-2">
                                             <div class="mb-3">
                                                 <label for="lote_cant_act" class="form-label">Cantidad Disponible</label>
                                                 <input type="number" class="form-control" placeholder="Cantidad Actual" name="lote_cant_act" id="lote_cant_act" readonly>
                                             </div>
                                         </div><!-- end col -->
+
+                                        <div class="col-xl-2">
+                                            <div class="mb-3">
+                                                <label for="pago_id" class="form-label">Forma Pago</label>
+                                                <select type="text" class="form-control form-select" name="pago_id" id="pago_id" aria-label="Seleccionar">
+                                                    <option selected>Seleccionar</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
                                         <div class="col-xl-2">
                                             <div class="mb-3">

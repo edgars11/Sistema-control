@@ -84,3 +84,9 @@ CREATE TABLE [dbo].[tm_registro_vencred](
 -- SE AGREGA CAMPO VEN_ID A LA TABLA TM_PAGO_CUENTA
 ALTER TABLE tm_pago_cuenta
 ADD ven_id int NULL;
+-- 10/07/2025
+-- Se crea un nuevo campo para registrar los pagos con pedido id 0. PENDIENTE
+ALTER TABLE tm_salida_lote
+ADD pago_id tinyint
+CONSTRAINT cnst_pago_id NOT NULL
+CONSTRAINT cnst_pago_id_def DEFAULT 1;

@@ -15,3 +15,15 @@ values
 ('Proveedor',	 '../MntProveedor/',    'mntProveedor',		GETDATE(),	1,  'Mantenimiento');
 -- VINCULAR LOS MENUS CON LOS
 ## Hacer la vinculacion desde la pantalla de roles
+
+-- Se crea nuevo cliente consumidor final con id 0
+INSERT INTO tm_cliente
+( emp_id, cli_nombre, cli_ruc, cli_telefono, cli_direccion, cli_correo,cli_fecha_crea, cli_estado)
+VALUES
+(1,'Consumidor Final','9999999999999','0999999999','Sin dirección','micorreo@gmail.com',GETDATE(),1);
+
+-- SE AGREGA FORMA DE PAGO DEPÓSITO
+INSERT INTO tm_tipo_pago
+(pago_nombre,pago_fecha_crea,pago_estado)
+VALUES
+('DEPÓSITO', GETDATE(), 1);

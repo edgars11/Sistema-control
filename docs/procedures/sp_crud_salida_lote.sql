@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 14/6/2025 21:56:56 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 10/7/2025 21:13:55 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -11,6 +11,7 @@ ALTER procedure [dbo].[sp_crud_salida_lote] (
  @i_suc_id int = null,
  @i_salida_id int = null,
  @i_lote_id int = null,
+ @i_pago_id int = null,
  @i_salida_cantidad int = null,
  @i_salida_tipo varchar(5) = null,
  @i_salida_fecha varchar(75) = null, 
@@ -49,7 +50,9 @@ declare
 @w_saldo_total_cta  decimal (14,2),
 @w_exec tinyint,
 @w_signo_ope char(1),
-@w_total_registros tinyint
+@w_total_registros tinyint,
+@w_desc_forma_pago varchar(50),
+@w_estado_pago char(1)
 
 begin
 set nocount on
@@ -57,14 +60,21 @@ set nocount on
 	if @i_operacion = 'C'
 	begin
 		select  @w_fecha = GETDATE()
+		set @w_estado_pago = 'N'
+
+		-- SE VALIDA LA FORMA DE PAGO
+		select @w_desc_forma_pago = pago_nombre from tm_tipo_pago where pago_id = @i_pago_id
+		if @w_desc_forma_pago <> 'CREDITO'
+			set @w_estado_pago = 'C'
+
 		insert into tm_salida_lote 
 		(salida_fecha, 			lote_id, 			salida_cantidad, 		salida_peso, 		salida_tara,		
-		salida_peso_neto, 		salida_precio,		salida_total,		salida_tipo, 			cli_id, 			
-		usu_id,					salida_hora)
+		salida_peso_neto, 		salida_precio,		salida_total,			salida_tipo, 		cli_id, 			
+		usu_id,					salida_hora,		pago_id,				salida_vpagado)
 		values
 		(@i_salida_fecha,		@i_lote_id, 		@i_salida_cantidad, 	@i_salida_peso, 	@i_salida_tara, 	
-		@i_salida_peso_neto, 	@i_salida_precio,	@i_salida_total, 	@i_salida_tipo,			@i_cli_id,			
-		@i_usu_id,				@w_fecha)
+		@i_salida_peso_neto, 	@i_salida_precio,	@i_salida_total, 		@i_salida_tipo,		@i_cli_id,			
+		@i_usu_id,				@w_fecha,			@i_pago_id,				@w_estado_pago)
 
 		select @w_salida_id = SCOPE_IDENTITY()
 
@@ -74,40 +84,44 @@ set nocount on
 		lote_fecha_upd = @w_fecha
 		where lote_id = @i_lote_id
 
-		-- OBSERVACION CUENTA CLIENE
-		select @w_cta_obs = 'Pedido # ' + CONVERT(varchar, @w_salida_id)
-
-		-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
-		Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
-
-		if ISNULL(@w_cta_cli,0) = 0
+		-- SE VALIDA SI LA FORMA DE PAGO ES A CRÉDITO SE GUARDA EN AL CUENTA DEL CLIENTE
+		if @w_estado_pago = 'N'
 		begin
-			exec sp_crud_cuenta_cli 
-				@i_operacion = 'C',
-				@i_cta_id	 = @w_cta_cli,
-				@i_cli_id	 = @i_cli_id,
-				@i_cta_monto = @i_salida_total,
-				@i_cta_fecha = @w_fecha,
-				@i_cta_obs	 = @w_cta_obs,
-				@i_salida_id = @w_salida_id,
-				@i_suc_id	 = @i_suc_id,
-				@i_usu_id	 = @i_usu_id
+				-- OBSERVACION CUENTA CLIENE
+			select @w_cta_obs = 'Pedido # ' + CONVERT(varchar, @w_salida_id)
 
-		end 
-		else if @w_cta_cli > 0
-		begin
-			exec sp_crud_cuenta_cli 
-				@i_operacion = 'U', 
-				@i_cta_id	 = @w_cta_cli,
-				@i_cli_id	 = @i_cli_id,
-				@i_cta_monto = @i_salida_total,
-				@i_cta_fecha = @w_fecha,
-				@i_cta_obs	 = @w_cta_obs,
-				@i_salida_id = @w_salida_id,
-				@i_suc_id	 = @i_suc_id,
-				@i_usu_id	 = @i_usu_id,
-				@i_movc_tipo = '+'
-		end	
+			-- VALIDA SI EL CLIENTE TIENE CUENTA CREADA SINO SE CREA UNA NUEVA
+			Select @w_cta_cli = cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
+
+			if ISNULL(@w_cta_cli,0) = 0
+			begin
+				exec sp_crud_cuenta_cli 
+					@i_operacion = 'C',
+					@i_cta_id	 = @w_cta_cli,
+					@i_cli_id	 = @i_cli_id,
+					@i_cta_monto = @i_salida_total,
+					@i_cta_fecha = @w_fecha,
+					@i_cta_obs	 = @w_cta_obs,
+					@i_salida_id = @w_salida_id,
+					@i_suc_id	 = @i_suc_id,
+					@i_usu_id	 = @i_usu_id
+
+			end 
+			else if @w_cta_cli > 0
+			begin
+				exec sp_crud_cuenta_cli 
+					@i_operacion = 'U', 
+					@i_cta_id	 = @w_cta_cli,
+					@i_cli_id	 = @i_cli_id,
+					@i_cta_monto = @i_salida_total,
+					@i_cta_fecha = @w_fecha,
+					@i_cta_obs	 = @w_cta_obs,
+					@i_salida_id = @w_salida_id,
+					@i_suc_id	 = @i_suc_id,
+					@i_usu_id	 = @i_usu_id,
+					@i_movc_tipo = '+'
+			end	
+		end
 
 	end
 
@@ -377,11 +391,11 @@ set nocount on
 				inner join tm_salida_lote sl on sl.salida_id = pc.salida_id
 				where sl.cli_id = @i_cli_id
 				and sl.salida_vpagado in ('A','C')
-				and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 				and pagc_estado = 1
 				and sl.salida_estado = 1
 
 				select @w_saldo_total_cta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id
+
 			end
 			-- RETORNA LOS VALORES OBTENIDOS
 			select 
@@ -415,7 +429,8 @@ set nocount on
 				l.lote_id,
 				l.lote_cant_actual,
 				ISNULL((select SUM(pagc_monto) from tm_pago_cuenta pc where pc.salida_id = sl.salida_id and pagc_estado = 1 ),0) as saldo,
-				salida_vpagado
+				salida_vpagado,
+				pago_id
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente cl on cl.cli_id = sl.cli_id
