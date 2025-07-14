@@ -5,7 +5,10 @@ var com_idx = $('#com_idx').val();
 // Se obtiene botones y combo
 const btnclientes = document.getElementById('buscarCliente');
 const comboLotes = document.getElementById('lote_idIng');
+const comboFormasPago = document.getElementById('pago_id');
 
+// Se almacena el idClienteCamal
+var idClienteCamal;
 function init() {
     $('#mantenimiento_formIng').on("submit", function (e) {
         guardarMovimiento(e);
@@ -51,15 +54,6 @@ function guardarMovimiento(e) {
         return;
     }
 
-    if (sal_tipo === 'Seleccionar') {
-        swal.fire({
-            title: "Datos incompletos",
-            text: "Seleccione un tipo de producto!",
-            icon: "warning"
-        });
-        return;
-    }
-
     if (pago_id === 'Seleccionar') {
         swal.fire({
             title: "Datos incompletos",
@@ -78,10 +72,10 @@ function guardarMovimiento(e) {
         return;
     }
 
-    if (pago_id == 5 && numIdClient == '9999999999999') {
+    if (pago_id == 5 && (numIdClient == '9999999999999' || idClienteCamal == idCliente)) {
         swal.fire({
             title: "Error Cliente",
-            text: "Consumidor final no puede tener una cuenta a crédito!",
+            text: "Este cliente no puede tener una cuenta a crédito!",
             icon: "warning"
         });
         return;
@@ -116,7 +110,7 @@ function guardarMovimiento(e) {
                                 $('#lote_cant_act').val(data.lote_cant_actual);
                             });
                             // Se carga cliente por defecto
-                            defaultClient('9999999999999');
+                            defaultClient();
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Modificación exitosa!",
@@ -158,7 +152,7 @@ function guardarMovimiento(e) {
                                 $('#lote_cant_act').val(data.lote_cant_actual);
                             });
                             // Se carga cliente por defecto
-                            defaultClient('9999999999999');
+                            defaultClient();
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Ejecución exitosa!",
@@ -179,7 +173,7 @@ $(document).ready(function () {
     var dateSalida = getDate(new Date());
 
     // Se carga cliente por defecto
-    defaultClient('9999999999999');
+    defaultClient();
 
     // Se obtienen los lotes disponibles
     $.post("../../controllers/loteController.php?op=combo", { suc_id: suc_idx }, function (data) {
@@ -215,7 +209,7 @@ $(document).ready(function () {
         "ajax": {
             url: "../../controllers/salidaLoteController.php?op=listar",
             type: "post",
-            data: { salida_fecha: dateSalida, suc_id: suc_idx }
+            data: { salida_fecha: dateSalida, suc_id: suc_idx, salida_tipo: 'PV' }
         },
         "bDestroy": true,
         "responsive": true,
@@ -423,16 +417,25 @@ function selectCliente(cli_id) {
     $('#modalClientes').modal('hide');
 }
 
-function defaultClient(cli_ruc) {
+function defaultClient() {
 
-    $.post("../../controllers/clienteController.php?op=byCED", { cli_ruc: cli_ruc, emp_id: emp_idx }, function (data) {
+    $.post("../../controllers/clienteController.php?op=byCamalClient", { param: 'CLICL' }, function (data) {
         if (data.length > 0) {
             data = JSON.parse(data);
-            $('#cli_nom').val(data.cli_nombre);
-            $('#cli_contacto').val(data.cli_telefono);
-            $('#cta_cli').val(data.cta_monto);
-            $('#cli_id').val(data.cli_id);
-            $('#cli_identificacion').val(data.cli_ruc);
+            if (data.cli_id == 0) {
+                swal.fire({
+                    title: "Error consulta",
+                    text: "Cliente Camal no registrado!",
+                    icon: "warning"
+                });
+            } else {
+                idClienteCamal = data.cli_id
+                $('#cli_nom').val(data.cli_nombre);
+                $('#cli_contacto').val(data.cli_telefono);
+                $('#cta_cli').val(data.cta_monto);
+                $('#cli_id').val(idClienteCamal);
+                $('#cli_identificacion').val(data.cli_ruc);
+            }
         } else {
             $('#cli_identificacion').val('');
             swal.fire({
@@ -454,6 +457,7 @@ function limpiarCampos() {
     $('#agregarSalida').html('<i class="ri-add-circle-line label-icon align-middle fs-16 me-2"></i>Agregar');
     btnclientes.disabled = false;
     comboLotes.disabled = false;
+    comboFormasPago.disabled = false;
 }
 
 function eliminar(salida_id) {
@@ -497,7 +501,7 @@ function eliminar(salida_id) {
 }
 
 function editar(salida_id) {
-    console.log(salida_id);
+
     swal.fire({
         title: "Confirmación!",
         text: "Desea editar el registro de salida?",
@@ -535,6 +539,7 @@ function editar(salida_id) {
 
                     btnclientes.disabled = true;
                     comboLotes.disabled = true;
+                    comboFormasPago.disabled = true;
                 })
 
 

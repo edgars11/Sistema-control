@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_reporte_periodo_lote]    Script Date: 18/3/2025 21:39:47 ******/
+/****** Object:  StoredProcedure [dbo].[sp_reporte_periodo_lote]    Script Date: 14/7/2025 0:35:57 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -81,6 +81,7 @@ begin
 		where lote_id = @i_lote_id
 		and salida_estado = 1
 		and salida_fecha between @i_fecha_periodo and @i_fecha_fin
+		and salida_tipo = 'PV'
 		order by salida_fecha
 
 		-- Se insertan los registros de consumo en la tabla de reporte

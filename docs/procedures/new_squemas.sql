@@ -90,3 +90,36 @@ ALTER TABLE tm_salida_lote
 ADD pago_id tinyint
 CONSTRAINT cnst_pago_id NOT NULL
 CONSTRAINT cnst_pago_id_def DEFAULT 1;
+
+-- NUEVA TABLA PARA PARÁMETROS
+CREATE TABLE tm_parametros(
+	[par_id] [int] IDENTITY(1,1) NOT NULL,
+	[par_descripcion] [varchar](100) NULL,
+	[par_nemonico] [varchar](10) NOT NULL,
+	[par_tipo] [char](1) NULL,
+	[par_string] [varchar](20) NULL,
+	[par_int] [int] NULL,
+	[par_double] [float] NULL,
+	[par_estado] [tinyint] NULL,
+	[par_fecha] [datetime] NULL
+) ON [PRIMARY]
+
+-- INGRESO NUEVO PARAMETRO CLICL
+INSERT INTO tm_parametros
+(par_descripcion,par_nemonico,par_tipo,par_string,par_int,par_double,par_estado,par_fecha)
+VALUES
+('CLIENTE CAMAL LITE','CLICL','I',NULL,13,NULL,NULL,NULL)
+-- TABLA PARA REGISTRO DE CAMAL
+
+CREATE TABLE [dbo].[tm_registro_camal](
+	[cam_id] [int] IDENTITY(1,1) NOT NULL,
+	[cam_cantidad] [tinyint] NULL,
+	[cam_fecha] [date] NULL,
+	[salida_id] [int] NULL,
+	[cam_registros] [tinyint] NULL,
+	[cam_estado] [tinyint] NULL,
+	[cam_hora] [datetime] NULL
+) ON [PRIMARY]
+
+
+

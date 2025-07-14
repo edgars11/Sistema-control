@@ -20,20 +20,35 @@ switch ($_GET['op']) {
     // TODO: Listado de registro en format JSON para Datatable JS
     case 'listar':
         $usu_id = $_SESSION["usu_id"];
-        $datos = $salidalote->getSalidaLotePorSucursal($_POST['salida_fecha'], $_POST['suc_id'], $usu_id);
+        $salidaTipo = $_POST['salida_tipo'];
+        $datos = $salidalote->getSalidaLotePorSucursal($_POST['salida_fecha'], $_POST['suc_id'], $usu_id, $salidaTipo);
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();
-            $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_nombre'] . '</span>';
-            $sub_array[] = $row['lote_descripcion'];
-            $sub_array[] = $row['salida_tipo'] === 'PV' ? '<span class="badge badge-soft-success text-uppercase fs-12">POLLO VIVO</span>' : '<span class="badge badge-soft-danger text-uppercase fs-12">POLLO FAENADO</span>';
-            $sub_array[] = '<span style="font-weight: 600;"># ' . $row['salida_cantidad'] . '</span>';
-            $sub_array[] = number_format($row['salida_peso'], 2, '.', ',');
-            $sub_array[] = $row['salida_tara'];
-            $sub_array[] = '<span style="font-weight: 600;">' . $row['salida_peso_neto'] . ' lbs</span>';
-            $sub_array[] = number_format($row['salida_precio'], 2, '.', ',');
-            $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['salida_total'], 2, '.', ',') . '</span>';
-            $sub_array[] = $row['salida_fecha'];
+            $etiquetaFormaPago = $row['pago_nombre'] == 'CREDITO' ? 'badge-soft-danger' : 'badge-soft-primary';
+            if ($salidaTipo == 'PV') {
+                $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_nombre'] . '</span>';
+                $sub_array[] = $row['lote_descripcion'];
+                $sub_array[] = '<span class="badge ' . $etiquetaFormaPago . ' text-uppercase fs-12">' . $row['pago_nombre'] . '</span>';
+                $sub_array[] = '<span style="font-weight: 600;"># ' . $row['salida_cantidad'] . '</span>';
+                $sub_array[] = number_format($row['salida_peso'], 2, '.', ',');
+                $sub_array[] = $row['salida_tara'];
+                $sub_array[] = '<span style="font-weight: 600;">' . $row['salida_peso_neto'] . ' lbs</span>';
+                $sub_array[] = number_format($row['salida_precio'], 2, '.', ',');
+                $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['salida_total'], 2, '.', ',') . '</span>';
+                $sub_array[] = $row['salida_fecha'];
+            } else {
+                $sub_array[] = '<span class="fw-medium link-primary">' . $row['cli_nombre'] . '</span>';
+                $sub_array[] = '<span class="badge ' . $etiquetaFormaPago . ' text-uppercase fs-12">' . $row['pago_nombre'] . '</span>';
+                $sub_array[] = '<span style="font-weight: 600;"># ' . $row['salida_cantidad'] . '</span>';
+                $sub_array[] = number_format($row['salida_peso'], 2, '.', ',');
+                $sub_array[] = $row['salida_tara'];
+                $sub_array[] = '<span style="font-weight: 600;">' . $row['salida_peso_neto'] . ' lbs</span>';
+                $sub_array[] = number_format($row['salida_precio'], 2, '.', ',');
+                $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . number_format($row['salida_total'], 2, '.', ',') . '</span>';
+                $sub_array[] = $row['salida_fecha'];
+            }
+
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0 w-100">
                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title=""
                                         data-bs-original-title="Editar">
@@ -219,6 +234,22 @@ switch ($_GET['op']) {
             }
             echo $html;
             // echo json_encode($valSaldoPendiente);
+        }
+        break;
+    // RETORNA EL TOTAL DE POLLOS REGISTRADO AL CAMAL DISPONIBLES    
+    case 'AmountCamal':
+        $fechaRegistro = $_POST['fecha_registro'];
+
+        $datos = $salidalote->getCamalCount($fechaRegistro);
+        if (is_array($datos) == true and count($datos) > 0) {
+            foreach ($datos as $row) {
+                $outout["cantidadCamal"] = $row["cantidadCamal"];
+                $outout["registrado"] = $row["registrado"];
+            }
+            echo json_encode($outout);
+        } else {
+            $outout["info"] = 'No hay info';
+            echo json_encode($datos);
         }
         break;
 }

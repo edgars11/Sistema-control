@@ -2,15 +2,16 @@
 class SalidaLote extends Conectar
 {
     /* TODO: Listar registro por sucursal */
-    public function getSalidaLotePorSucursal($i_sal_fecha, $i_suc_id, $i_usu_id)
+    public function getSalidaLotePorSucursal($i_sal_fecha, $i_suc_id, $i_usu_id, $i_salida_tipo)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_salida_lote @i_operacion=?, @i_suc_id=?, @i_usu_id=?, @i_salida_fecha=?";
+        $sql = "exec sp_crud_salida_lote @i_operacion=?, @i_suc_id=?, @i_usu_id=?, @i_salida_fecha=?, @i_salida_tipo=?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, 'R');
         $query->bindValue(2, $i_suc_id);
         $query->bindValue(3, $i_usu_id);
         $query->bindValue(4, $i_sal_fecha);
+        $query->bindValue(5, $i_salida_tipo);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -177,6 +178,17 @@ class SalidaLote extends Conectar
         $query->bindValue(2, $i_tipo);
         $query->bindValue(3, $i_cli_id);
         $query->bindValue(4, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* TODO: Obtener registro de salida por ID */
+    public function getCamalCount($i_fecha)
+    {
+        $conectar = parent::Conexion();
+        $sql = "select sum(cam_cantidad) as cantidadCamal, sum(cam_registros) as registrado from tm_registro_camal c where c.cam_fecha = ? and cam_estado = 1";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, $i_fecha);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }

@@ -10,7 +10,7 @@ if (isset($_SESSION["usu_id"])) {
         <html lang="es" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none">
 
         <head>
-            <title>Fact-System | Registro Pedido</title>
+            <title>Fact-System | Registro Pedido PV</title>
             <?php require_once("../html/head.php"); ?>
         </head>
 
@@ -36,12 +36,12 @@ if (isset($_SESSION["usu_id"])) {
                             <div class="row">
                                 <div class="col-12">
                                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                        <h4 class="mb-sm-0">Registro Pedido</h4>
+                                        <h4 class="mb-sm-0">Registro Pollo Vivo</h4>
 
                                         <div class="page-title-right">
                                             <ol class="breadcrumb m-0">
                                                 <li class="breadcrumb-item"><a href="javascript: void(0);">Lote</a></li>
-                                                <li class="breadcrumb-item active">Registro Pedido</li>
+                                                <li class="breadcrumb-item active">Registro Pedido PV</li>
                                             </ol>
                                         </div>
                                     </div>
@@ -52,6 +52,7 @@ if (isset($_SESSION["usu_id"])) {
                             <form method="post" id="mantenimiento_formIng">
                                 <input type="hidden" name="salida_id" id="salida_id">
                                 <input type="hidden" name="cli_id" id="cli_id">
+                                <input type="hidden" name="sal_tipo" id="sal_tipo" value="PV">
                                 <div>
                                     <h5 class="fs-14 mb-3 text-muted">Datos Cliente</h5>
                                     <div class="row">
@@ -163,7 +164,7 @@ if (isset($_SESSION["usu_id"])) {
                                             </div>
                                         </div><!-- end col -->
 
-                                        <div class="col-xl-2">
+                                        <!-- <div class="col-xl-2">
                                             <div class="mb-3">
                                                 <label for="sal_tipo" class="form-label">Tipo Produco</label>
                                                 <select type="text" class="form-control form-select" name="sal_tipo" id="sal_tipo" aria-label="Seleccionar">
@@ -172,7 +173,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     <option value="PF">POLLO FAENADO</option>
                                                 </select>
                                             </div>
-                                        </div><!-- end col -->
+                                        </div>end col -->
 
                                         <div class="col-xl-2">
                                             <div class="mb-3">
@@ -199,7 +200,7 @@ if (isset($_SESSION["usu_id"])) {
                                         <tr>
                                             <th>NOMBRE CLIENTE</th>
                                             <th>LOTE</th>
-                                            <th>TIPO PRODUCTO</th>
+                                            <th>FORMA PAGO</th>
                                             <th>CANT. SALIDA</th>
                                             <th>PESO</th>
                                             <th>TARA</th>

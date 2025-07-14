@@ -2,8 +2,10 @@
 // TODO: Llamando clases
 require_once("../config/conexion.php");
 require_once("../models/Cliente.php");
+require_once("../models/Utils.php");
 // TODO: Inicializando clases
 $cliente = new Cliente();
+$utils = new Utils();
 
 switch ($_GET['op']) {
     // TODO: Guardar y editar registro
@@ -136,7 +138,7 @@ switch ($_GET['op']) {
 
     // TODO: Listado de registro en format JSON para Datatable JS
     case 'listarCSC':
-        $datos = $cliente->getClienteSinCuenta( $_POST['emp_id']);
+        $datos = $cliente->getClienteSinCuenta($_POST['emp_id']);
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();
@@ -154,5 +156,35 @@ switch ($_GET['op']) {
             "aaData" => $data
         );
         echo json_encode($results);
+        break;
+
+    case 'byCamalClient':
+        $idClient = -1;
+        $client = $utils->getParam($_POST['param']);
+        if (is_array($client) == true and count($client) > 0) {
+            foreach ($client as $row) {
+                $idClient = $row["par_int"];
+            }
+        }
+        if ($idClient > 0) {
+            $datos = $cliente->getClientePorId($idClient);
+            if (is_array($datos) == true and count($datos) > 0) {
+                foreach ($datos as $row) {
+                    $outout["cli_id"] = $row["cli_id"];
+                    $outout["cli_nombre"] = $row["cli_nombre"];
+                    $outout["cli_ruc"] = $row["cli_ruc"];
+                    $outout["cli_telefono"] = $row["cli_telefono"];
+                    $outout["cli_direccion"] = $row["cli_direccion"];
+                    $outout["cli_correo"] = $row["cli_correo"];
+                    $outout["cli_fecha_crea"] = $row["cli_fecha_crea"];
+                    $outout["cli_estado"] = $row["cli_estado"];
+                }
+                echo json_encode($outout);
+            }
+        } else {
+            $outout["cli_id"] = 0;
+            echo json_encode($outout);
+        }
+
         break;
 }

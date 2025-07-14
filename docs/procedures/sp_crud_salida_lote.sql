@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 10/7/2025 21:13:55 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 13/7/2025 11:56:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -50,9 +50,12 @@ declare
 @w_saldo_total_cta  decimal (14,2),
 @w_exec tinyint,
 @w_signo_ope char(1),
+@w_salida_tipo char(2),
 @w_total_registros tinyint,
 @w_desc_forma_pago varchar(50),
-@w_estado_pago char(1)
+@w_estado_pago char(1),
+@w_cliente_camal tinyint ,
+@w_cam_registro int
 
 begin
 set nocount on
@@ -61,6 +64,8 @@ set nocount on
 	begin
 		select  @w_fecha = GETDATE()
 		set @w_estado_pago = 'N'
+
+		select @w_cliente_camal = par_int from tm_parametros where par_nemonico = 'CLICL'
 
 		-- SE VALIDA LA FORMA DE PAGO
 		select @w_desc_forma_pago = pago_nombre from tm_tipo_pago where pago_id = @i_pago_id
@@ -78,12 +83,43 @@ set nocount on
 
 		select @w_salida_id = SCOPE_IDENTITY()
 
-		update tm_lote 
-		set lote_cant_actual = isnull(lote_cant_actual,0) - @i_salida_cantidad,
-		lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
-		lote_fecha_upd = @w_fecha
-		where lote_id = @i_lote_id
+		-- SE VALIDA SI EL REGISTRO ES POR CAMAL Y SE LLENA LA TABLA 
+		if @i_cli_id = @w_cliente_camal
+		begin
+			
+			if not exists (select 1 from tm_registro_camal where cam_fecha = @i_salida_fecha)
+			begin			
+				INSERT INTO tm_registro_camal
+				(cam_cantidad,			cam_fecha,			salida_id,
+				cam_registros,			cam_estado,			cam_hora)
+				VALUES
+				(@i_salida_cantidad,	@i_salida_fecha,	@w_salida_id,
+				0,						1,					@w_fecha)
+			end
+			else 
+			begin 
+				update tm_registro_camal
+				set cam_cantidad = cam_cantidad + @i_salida_cantidad
+				where cam_fecha = @i_salida_fecha
+			end
 
+		end
+
+		if @i_salida_tipo = 'PV'
+		begin
+			update tm_lote 
+			set lote_cant_actual = isnull(lote_cant_actual,0) - @i_salida_cantidad,
+			lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
+			lote_fecha_upd = @w_fecha
+			where lote_id = @i_lote_id
+		end
+
+		if @i_salida_tipo = 'PF'
+		begin
+			update tm_registro_camal 
+			set cam_registros = isnull(cam_registros,0) + @i_salida_cantidad
+			where cam_fecha = @i_salida_fecha
+		end
 		-- SE VALIDA SI LA FORMA DE PAGO ES A CRÉDITO SE GUARDA EN AL CUENTA DEL CLIENTE
 		if @w_estado_pago = 'N'
 		begin
@@ -133,7 +169,8 @@ set nocount on
 			@w_cantidad_sal = salida_cantidad ,
 		 	@w_valor_total_act = salida_total,
 			@w_lote_id = lote_id,
-			@w_cliente_id = cli_id
+			@w_cliente_id = cli_id,
+			@w_salida_tipo = salida_tipo
 		from tm_salida_lote
 		where salida_id = @i_salida_id
 		and salida_estado = 1
@@ -154,19 +191,30 @@ set nocount on
 		where 
 		salida_id = @i_salida_id
 		and salida_estado = 1
+		
+		if @i_salida_tipo = 'PV'
+		begin
+			update tm_lote 
+			set lote_cant_actual = (isnull(lote_cant_actual,0)+@w_cantidad_sal),
+			lote_cant_vendidos = (isnull(lote_cant_vendidos,0)-@w_cantidad_sal),
+			lote_fecha_upd = @w_fecha
+			where lote_id = @w_lote_id
 
-		update tm_lote 
-		set lote_cant_actual = (isnull(lote_cant_actual,0)+@w_cantidad_sal),
-		lote_cant_vendidos = (isnull(lote_cant_vendidos,0)-@w_cantidad_sal),
-		lote_fecha_upd = @w_fecha
-		where lote_id = @w_lote_id
+			update tm_lote 
+			set lote_cant_actual = isnull(lote_cant_actual,0) - @i_salida_cantidad,
+			lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
+			lote_fecha_upd = @w_fecha
+			where lote_id = @i_lote_id
+		end
 
-		update tm_lote 
-		set lote_cant_actual = isnull(lote_cant_actual,0) - @i_salida_cantidad,
-		lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
-		lote_fecha_upd = @w_fecha
-		where lote_id = @i_lote_id
 
+		if @i_salida_tipo = 'PF'
+		begin
+			update tm_registro_camal 
+			set cam_cantidad = @i_salida_cantidad
+			where salida_id = @i_salida_id and cam_estado = 1
+
+		end
 		-- OBSERVACION CUENTA CLIENTE
 		select @w_cta_obs = 'Pedido modificado # ' + CONVERT(varchar, @i_salida_id)
 		-- SE OBTIENE LA CUENTA DEL CLIENTE PARA LA ACTUALIZACIÓN
@@ -246,88 +294,141 @@ set nocount on
 	begin
 
 		select @w_fecha = GETDATE()
+		select @w_cliente_camal = par_int from tm_parametros where par_nemonico = 'CLICL'
 
 		-- SE OBTIENE DATOS PARA LA ACTUALIZACIÓN
 		select 
 			@w_cant_actual_upd = salida_cantidad,
 			@w_total_upd = salida_total,
-			@w_lote_id = lote_id
+			@w_lote_id = lote_id,
+			@w_salida_tipo = salida_tipo,
+			@w_cliente_id = cli_id,
+			@i_pago_id = pago_id
 		from tm_salida_lote where salida_id =  @i_salida_id and salida_estado = 1
 
+		select @w_desc_forma_pago = pago_nombre from tm_tipo_pago where pago_id = @i_pago_id
+
 		-- SE ACTUALIZA LA CANTIDAD DISPONIBLE DEL LOTE
-		update tm_lote 
-		set lote_cant_actual = lote_cant_actual + @w_cant_actual_upd,
-		lote_cant_vendidos = lote_cant_vendidos - @w_cant_actual_upd,
-		lote_fecha_upd = @w_fecha
-		where lote_id = @w_lote_id
+		if @w_salida_tipo = 'PV'
+		begin
+			update tm_lote 
+			set lote_cant_actual = lote_cant_actual + @w_cant_actual_upd,
+			lote_cant_vendidos = lote_cant_vendidos - @w_cant_actual_upd,
+			lote_fecha_upd = @w_fecha
+			where lote_id = @w_lote_id
+		end
 
-		-- SE OBTIENE LA CTA POR MEDIO DEL MOVIEMIENTO REGISTRADO
-		select @w_cta_id = cta_id from tm_movimiento_cuenta
-		where salida_id = @i_salida_id
-		and movc_estado = 1
-		and movc_tipo = '+'
-
-		-- SE ACTUALIZA LA CUENTA DEL CLIENTE
-		--update tm_cuenta_cliente
-		--set cta_monto = cta_monto - @w_total_upd,
-		--cta_fecha_upd = @w_fecha,
-		--cta_obs = 'Actualizado'
-		--where cta_id = @w_cta_id
-		--and cta_estado = 1
+		if @w_salida_tipo = 'PF'
+		begin
+			update tm_registro_camal 
+			set cam_estado = 0
+			where salida_id = @i_salida_id
+		end
 
 		select @w_cta_obs = 'Se elimina pedido #' + CONVERT(varchar, @i_salida_id)
-
-		-- SE ELIMINA REGISTRO DE MOVIMIENTO Y SALIDA LOTE
-		update tm_movimiento_cuenta 
-			set movc_obs = @w_cta_obs
-		where salida_id = @i_salida_id
-		and movc_tipo = '+'
 
 		update tm_salida_lote 
 		set salida_estado = 0
 		where salida_id = @i_salida_id
-		
-		exec sp_crud_cuenta_cli  
-		@i_operacion = 'U',
-		@i_cta_id = @w_cta_id, 
-		@i_suc_id = @i_suc_id,
-		@i_movc_tipo = '-',
-		@i_cta_monto = @w_total_upd,
-		@i_cta_fecha = @w_fecha,
-		@i_usu_id = @i_usu_id,
-		@i_cta_obs = @w_cta_obs,
-		@i_salida_id = @i_salida_id,
-		@i_pagc_id = 0
+
+		if @w_cliente_id <> @w_cliente_camal and @w_desc_forma_pago = 'CREDITO'
+		begin
+			-- SE OBTIENE LA CTA POR MEDIO DEL MOVIEMIENTO REGISTRADO
+			select @w_cta_id = cta_id from tm_movimiento_cuenta
+			where salida_id = @i_salida_id
+			and movc_estado = 1
+			and movc_tipo = '+'
+
+			-- SE ELIMINA REGISTRO DE MOVIMIENTO Y SALIDA LOTE
+			update tm_movimiento_cuenta 
+				set movc_obs = @w_cta_obs
+			where salida_id = @i_salida_id
+			and movc_tipo = '+'
+
+			exec sp_crud_cuenta_cli  
+			@i_operacion = 'U',
+			@i_cta_id = @w_cta_id, 
+			@i_suc_id = @i_suc_id,
+			@i_movc_tipo = '-',
+			@i_cta_monto = @w_total_upd,
+			@i_cta_fecha = @w_fecha,
+			@i_usu_id = @i_usu_id,
+			@i_cta_obs = @w_cta_obs,
+			@i_salida_id = @i_salida_id,
+			@i_pagc_id = 0
+		end
 
 		select @w_exec = 0
 	end
 
 	if @i_operacion = 'R'
 	begin
-		select
-			cl.cli_nombre, 
-			l.lote_descripcion, 
-			sl.salida_tipo, 
-			salida_cantidad, 
-			salida_peso, 
-			salida_tara, 
-			salida_peso_neto, 
-			salida_precio, 
-			salida_total, 
-			CONVERT(varchar, salida_fecha , 103) as salida_fecha,
-			salida_id,
-			cl.cli_telefono
-		from tm_salida_lote sl
-		inner join tm_lote l on l.lote_id = sl.lote_id
-		inner join tm_cliente cl on cl.cli_id = sl.cli_id
-		where l.suc_id = @i_suc_id
-		and sl.usu_id = @i_usu_id
-		and sl.salida_estado = 1
-		and CAST(sl.salida_hora as date) = @i_salida_fecha
-		order by sl.cli_id, sl.salida_fecha desc
+		if @i_salida_tipo = 'PV'
+		begin
+			select
+				cl.cli_nombre, 
+				l.lote_descripcion, 
+				sl.salida_tipo, 
+				salida_cantidad, 
+				salida_peso, 
+				salida_tara, 
+				salida_peso_neto, 
+				salida_precio, 
+				salida_total, 
+				CONVERT(varchar, salida_fecha , 103) as salida_fecha,
+				salida_id,
+				cl.cli_telefono,
+				tp.pago_nombre,
+				sl.pago_id
+			from tm_salida_lote sl
+			inner join tm_lote l on l.lote_id = sl.lote_id
+			inner join tm_cliente cl on cl.cli_id = sl.cli_id
+			inner join tm_tipo_pago tp on tp.pago_id = sl.pago_id
+			where l.suc_id = @i_suc_id
+			and sl.usu_id = @i_usu_id
+			and sl.salida_estado = 1
+			and CAST(sl.salida_hora as date) = @i_salida_fecha
+			and salida_tipo = @i_salida_tipo
+			order by sl.cli_id, sl.salida_fecha desc
+		end
+		else 
+		begin
+			select
+				cl.cli_nombre, 
+				sl.salida_tipo, 
+				salida_cantidad, 
+				salida_peso, 
+				salida_tara, 
+				salida_peso_neto, 
+				salida_precio, 
+				salida_total, 
+				CONVERT(varchar, salida_fecha , 103) as salida_fecha,
+				salida_id,
+				cl.cli_telefono,
+				tp.pago_nombre,
+				sl.pago_id
+			from tm_salida_lote sl
+			inner join tm_cliente cl on cl.cli_id = sl.cli_id
+			inner join tm_tipo_pago tp on tp.pago_id = sl.pago_id
+			where sl.usu_id = @i_usu_id
+			and sl.salida_estado = 1
+			and CAST(sl.salida_hora as date) = @i_salida_fecha
+			and salida_tipo = @i_salida_tipo
+			order by sl.cli_id, sl.salida_fecha desc
+		end
 
 	end
 
+	if @i_operacion = 'K'
+	begin
+		select
+			sum(cam_cantidad) as cantidadCamal,
+			sum(cam_registros) as registrado
+		from tm_registro_camal c
+		where c.cam_fecha = '2025-07-07'
+		and cam_estado = 1
+
+	end
 	if @i_operacion = 'L'
 	begin 
 		if @i_tipo = 'L'
@@ -478,10 +579,8 @@ set nocount on
 				salida_vpagado,
 				ISNULL((select SUM(pagc_monto) from tm_pago_cuenta pc where pc.salida_id = sl.salida_id and pagc_estado = 1),0) as saldo
 			from tm_salida_lote sl
-			inner join tm_lote l on l.lote_id = sl.lote_id
 			where salida_vpagado not in ('C')
 			and cli_id = @i_cli_id
-			and suc_id = @i_suc_id
 			and salida_estado = 1
 			order by salida_id
 		end
