@@ -116,6 +116,7 @@ CREATE TABLE [dbo].[tm_registro_camal](
 	[cam_cantidad] [tinyint] NULL,
 	[cam_fecha] [date] NULL,
 	[salida_id] [int] NULL,
+	[lote_id] [int] NULL,
 	[cam_registros] [tinyint] NULL,
 	[cam_estado] [tinyint] NULL,
 	[cam_hora] [datetime] NULL

@@ -181,16 +181,18 @@ class GeneratePDF extends Conectar
             ';
 
             $textoCuenta = '<br><span class="text-fw-600">Datos Cuenta Cliente:</span> Saldo Total Pendiende Cuenta: <span class="text-fw-600">$ ' . $totalesConsulta[0]['saldo_total_cta'] . '</span>';
-//  Saldo abonado en el rango de fechas seleccionada: <span class="text-fw-600">$ ' . $totalesConsulta[0]['monto_abonado'] . '</span> -
+            //  Saldo abonado en el rango de fechas seleccionada: <span class="text-fw-600">$ ' . $totalesConsulta[0]['monto_abonado'] . '</span> -
             $columnasSaldosCliente = '
                         <tr>
-                            <td colspan="' . $colSpan  . '" class="totales">INFORMACIÓN CUENTA</td>
+                            <td colspan="' . $colSpan + 1 . '" class="totales">INFORMACIÓN CUENTA</td>
                             
                         </tr>
                         <tr>
                             <td colspan="' . $colSpan . '" class="totales">SALDO PENDIENTE:</td>
                             <td class="totales tc-red ts-15 text-fw-200">$ ' . $totalesConsulta[0]["saldo_total_cta"] . '</td>
                         </tr>';
+            // Se obtiene el nombre del cliente para el reporte
+            $dataClient = buscarCliente($cli_id);                        
             // <td class="totales tc-green ts-15 text-fw-200">$ ' . $totalesConsulta[0]["monto_abonado"] . '</td>
             foreach ($detalle as $row) {
                 $estadoRecibo = $row["salida_vpagado"];
@@ -265,7 +267,7 @@ class GeneratePDF extends Conectar
             }
         }
 
-        $encabezado = getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta, $nombreClienteReporte);
+        $encabezado = getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta, $dataClient);
 
         $html = '
             <!DOCTYPE html>
@@ -311,7 +313,7 @@ class GeneratePDF extends Conectar
             </html>
         ';
 
-        $nombreReporte = 'RegListadoPedido'.$nombreClienteReporte.'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
+        $nombreReporte = 'RegListadoPedido-'.$dataClient['cli_nombre'].'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
 
         generarPDF($html, $nombreReporte, $descarga, 'landscape');
     }
@@ -377,7 +379,7 @@ function datosEmpresa($emp_id, $com_id)
     return $datosEmpresa;
 }
 
-function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta, $nombreClienteReporte)
+function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id, $totalesConsulta, $fecha_desde, $fecha_hasta, $dataClient)
 {
     $datosEmpresa = datosEmpresa($emp_id, $com_id);
 
@@ -388,8 +390,7 @@ function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id,
     }
 
     if (!empty($cli_id) && $lote_id == null) {
-        $datosCliente = buscarCliente($cli_id);
-        $nombreClienteReporte = '-'.$datosCliente["cli_nombre"].'-';
+        $datosCliente = $dataClient;
         $html = '
         <div id="company" class="clearfix">
                         <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
@@ -467,7 +468,7 @@ function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id,
         $lote = new Lote();
 
         $infoLote = $lote->getLotePorId("R", $lote_id);
-        $datosCliente = buscarCliente($cli_id);
+        $datosCliente = $dataClient;
         $html = '
         <div id="company" class="clearfix">
             <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>

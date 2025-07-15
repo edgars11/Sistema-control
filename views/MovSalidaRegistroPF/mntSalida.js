@@ -25,8 +25,6 @@ function guardarMovimiento(e) {
 
     var idCliente = $('#cli_id').val();
     var numIdClient = $('#cli_identificacion').val();
-    var idLotePV = 0;
-    formData.append('lote_idIng', idLotePV);
 
     var sal_total = $('#sal_total').val();
     var sal_cantidad = $('#sal_cantidad').val();
@@ -92,13 +90,10 @@ function guardarMovimiento(e) {
                     success: function (data) {
                         if (data.length === 0) {
                             limpiarCampos();
+                            setCount();
                             // Recarga los datos de la tabla
                             $('#table_data').DataTable().ajax.reload();
-                            // Actualiza el valor actual del lote
-                            $.post("../../controllers/loteController.php?op=mostrar", { lote_id: idLote }, function (data) {
-                                data = JSON.parse(data);
-                                $('#lote_cant_act').val(data.lote_cant_actual);
-                            });
+                            
                             // Se carga cliente por defecto
                             defaultClient('9999999999999');
                             swal.fire({
@@ -137,11 +132,6 @@ function guardarMovimiento(e) {
                             setCount();
                             // Recarga los datos de la tabla
                             $('#table_data').DataTable().ajax.reload();
-                            // Actualiza el valor actual del lote
-                            $.post("../../controllers/loteController.php?op=mostrar", { lote_id: idLote }, function (data) {
-                                data = JSON.parse(data);
-                                $('#lote_cant_act').val(data.lote_cant_actual);
-                            });
                             // Se carga cliente por defecto
                             defaultClient('9999999999999');
                             
@@ -171,18 +161,6 @@ $(document).ready(function () {
     // Se obtienen los lotes disponibles
     $.post("../../controllers/loteController.php?op=combo", { suc_id: suc_idx }, function (data) {
         $('#lote_idIng').html(data);
-    });
-
-    /* Event change cuando se selecciona un lote de la lista */
-    $("#lote_idIng").change(function () {
-        $("#lote_idIng").each(function () {
-            lote_id = $(this).val();
-
-            $.post("../../controllers/loteController.php?op=mostrar", { lote_id: lote_id }, function (data) {
-                data = JSON.parse(data);
-                $('#lote_cant_act').val(data.lote_cant_actual);
-            });
-        });
     });
 
     // SE CARGAN LAS FORMAS DE PAGO
@@ -350,6 +328,7 @@ function setCount() {
             } else {
                 let total = data.cantidadCamal - data.registrado
                 $('#lote_cant_act').val(total);
+                $('#lote_idIng').val(data.lote_id);
             }
         } else {
             $('#lote_cant_act').val('0');

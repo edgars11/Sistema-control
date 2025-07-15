@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 13/7/2025 11:56:01 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 14/7/2025 18:13:59 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -87,13 +87,13 @@ set nocount on
 		if @i_cli_id = @w_cliente_camal
 		begin
 			
-			if not exists (select 1 from tm_registro_camal where cam_fecha = @i_salida_fecha)
+			if not exists (select 1 from tm_registro_camal where cam_fecha = @i_salida_fecha and lote_id = @i_lote_id)
 			begin			
 				INSERT INTO tm_registro_camal
-				(cam_cantidad,			cam_fecha,			salida_id,
+				(cam_cantidad,			cam_fecha,			lote_id,		salida_id,
 				cam_registros,			cam_estado,			cam_hora)
 				VALUES
-				(@i_salida_cantidad,	@i_salida_fecha,	@w_salida_id,
+				(@i_salida_cantidad,	@i_salida_fecha,	@i_lote_id,		@i_salida_id,
 				0,						1,					@w_fecha)
 			end
 			else 
@@ -537,6 +537,7 @@ set nocount on
 			inner join tm_cliente cl on cl.cli_id = sl.cli_id
 			inner join tm_cuenta_cliente cc on cc.cli_id = cl.cli_id 
 			where sl.salida_id = @i_salida_id
+			and cc.cta_estado = 1
 			and sl.salida_estado = 1
 
 		end

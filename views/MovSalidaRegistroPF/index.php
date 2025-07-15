@@ -53,6 +53,7 @@ if (isset($_SESSION["usu_id"])) {
                                 <input type="hidden" name="salida_id" id="salida_id">
                                 <input type="hidden" name="cli_id" id="cli_id">
                                 <input type="hidden" name="sal_tipo" id="sal_tipo" value="PF">
+                                <input type="hidden" name="lote_idIng" id="lote_idIng">
                                 <div>
                                     <h5 class="fs-14 mb-3 text-muted">Datos Cliente</h5>
                                     <div class="row">

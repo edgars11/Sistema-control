@@ -186,7 +186,11 @@ class SalidaLote extends Conectar
     public function getCamalCount($i_fecha)
     {
         $conectar = parent::Conexion();
-        $sql = "select sum(cam_cantidad) as cantidadCamal, sum(cam_registros) as registrado from tm_registro_camal c where c.cam_fecha = ? and cam_estado = 1";
+        $sql = "select sum(cam_cantidad) as cantidadCamal, sum(cam_registros) as registrado, lote_id
+            from tm_registro_camal c 
+            where c.cam_fecha = ? and cam_estado = 1 and cam_registros < cam_cantidad
+            group by lote_id
+            ";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, $i_fecha);
         $query->execute();

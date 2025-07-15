@@ -245,6 +245,7 @@ switch ($_GET['op']) {
             foreach ($datos as $row) {
                 $outout["cantidadCamal"] = $row["cantidadCamal"];
                 $outout["registrado"] = $row["registrado"];
+                $outout["lote_id"] = $row["lote_id"];
             }
             echo json_encode($outout);
         } else {

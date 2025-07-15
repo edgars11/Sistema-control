@@ -9,7 +9,7 @@ switch ($_GET['op']) {
     // TODO: Guardar y editar registro
     case 'guardar':
         if (empty($_POST["lote_id"])) {
-            $lote->insertarLote("C", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_capacidad_max']);
+            $lote->insertarLote("C", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_cap_maximaUpd']);
         } else {
             $lote->updateLote("U", $_POST['suc_id'], $_POST['lote_descripcion'], $_POST['lote_cap_maximaUpd'], $_POST['lote_id'], $_POST['lote_cant_actualUpd']);
         }
