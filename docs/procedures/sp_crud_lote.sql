@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 28/5/2025 18:48:29 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_lote]    Script Date: 15/7/2025 22:50:20 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -13,6 +13,7 @@ ALTER procedure [dbo].[sp_crud_lote] (
  @i_lote_descripcion varchar(75) = null,
  @i_lote_capacidad_max int = null,
  @i_lote_consumo int = null,
+ @i_lote_estado tinyint = 1,
  @i_lote_cant_actual int = null,
  @i_lote_costo decimal(14,2) = null,
  @i_lote_cant_vendidos int = null,
@@ -68,10 +69,18 @@ end
 
 	if @i_operacion = 'D'
 	begin
-		update tm_lote set 
-			lote_estado = 0
-		where lote_id = @i_lote_id
-		and suc_id = @i_suc_id
+		if not exists(select 1 from tm_salida_lote where lote_id = @i_lote_id)
+		begin
+			delete from tm_lote where lote_id = @i_lote_id and suc_id = @i_suc_id
+		end
+		else
+		begin
+			update tm_lote set 
+				lote_estado = 0
+			where lote_id = @i_lote_id
+			and suc_id = @i_suc_id
+		end
+
 	end
 
 	if @i_operacion = 'R'
@@ -98,8 +107,8 @@ end
 			(select top 1 mov_fecha from tm_movimiento_lote where lote_id = l.lote_id 
 			and mov_tipo = '+' order by mov_fecha desc) as ult_fecha_ingre
 			from tm_lote l
-			where lote_estado = 1
-			and suc_id = @i_suc_id
+			where suc_id = @i_suc_id
+			and lote_estado = isnull(@i_lote_estado , lote_estado)
 			order by lote_descripcion asc
 		end
 		if @i_tipo = 'I'

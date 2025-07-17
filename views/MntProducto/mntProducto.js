@@ -98,6 +98,17 @@ $(document).ready(function () {
         },
     });
 
+    // Obtiene datos del producto seleccionado
+    $("#cat_id").change(function () {
+        $("#cat_id").each(function () {
+            cat_id = $(this).val();
+            categoryName = $("#cat_id option:selected").text();
+
+            if ($('#gen_codigo').is(':checked')) {
+                $("#prod_cod_barra").val((categoryName.substring(0,3)).toUpperCase() + genNumAleatorio());
+            }
+        });
+    });
 });
 
 function editar(prod_id) {
@@ -187,5 +198,11 @@ function filePreview(input) {
 $(document).on('change', '#prod_img', function () {
     filePreview(this);
 });
+
+function genNumAleatorio() {
+    let random = Math.random();
+    random = random * 9999 + 1;
+    return parseInt(random);
+}
 
 init();

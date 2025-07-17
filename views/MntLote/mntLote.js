@@ -144,7 +144,7 @@ $(document).ready(function () {
             'csvHtml5',
         ],
         "ajax": {
-            url: "../../controllers/loteController.php?op=listar",
+            url: "../../controllers/loteController.php?op=listarLotes",
             type: "post",
             data: { suc_id: $('#suc_idx').val() }
         },
@@ -331,6 +331,50 @@ function calcularTotal() {
     }
 
     if (mostrar) $('#lote_can_total').val(canTotal);
+
+}
+
+function changeStatus(lote_id, currentlyStatus) {
+
+    swal.fire({
+        title: "Confirmación!",
+        text: "Desea cambiar el estado del lote?",
+        icon: "warning",
+        confirmButtonText: "Si",
+        showCancelButton: true,
+        cancelButtonText: "No"
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            console.log(lote_id + ' , ' + currentlyStatus);
+
+            var status = 0;
+            if (currentlyStatus == 0) {
+                status = 1
+            } else {
+                status = 0
+            }
+
+            // Se obtienen las unidades de medida
+            $.post("../../controllers/loteController.php?op=updStatusLote", { lote_id: lote_id, status_lote: status }, function (data) {
+                if (data.length > 0) {
+                    data = JSON.parse(data);
+                    console.log(data);
+                    if (data.success == true) {
+                        $('#table_data').DataTable().ajax.reload();
+                        swal.fire({
+                            title: "Estado Lote",
+                            text: "Se cambio correctamente el estado!",
+                            icon: "success"
+                        });
+                    }
+                }
+            });
+
+        } else {
+            limpiarCampos();
+        }
+    });
 
 }
 

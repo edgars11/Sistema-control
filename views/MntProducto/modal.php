@@ -19,6 +19,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row gy-1 mt-1">
+                        <div class="col-md-12">
+                            <div>
+                                <input type="checkbox" class="form-label" id="gen_codigo" name="gen_codigo" checked>
+                                <label for="gen_codigo" class="form-label">Generar código automático</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row gy-2">
                         <div class="col-md-12">
                             <div>
@@ -58,7 +66,7 @@
                         </div>
                         <div class="col-md-6">
                             <div>
-                                <label for="valueInput" class="form-label">Codigo Barra:</label>
+                                <label for="prod_cod_barra" class="form-label">Codigo Barra:</label>
                                 <input type="text" class="form-control" id="prod_cod_barra" name="prod_cod_barra" placeholder="Ingrese Contacto" required>
                             </div>
                         </div>

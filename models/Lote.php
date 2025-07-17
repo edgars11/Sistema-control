@@ -13,6 +13,19 @@ class Lote extends Conectar
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /* TODO: Listar registro por sucursal */
+    public function getLoteAllPorSucursal($i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_lote @i_operacion=?,@i_tipo=?,@i_suc_id=?, @i_lote_estado=null";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'R');
+        $query->bindValue(2, 'S');
+        $query->bindValue(3, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
     /* TODO: Listar registro por id */
     public function getLotePorId($i_operacion, $i_lote_id)
     {
@@ -129,6 +142,17 @@ class Lote extends Conectar
         $query->bindValue(5, $i_user_id);
         $query->bindValue(6, $i_ali_desc);
         $query->bindValue(7, $i_ali_id);
+        return $query->execute();
+    }
+
+    /* TODO: Cambiar estado de Lote  */
+    public function updateStatusLote($i_lote_id, $i_status)
+    {
+        $conectar = parent::Conexion();
+        $sql = "update tm_lote set lote_estado = ? where lote_id = ?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, $i_status);
+        $query->bindValue(2, $i_lote_id);
         return $query->execute();
     }
 }
