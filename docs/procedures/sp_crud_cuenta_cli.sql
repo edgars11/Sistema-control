@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 18/6/2025 21:01:25 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 16/7/2025 19:29:59 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -27,7 +27,10 @@ declare
 @w_cli_id int,
 @w_val_actual decimal(14,2),
 @w_val_nuevo decimal(14,2),
-@w_val_total decimal(14,2)
+@w_val_total decimal(14,2),
+@w_val_pedido_abo decimal(14,2),
+@w_val_pedido decimal(14,2),
+@w_val_ventas decimal(14,2)
 
 begin
 	if @i_operacion = 'C'
@@ -127,6 +130,38 @@ begin
 
 	if @i_operacion = 'W'
 	begin
+
+		set @w_val_pedido = null
+		set	@w_val_pedido_abo = null
+		set @w_val_ventas = null
+		
+		-- SE OBTIENE EL CLIENTE DE LA CUENTA
+		select @w_cli_id = cli_id from tm_cuenta_cliente where cta_id = @i_cta_id and suc_id = @i_suc_id
+
+		-- SE OBTIENEN VALORES DE PEDIDOS Y VENTAS
+		select  @w_val_pedido_abo = sum(movc_valor) from tm_salida_lote s 
+		inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+		where s.cli_id = @w_cli_id
+		and s.salida_estado = 1 
+		and salida_vpagado not in ('C')
+		and movc_tipo = '-'
+
+		select  @w_val_pedido = sum(movc_valor) from tm_salida_lote s 
+		inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+		where s.cli_id = @w_cli_id
+		and s.salida_estado = 1 
+		and salida_vpagado not in ('C')
+		and movc_tipo = '+'
+
+		set @w_val_pedido = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
+
+		-- VALOR PENDIENTE VENTAS
+		select @w_val_ventas = sum(rvc_monto - rvc_abonado) from tm_ventas v
+		inner join tm_registro_vencred vc on vc.ven_id = v.ven_id
+		where v.cli_id = @w_cli_id
+		and vc.rvc_estado = 1
+		and vc.rvc_est_cta not in ('C')
+
 		select 
 			cta_id,
 			cli_nombre,
@@ -138,7 +173,9 @@ begin
 			(select top 1 CONVERT(varchar,movc_fecha,22) from tm_movimiento_cuenta 
 			where cta_id = @i_cta_id and movc_tipo = '-' and movc_estado = 1
 			order by movc_fecha desc) as ult_fecha_pago,
-			c.cli_id
+			c.cli_id,
+			isnull(@w_val_pedido, 0) as 'total_pedidos',
+			isnull(@w_val_ventas, 0) as 'total_ventas'
 		from 
 		tm_cuenta_cliente cc
 		inner join tm_cliente c on c.cli_id = cc.cli_id

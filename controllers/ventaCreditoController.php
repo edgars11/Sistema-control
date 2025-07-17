@@ -33,6 +33,8 @@ switch ($_GET['op']) {
                 $html .= "<option value='" . $row['ven_id'] . "'> Venta #" . $row['ven_id'] . " [$ ". $row['rvc_monto']."] - " . $estado . "</option>";
             }
             echo $html;
+        }else{
+            echo '<option selected>No hay registros de ventas</option>';
         }
         break;
     case 'guardarPago':

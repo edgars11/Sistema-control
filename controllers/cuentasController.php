@@ -107,7 +107,9 @@ switch ($_GET['op']) {
                 $outout["cta_monto"] = number_format($row['cta_monto'], 2, '.', ',');
                 $outout["ult_fecha_sal"] = $row["ult_fecha_sal"];
                 $outout["ult_fecha_pago"] = $row["ult_fecha_pago"];
-                $outout["cli_id"] = $row["cli_id"];
+                $outout["cli_id"] = $row["cli_id"]; 
+                $outout["total_pedidos"] = $row["total_pedidos"]; 
+                $outout["total_ventas"] = $row["total_ventas"]; 
             }
             echo json_encode($outout);
         }

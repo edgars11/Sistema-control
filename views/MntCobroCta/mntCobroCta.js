@@ -220,15 +220,18 @@ function selCuenta(cta_id) {
 
     $.post("../../controllers/cuentasController.php?op=byCta", { cta_id: cta_id, suc_id: w_suc_idx }, function (data) {
         data = JSON.parse(data);
+        console.log(data);
         $('#cta_id').val(data.cta_id);
         $('#cli_nombre').val(data.cli_nombre);
         $('#cli_telefono').val(data.cli_telefono);
-        $('#cta_monto').val("$ " + data.cta_monto);
+        $('#cta_monto').val("T: $ " + data.cta_monto + (parseInt(data.total_ventas) > 0 ? " - V: $" + data.total_ventas : " ") + (parseInt(data.total_pedidos) > 0 ? " - P: $" + data.total_pedidos : " "));
         $('#ult_fecha_sal').val(data.ult_fecha_sal);
         $('#ult_fecha_pago').val(data.ult_fecha_pago);
         $('#modalCuentas').modal('hide');
         w_cli_id = data.cli_id;
         w_monto_cta = data.cta_monto;
+        $('#tipo_compro').val('Seleccionar');
+        $('#recibo_id').html('<option selected>Seleccione un tipo comprobante</option>');
     })
 
 }

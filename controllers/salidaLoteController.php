@@ -230,7 +230,7 @@ switch ($_GET['op']) {
             if ($valSaldoPendiente["valida"] == false) {
                 $html .= '<option value="0" selected>Cuenta Pendiente($' . $valSaldoPendiente["SaldoPendienteTotal"] . ') - Abonado: $' . $valSaldoPendiente["saldoCancelado"] . ' - Saldo : $' . $valSaldoPendiente["saldoPendiente"] . '</option>';
             } else {
-                $html .= '<option value="-1" selected>No hay registros</option>';
+                $html .= '<option value="-1" selected>No hay registros de pedidos</option>';
             }
             echo $html;
             // echo json_encode($valSaldoPendiente);
