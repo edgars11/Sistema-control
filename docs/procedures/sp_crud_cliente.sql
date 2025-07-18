@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 28/5/2025 17:52:45 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 17/7/2025 22:19:14 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -19,7 +19,12 @@ ALTER procedure [dbo].[sp_crud_cliente] (
 )
 as
 declare 
-@w_monto_cuenta decimal(14,2)
+@w_monto_cuenta decimal(14,2),
+@w_cta_id int ,
+@w_val_pedido_abo decimal(16,2),
+@w_val_pedido decimal(16,2),
+@w_val_ventas decimal(16,2)
+
 begin
 	if @i_operacion = 'C'
 	begin
@@ -66,7 +71,42 @@ begin
 		end
 		if @i_tipo = 'I'
 		begin
-			select @w_monto_cuenta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id and cta_estado = 1
+			
+			set @w_cta_id = 0
+			set @w_val_pedido_abo = 0
+			set @w_val_pedido = 0
+			set @w_val_ventas = 0
+
+			select @w_monto_cuenta = cta_monto, @w_cta_id= cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and cta_estado = 1
+
+			if @w_cta_id > 0
+			begin
+				-- SE OBTIENEN VALORES DE PEDIDOS Y VENTAS
+				select  @w_val_pedido_abo = sum(movc_valor) from tm_salida_lote s 
+				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+				where s.cli_id = @i_cli_id
+				and s.salida_estado = 1 
+				and salida_vpagado not in ('C')
+				and movc_tipo = '-'
+
+				select  @w_val_pedido = sum(movc_valor) from tm_salida_lote s 
+				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+				where s.cli_id = @i_cli_id
+				and s.salida_estado = 1 
+				and salida_vpagado not in ('C')
+				and movc_tipo = '+'
+
+				set @w_val_pedido = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
+
+				-- VALOR PENDIENTE VENTAS
+				select @w_val_ventas = sum(rvc_monto - rvc_abonado) from tm_ventas v
+				inner join tm_registro_vencred vc on vc.ven_id = v.ven_id
+				where v.cli_id = @i_cli_id
+				and vc.rvc_estado = 1
+				and vc.rvc_est_cta not in ('C')
+			end
+
+
 			select 
 				cli_id,
 				cli_nombre,
@@ -77,7 +117,9 @@ begin
 				cli_fecha_crea,
 				cli_estado,
 				ISNULL(@w_monto_cuenta,0.00) as cta_monto,
-				emp_id
+				emp_id,
+				isnull(@w_val_pedido, 0.00) as 'total_pedidos',
+				isnull(@w_val_ventas, 0.00) as 'total_ventas'
 			from tm_cliente
 			where cli_estado = @i_cli_estado
 			and cli_id = @i_cli_id

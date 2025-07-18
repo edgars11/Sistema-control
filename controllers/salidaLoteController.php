@@ -127,7 +127,7 @@ switch ($_GET['op']) {
             $sub_array[] = '<span class="badge badge-soft-' . $colorTag . ' text-uppercase fs-14">' . "# " . $row['salida_id'] . ' - ' . $estadoRecibo . '</span>';
             $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . $row['salida_cantidad'] . '</div>';
             $sub_array[] = $row['salida_peso_neto'] . " Lbs";
-            $sub_array[] = "$ " . $row['salida_precio'];
+            $sub_array[] = "$ " . number_format($row['salida_precio'],2);
             $sub_array[] = '<span class="badge badge-soft-success text-uppercase fs-14">' . "$ " . $row['salida_total'] . '</span>';
             $sub_array[] = $row['usu_nombre'];
             $sub_array[] = $row['salida_hora'];

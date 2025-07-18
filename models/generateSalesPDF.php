@@ -23,10 +23,10 @@ class GenerateSalesPDF extends Conectar
 
         $datosEmpresa = datosEmpresaBySucursal($suc_id);
         $datosCliente = buscarCliente2($cli_id);
-        if($tipo_pago != 'null'){
+        if ($tipo_pago != 'null') {
             $formaPago = $tipoPago->getFormaPagoByID($tipo_pago);
             $nombreFormaPago = $formaPago[0]['pago_nombre'];
-        }else{
+        } else {
             $tipo_pago = null;
             $nombreFormaPago = 'OTRO';
         }
@@ -38,6 +38,7 @@ class GenerateSalesPDF extends Conectar
         }
 
         $subtotal = 0;
+        $valorCredito = 0;
         $valorIva = 15;
         $totalVentas = 0;
 
@@ -46,19 +47,23 @@ class GenerateSalesPDF extends Conectar
         foreach ($detalle as $row) {
 
             $subtotal = $subtotal + $row["ven_total"];
+            if($row["pago_nombre"] == 'CREDITO'){
+                $valorCredito += $row["ven_total"];
+            }
             $tbody .= '
                     <tr>
-                        <td class="service text-fw-600">' . $row["ven_id"] . '</td>
+                        <td class="service ts-13 text-fw-600"> Venta - #' . $row["ven_id"] . '</td>
                         <td class="desc">' . $row["ven_fecha_crea"] . '</td>
                         <td class="subtotal">$ ' . number_format($row["ven_total"], 2, '.', ',')  . '</td>
-                        <td class="unit">' . number_format($row["pago_nombre"], 0, '', ',') . '</td>
-                        <td class="qty">' . $row['ven_coment']. ' Lbs</td>
+                        <td class="unit">' . $row["pago_nombre"] . '</td>
+                        <td class="unit">' . $row['reg_estado'] . '</td>
+                        <td class="qty">' . ($row['ven_coment'] == '' ? 'Sin comentario' : $row['ven_coment']). '</td>
                     </tr>
             ';
             $totalVentas = $totalVentas + 1;
         }
 
-        $observacion = 'Total Ventas registradas: <span class="text-fw-600">' . $totalVentas . '</span>, Valor Total Ventas: <span class="text-fw-600">$ ' . $subtotal . ' Lbs</span>';
+        $observacion = 'Total Ventas registradas: <span class="text-fw-600">' . $totalVentas . '</span>, Valor Total Ventas: <span class="text-fw-600">$ ' . number_format($subtotal,2) . '</span><br><span class="text-fw-600">Cuenta</span> - '.( $datosCliente['total_ventas'] > 0 ? 'Saldo Pendiente Ventas : <span class="text-fw-600">$ ' . number_format($datosCliente['total_ventas'], 2) . '</span>' : ' Cliente no tiene cuenta.');
 
         $html = '
             <!DOCTYPE html>
@@ -73,7 +78,7 @@ class GenerateSalesPDF extends Conectar
                 <div id="logo">
                     <img src="http://' . $rutaImg . '/Sistema-Control/assets/images/logo-lite.jpg" alt="Logo empresa" style="width: 100px"><br>
                 </div>
-                <h1>Listado de ventas de <span class="tc-yellow"># ' . $datosCliente['cli_nombre'] . '</span></h1>
+                <h1>Listado de ventas de <span class="tc-yellow">' . $datosCliente['cli_nombre'] . '</span></h1>
                 <div id="company" class="clearfix">
                     <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
                     <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
@@ -99,6 +104,7 @@ class GenerateSalesPDF extends Conectar
                         <th class="desc">FECHA</th>
                         <th>MONTO</th>
                         <th>FORMA PAGO</th>
+                        <th>ESTADO</th>
                         <th>COMENTARIO</th>
                     </tr>
                     </thead>
@@ -121,8 +127,7 @@ class GenerateSalesPDF extends Conectar
             </body>
             </html>
         ';
-        $nombreReporte = 'Ventas_' . $datosCliente["cli_nombre"] . '_from_'.$fecha_desde.'_to_'.$fecha_hasta.'.pdf';
-
+        $nombreReporte = 'ReporteVentas-' . $datosCliente["cli_nombre"] . '-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
 
         generarPDF2($html, $nombreReporte, $descarga, 'portrait');
     }
@@ -341,6 +346,7 @@ function buscarCliente2($cli_id)
         $datosCliente["cli_telefono"] = $row["cli_telefono"];
         $datosCliente["cli_direccion"] = $row["cli_direccion"];
         $datosCliente["cli_correo"] = $row["cli_correo"];
+        $datosCliente["total_ventas"] = $row["total_ventas"];
     }
 
     return $datosCliente;

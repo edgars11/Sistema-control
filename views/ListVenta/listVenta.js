@@ -1,4 +1,5 @@
 var i_suc_id = $('#suc_idx').val();
+var i_cli_id = 0;
 
 const dataFiltro = {
     cli_id: null,
@@ -243,6 +244,7 @@ function selectCliente(cli_id) {
             data = JSON.parse(data);
             clientName = data.cli_nombre;
             clientContact = data.cli_telefono;
+            i_cli_id = cli_id;
             $('#cli_nombre').val(clientName);
             $('#cli_id').val(data.cli_id);
             $('#btnWhatsappCli').show();
@@ -274,8 +276,8 @@ function openWhatsappview() {
 
 function generarReporte() {
 
-    if (cli_id.length > 0) {
-        data.cli_id = cli_id;
+    if (i_cli_id > 0) {
+        dataFiltro.cli_id = i_cli_id;
     }else{
         swal.fire({
             title: "Generación Reporte",
@@ -285,20 +287,20 @@ function generarReporte() {
         return;
     }
 
-    // swal.fire({
-    //     title: "Confirmación!",
-    //     text: "Desea descargar el pdf de registro de salida?",
-    //     icon: "warning",
-    //     confirmButtonText: "Si, descargar",
-    //     showCancelButton: true,
-    //     cancelButtonText: "Visualizar"
-    // }).then((result) => {
-    //     if (result.isConfirmed) {
-    //         var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generateListadoSalidaPdf&lote_id=" + dataFiltro.lote_id + "&cli_id=" + dataFiltro.cli_id + "&salida_tipo=" + dataFiltro.salida_tipo + "&fecha_desde=" + dataFiltro.fecha_desde + "&fecha_hasta=" + dataFiltro.fecha_hasta + "&suc_id=" + i_suc_id + "&emp_id=" + emp_idx + "&com_id=" + com_idx + "&download=" + 1;
-    //         window.open(url, "_blank");
-    //     } else {
-    //         var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generateListadoSalidaPdf&lote_id=" + dataFiltro.lote_id + "&cli_id=" + dataFiltro.cli_id + "&salida_tipo=" + dataFiltro.salida_tipo + "&fecha_desde=" + dataFiltro.fecha_desde + "&fecha_hasta=" + dataFiltro.fecha_hasta + "&suc_id=" + i_suc_id + "&emp_id=" + emp_idx + "&com_id=" + com_idx + "&download=" + 0;
-    //         window.open(url, "_blank");
-    //     }
-    // });
+    swal.fire({
+        title: "Confirmación!",
+        text: "Desea descargar el pdf de registro de salida?",
+        icon: "warning",
+        confirmButtonText: "Si, descargar",
+        showCancelButton: true,
+        cancelButtonText: "Visualizar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generateListadoVentasPdf&cli_id=" + dataFiltro.cli_id + "&tipo_pago=" + dataFiltro.tipo_pago + "&fecha_desde=" + dataFiltro.fecha_desde + "&fecha_hasta=" + dataFiltro.fecha_hasta + "&suc_id=" + i_suc_id + "&download=" + 1;
+            window.open(url, "_blank");
+        } else {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generateListadoVentasPdf&cli_id=" + dataFiltro.cli_id + "&tipo_pago=" + dataFiltro.tipo_pago + "&fecha_desde=" + dataFiltro.fecha_desde + "&fecha_hasta=" + dataFiltro.fecha_hasta + "&suc_id=" + i_suc_id + "&download=" + 0;
+            window.open(url, "_blank");
+        }
+    });
 }

@@ -162,7 +162,7 @@ class GeneratePDF extends Conectar
         $detalle = $salidalote->getlistadoSalida('L', $lote_id, $cli_id, $salida_tipo, $fecha_desde, $fecha_hasta, $suc_id);
         $totalesConsulta = $salidalote->getlistadoSalida('T', $lote_id, $cli_id, $salida_tipo, $fecha_desde, $fecha_hasta, $suc_id);
 
-        $textoDescripcion = 'El reporte generado muestra el listado de registro desde la fecha: <span class="text-fw-600">' . $fecha_desde . ' </span> hasta la fecha: <span class="text-fw-600">' .  $fecha_hasta . '</span>.<br>Total cantidad entregada: <span class="text-fw-600">#' . $totalesConsulta[0]['cantidad'] . '</span> Total libras entregadas: <span class="text-fw-600">' . $totalesConsulta[0]['peso_neto'] . ' Lbs </span>';
+        $textoDescripcion = 'El reporte generado muestra el listado de registros desde la fecha: <span class="text-fw-600">' . $fecha_desde . ' </span> hasta la fecha: <span class="text-fw-600">' .  $fecha_hasta . '</span>.<br>Total cantidad entregada: <span class="text-fw-600">#' . $totalesConsulta[0]['cantidad'] . '</span> Total libras entregadas: <span class="text-fw-600">' . $totalesConsulta[0]['peso_neto'] . ' Lbs </span>';
 
         $columns = "";
         $textoCuenta = "";
@@ -180,7 +180,7 @@ class GeneratePDF extends Conectar
                         <th>TOTAL</th>
             ';
 
-            $textoCuenta = '<br><span class="text-fw-600">Datos Cuenta Cliente:</span> Saldo Total Pendiende Cuenta: <span class="text-fw-600">$ ' . $totalesConsulta[0]['saldo_total_cta'] . '</span>';
+            $textoCuenta = '<br><span class="text-fw-600">Datos Cuenta Cliente:</span> Saldo Pendiende Pedidos: <span class="text-fw-600">$ ' . $totalesConsulta[0]['saldo_total_cta'] . '</span>';
             //  Saldo abonado en el rango de fechas seleccionada: <span class="text-fw-600">$ ' . $totalesConsulta[0]['monto_abonado'] . '</span> -
             $columnasSaldosCliente = '
                         <tr>
@@ -313,7 +313,7 @@ class GeneratePDF extends Conectar
             </html>
         ';
 
-        $nombreReporte = 'RegListadoPedido-'.$dataClient['cli_nombre'].'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
+        $nombreReporte = 'ReportePedidos-'.$dataClient['cli_nombre'].'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
 
         generarPDF($html, $nombreReporte, $descarga, 'landscape');
     }

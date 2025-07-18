@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 14/7/2025 18:13:59 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 17/7/2025 17:22:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -55,10 +55,15 @@ declare
 @w_desc_forma_pago varchar(50),
 @w_estado_pago char(1),
 @w_cliente_camal tinyint ,
-@w_cam_registro int
+@w_cam_registro int,
+@w_num_decimales int,
+@w_val_pedido_abo decimal(16,2),
+@w_val_pedido decimal(16,2)
 
 begin
 set nocount on
+
+	set @w_num_decimales = 2
 
 	if @i_operacion = 'C'
 	begin
@@ -495,7 +500,24 @@ set nocount on
 				and pagc_estado = 1
 				and sl.salida_estado = 1
 
-				select @w_saldo_total_cta = cta_monto from tm_cuenta_cliente where cli_id = @i_cli_id
+				-- SE OBTIENEN VALORES DE PEDIDOS Y VENTAS
+				select  @w_val_pedido_abo = sum(movc_valor) from tm_salida_lote s 
+				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+				where s.cli_id = @i_cli_id
+				and s.salida_estado = 1 
+				and mc.movc_estado = 1
+				and salida_vpagado not in ('C')
+				and movc_tipo = '-'
+
+				select  @w_val_pedido = sum(movc_valor) from tm_salida_lote s 
+				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+				where s.cli_id = @i_cli_id
+				and s.salida_estado = 1 
+				and mc.movc_estado = 1
+				and salida_vpagado not in ('C')
+				and movc_tipo = '+'
+
+				set @w_saldo_total_cta = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
 
 			end
 			-- RETORNA LOS VALORES OBTENIDOS
@@ -515,7 +537,6 @@ set nocount on
 				cl.cli_telefono,
 				cl.cli_direccion,
 				cl.cli_correo,
-				cc.cta_monto,
 				l.lote_descripcion, 
 				sl.salida_tipo, 
 				salida_cantidad, 
@@ -535,9 +556,7 @@ set nocount on
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente cl on cl.cli_id = sl.cli_id
-			inner join tm_cuenta_cliente cc on cc.cli_id = cl.cli_id 
 			where sl.salida_id = @i_salida_id
-			and cc.cta_estado = 1
 			and sl.salida_estado = 1
 
 		end

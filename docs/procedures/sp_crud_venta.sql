@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_venta]    Script Date: 8/7/2025 20:26:26 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_venta]    Script Date: 17/7/2025 19:51:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -205,11 +205,12 @@ set nocount on
 		select 
 		ven_id, 
 		ven_total, 
-		ven_fecha_crea, 
+		CONVERT(varchar, ven_fecha_crea , 20) as ven_fecha_crea, 
 		ven_coment, 
 		pago_nombre, 
 		cli_nombre ,
-		v.suc_id
+		v.suc_id ,
+		'Cancelado' as reg_estado
 		from tm_ventas v
 		inner join tm_tipo_pago p on v.pago_id = p.pago_id
 		inner join tm_cliente cl on cl.cli_id = v.cli_id
@@ -217,7 +218,34 @@ set nocount on
 		and CAST(ven_fecha_crea as date) between @i_fecha_ini and @i_fecha_hasta
 		and v.pago_id = ISNULL(@i_pago_id, v.pago_id)
 		and v.suc_id = @i_suc_id
+		and v.pago_id not in (5)
 		and v.cli_id = @i_cli_id
+		union all 
+		select 
+		v.ven_id, 
+		ven_total, 
+		CONVERT(varchar, ven_fecha_crea , 20) as ven_fecha_crea, 
+		ven_coment, 
+		pago_nombre, 
+		cli_nombre ,
+		v.suc_id ,
+		case
+			when vc.rvc_est_cta = 'C' then 'Cancelado'
+			when vc.rvc_est_cta = 'A' then 'Abonado'
+			else 'Pendiente'
+		end as reg_estado
+		from tm_ventas v
+		inner join tm_tipo_pago p on v.pago_id = p.pago_id
+		inner join tm_cliente cl on cl.cli_id = v.cli_id
+		inner join tm_registro_vencred vc on vc.ven_id = v.ven_id
+		where v.ven_estado = 1
+		and CAST(ven_fecha_crea as date) between @i_fecha_ini and @i_fecha_hasta
+		and v.pago_id = ISNULL(@i_pago_id, v.pago_id)
+		and v.suc_id = @i_suc_id
+		and v.pago_id in (5)
+		and v.cli_id = @i_cli_id
+		order by v.ven_id 
+
 	end
 
 
