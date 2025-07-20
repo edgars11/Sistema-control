@@ -22,4 +22,8 @@ switch ($_GET["op"]) {
         $tipoPago = $_GET['tipo_pago'] == '' ? null : $_GET['tipo_pago'];
         $pdfPrintSales->generate_pdf_listado_ventas_Credito( $cli_id, $tipoPago, $_GET['fecha_desde'], $_GET['fecha_hasta'], $_GET['suc_id'], $_GET['download']);
         break;
+    case "generarListadoCPC":
+        $pdfPrintSales->generarListadoCuentasPorCobrar($_GET['suc_id'], $_GET['download']);
+        break;
+
 }

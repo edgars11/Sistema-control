@@ -419,4 +419,23 @@ function verReporte(cta_id){
     console.log("se genera reporte de la cuenta: " + cta_id)
 }
 
+function generarReporte() {
+    swal.fire({
+        title: "Confirmación!",
+        text: "¿Desea descargar el pdf de listado de cuentas?",
+        icon: "warning",
+        confirmButtonText: "Si, descargar",
+        showCancelButton: true,
+        cancelButtonText: "Visualizar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoCPC&suc_id="+suc_idx+"&download=" + 1;
+            window.open(url, "_blank");
+        } else {
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoCPC&suc_id="+suc_idx+"&download=" + 0;
+            window.open(url, "_blank");
+        }
+    });
+}
+
 init();

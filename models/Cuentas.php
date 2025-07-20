@@ -93,4 +93,16 @@ class Cuentas extends Conectar
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /* TODO: Listar de cuentas por cobrar para reporte PDF */
+    public function getListadoCuentaPorCobrar($i_suc_id)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_cuenta_cli @i_operacion = 'L', @i_suc_id = 1";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'L');
+        $query->bindValue(2, $i_suc_id);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

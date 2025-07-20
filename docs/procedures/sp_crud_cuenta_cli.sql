@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 16/7/2025 19:29:59 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 19/7/2025 16:06:43 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -30,9 +30,14 @@ declare
 @w_val_total decimal(14,2),
 @w_val_pedido_abo decimal(14,2),
 @w_val_pedido decimal(14,2),
-@w_val_ventas decimal(14,2)
+@w_val_ventas decimal(14,2),
+@w_total_registros int,
+@w_max_reg int,
+@w_min_reg int
 
 begin
+	set nocount on
+
 	if @i_operacion = 'C'
 	begin
 		insert into tm_cuenta_cliente 
@@ -232,4 +237,89 @@ begin
 		and cta_estado = 1
 	end
 
+	if @i_operacion = 'L'
+	begin
+		
+		create table #reporte_cuenta_cli(
+			cli_id int not null,
+			cli_nombre varchar(150),
+			cta_id int not null,
+			cta_monto decimal(16,2),
+			monto_pedidos decimal(16,2),
+			monto_ventas decimal(16,2),
+			cta_obs varchar(120),
+			cta_fecha_ult date
+		)
+		insert into #reporte_cuenta_cli
+			(cli_id, cli_nombre , cta_id, cta_monto, cta_obs, cta_fecha_ult)
+		select  
+			cc.cli_id, cli_nombre, cta_id, cta_monto, cta_obs, cta_fecha_upd
+		from tm_cuenta_cliente cc
+		inner join tm_cliente c on c.cli_id = cc.cli_id
+		where cc.cta_estado = 1
+		and cc.cta_monto > 0
+		and cc.suc_id = @i_suc_id
+		order by cli_id
+
+		select @w_total_registros = COUNT(*) from #reporte_cuenta_cli
+		if @w_total_registros > 0
+		begin
+			select @w_min_reg = MIN(cli_id),
+					@w_max_reg = MAX(cli_id)
+			from #reporte_cuenta_cli
+
+			while(@w_min_reg <= @w_max_reg)
+			begin
+				set @w_cli_id = @w_min_reg
+				set @w_val_pedido = null
+				set @w_val_ventas = null
+				set @w_val_pedido_abo = null
+
+				-- SE OBTIENEN VALORES DE PEDIDOS Y VENTAS
+				select  @w_val_pedido_abo = sum(movc_valor) from tm_salida_lote s 
+				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+				where s.cli_id = @w_min_reg
+				and s.salida_estado = 1 
+				and salida_vpagado not in ('C')
+				and movc_tipo = '-'
+
+				select  @w_val_pedido = sum(movc_valor) from tm_salida_lote s 
+				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
+				where s.cli_id = @w_min_reg
+				and s.salida_estado = 1 
+				and salida_vpagado not in ('C')
+				and movc_tipo = '+'
+
+				set @w_val_pedido = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
+
+				-- VALOR PENDIENTE VENTAS
+				select @w_val_ventas = sum(rvc_monto - rvc_abonado) from tm_ventas v
+				inner join tm_registro_vencred vc on vc.ven_id = v.ven_id
+				where v.cli_id = @w_min_reg
+				and vc.rvc_estado = 1
+				and vc.rvc_est_cta not in ('C')
+
+				update #reporte_cuenta_cli
+				set monto_pedidos = ISNULL(@w_val_pedido,0),
+					monto_ventas = ISNULL(@w_val_ventas , 0)
+				where cli_id = @w_min_reg
+
+				print  'Antes:' + convert(varchar(20),@w_cli_id )
+
+				select top 1 @w_cli_id = cli_id from #reporte_cuenta_cli where cli_id > @w_cli_id order by cli_id asc
+
+				print 'Despues:' + convert(varchar(20),@w_cli_id )
+
+				if @w_max_reg = @w_min_reg
+					break
+
+				set @w_min_reg = @w_cli_id
+			end
+
+			select * from #reporte_cuenta_cli order by cli_nombre
+		end
+
+	end
+	
+	set nocount off
 end

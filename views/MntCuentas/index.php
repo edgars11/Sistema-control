@@ -60,6 +60,7 @@ if (isset($_SESSION["usu_id"])) {
                                                     <div class="col-sm-auto">
                                                         <div>
                                                             <button type="button" onclick="addCuenta()" class="btn btn-soft-success"><i class="ri-add-circle-line align-middle me-1"></i> Agregar Cuenta</button>
+                                                            <button type="button" onclick="generarReporte()" class="btn btn-outline-warning waves-effect waves-light"><i class="ri-file-download-line align-bottom me-1"></i> Descargar Reporte</button>
                                                         </div>
                                                     </div>
                                                 </div>

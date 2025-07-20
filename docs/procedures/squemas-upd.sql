@@ -27,3 +27,15 @@ INSERT INTO tm_tipo_pago
 (pago_nombre,pago_fecha_crea,pago_estado)
 VALUES
 ('DEPÓSITO', GETDATE(), 1);
+
+-- INGRESO NUEVO PARAMETRO CLICL
+INSERT INTO tm_parametros
+(par_descripcion,par_nemonico,par_tipo,par_string,par_int,par_double,par_estado,par_fecha)
+VALUES
+('CLIENTE CAMAL LITE','CLICL','I',NULL,13,NULL,NULL,NULL)
+
+-- INGRESO PARAM CLIENTE CONSUMIDOR FINAL(BUSCAR ID CLIENTE CONSUMIDOR FINAL)
+INSERT INTO tm_parametros
+(par_descripcion,par_nemonico,par_tipo,par_string,par_int,par_double,par_estado,par_fecha)
+VALUES
+('CLIENTE CONSUMIDOR FINAL','CLICF','I',NULL,12,NULL,NULL,NULL)

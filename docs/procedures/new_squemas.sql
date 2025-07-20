@@ -104,13 +104,7 @@ CREATE TABLE tm_parametros(
 	[par_fecha] [datetime] NULL
 ) ON [PRIMARY]
 
--- INGRESO NUEVO PARAMETRO CLICL
-INSERT INTO tm_parametros
-(par_descripcion,par_nemonico,par_tipo,par_string,par_int,par_double,par_estado,par_fecha)
-VALUES
-('CLIENTE CAMAL LITE','CLICL','I',NULL,13,NULL,NULL,NULL)
 -- TABLA PARA REGISTRO DE CAMAL
-
 CREATE TABLE [dbo].[tm_registro_camal](
 	[cam_id] [int] IDENTITY(1,1) NOT NULL,
 	[cam_cantidad] [tinyint] NULL,

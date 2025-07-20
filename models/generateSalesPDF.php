@@ -6,6 +6,8 @@ require_once '../models/TipoComprabante.php';
 require_once '../models/Empresa.php';
 require_once '../models/Venta.php';
 require_once '../models/Cliente.php';
+require_once '../models/Cuentas.php';
+require_once '../models/Utils.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -130,6 +132,111 @@ class GenerateSalesPDF extends Conectar
         $nombreReporte = 'ReporteVentas-' . $datosCliente["cli_nombre"] . '-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
 
         generarPDF2($html, $nombreReporte, $descarga, 'portrait');
+    }
+
+    public function generarListadoCuentasPorCobrar($suc_id, $download)
+    {
+        //DatosCliente;
+        $cuentaModelo = new Cuentas();
+        $rutaImg = $_SERVER['HTTP_HOST'];
+
+        $descarga = $download === "1" ? true : false;
+
+        $datosEmpresa = datosEmpresaBySucursal($suc_id);
+        $datosCliente = buscarCliente2(0);
+
+        $detalleCuentas = $cuentaModelo->getListadoCuentaPorCobrar($suc_id);
+
+        $subtotal = 0;
+        $totalVentas = 0;
+
+        $content_css = file_get_contents('../assets/css/stylePDFLand.css');
+        $tbody = "";
+        foreach ($detalleCuentas as $row) {
+
+            $subtotal = $subtotal + $row["cta_monto"];
+            $tbody .= '
+                    <tr>
+                        <td class="service ts-13 text-fw-600"> Venta - #' . $row["cta_id"] . '</td>
+                        <td class="desc tc-blue">' . strtoupper($row["cli_nombre"]) . '</td>
+                        <td class="unit">' . $row["cta_fecha_ult"] . '</td>
+                        <td class="subtotal text-fw-600 warning">$ ' . number_format($row["cta_monto"], 2, '.', ',')  . '</td>
+                        <td class="unit">$ ' . number_format($row["monto_pedidos"], 2, '.', ',')  . '</td>
+                        <td class="unit">$ ' . number_format($row["monto_ventas"], 2, '.', ',')  . '</td>
+                        <td class="qty">' . ($row['cta_obs'] == '' ? 'Sin comentario' : $row['cta_obs']). '</td>
+                    </tr>
+            ';
+            $totalVentas = $totalVentas + 1;
+        }
+
+        $observacion = 'Total Cuentas: <span class="text-fw-600"> #' . $totalVentas . '</span>, Valor Total Cuentas: <span class="text-fw-600">$ ' . number_format($subtotal,2) . '</span>';
+
+        $html = '
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <title>LISTADO DE CUENTAS POR COBRAR</title>
+                <style>' . $content_css . '</style>
+            </head>
+            <body>
+                <header class="clearfix">
+                <div id="logo">
+                    <img src="http://' . $rutaImg . '/Sistema-Control/assets/images/logo-lite.jpg" alt="Logo empresa" style="width: 100px"><br>
+                </div>
+                <h1>Listado de cuentas por cobrar</span></h1>
+                <div id="company" class="clearfix">
+                    <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
+                    <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_ruc"] . '</span></div>
+                    <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
+                </div>
+                <div id="project">
+                    <div class="margin-bottom-25"><span class="text-fw-600  ts-15">COMPROBANTE PARA:</span></div>
+                    <div><span class="text-fw-600">CLIENTE:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
+                    <div><span class="text-fw-600">DIRECCIÓN:</span>  <span class="ts-13">' . $datosCliente["cli_direccion"] . ' </span></div>
+                    <div><span class="text-fw-600">CORREO:</span> <span class="ts-13"> <a href="' . $datosCliente["cli_correo"] . '">' . $datosCliente["cli_correo"] . '</a> </span></div>
+                    <div><span class="text-fw-600">RUC/CI:</span>  <span class="ts-13">' . $datosCliente["cli_ruc"] . ' </span></div>
+                    <div><span class="text-fw-600">CONTACTO:</span> <span class="ts-13"> ' . $datosCliente["cli_telefono"] . ' </span></div>
+                </div>
+                </header>
+                <main>
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="service"># CUENTA</th>
+                        <th class="service">CLIENTE</th>
+                        <th class="desc">FECHA ULT MOV</th>
+                        <th>TOTAL</th>
+                        <th>MONTO PEDIDO</th>
+                        <th>MONTO VENTA</th>
+                        <th>COMENTARIO</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        ' . $tbody . '
+                        <tr>
+                            <td colspan="6" class="grand total totales">VALOR TOTAL</td>
+                            <td class="grand ts-15 text-fw-600 totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="notices">
+                    <div>OBSERVACIONES:</div>
+                    <div class="notice">' . $observacion . '</div>
+                </div>
+                </main>
+                <footer>
+                    <span class="text-bold">Granja LITE</span> le agradece por su compra.
+                </footer>
+            </body>
+            </html>
+        ';
+        $nombreReporte = 'ListadoDeCuentaPorCobrar-'.date("Y-m-d").'.pdf';
+
+        generarPDF2($html, $nombreReporte, $descarga, 'landscape');
     }
 
     // public function generate_pdf_listado_ventas($cli_id, $tipo_pago, $fecha_desde, $fecha_hasta, $suc_id, $download)
@@ -337,8 +444,17 @@ function generarPDF2($html, $nombreReporte, $descarga, $typePaper)
 
 function buscarCliente2($cli_id)
 {
-
     $cliente = new Cliente();
+
+    if($cli_id == 0){
+        $utils = new Utils();
+        $data = $utils->getParam('CLICF');
+        if (is_array($data) == true and count($data) > 0) {
+            foreach ($data as $row) {
+                $cli_id = $row["par_int"];
+            }
+        }
+    }
     $detalle = $cliente->getClientePorId($cli_id);
     foreach ($detalle as $row) {
         $datosCliente["cli_nombre"] = $row["cli_nombre"];
