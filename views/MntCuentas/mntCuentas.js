@@ -3,6 +3,7 @@ var emp_idx = $('#emp_idx').val();
 var usu_idx = $('#usu_idx').val();
 
 var fecha = new Date();
+var w_cliSelected = 0;
 
 function init() {
     $('#FormUpdateCtaCli').on("submit", function (e) {
@@ -304,6 +305,7 @@ function seleccionarCliente(cli_id) {
 
     $.post("../../controllers/clienteController.php?op=byID", { cli_id: cli_id }, function (data) {
         data = JSON.parse(data);
+        w_cliSelected = cli_id;
         $('#cli_id').val(cli_id);
         $('#cli_nombreC').val(data.cli_nombre);
     })
@@ -370,6 +372,37 @@ $(document).on("click", "#btn_nuevo", function () {
 
 });
 
+$(document).on("click", "#generarPDFMov", function () {
+    // Limpiamos los campos del modal
+    var cuentaID = $('#cta_idMov').val();
+    var fechaDesde = $('#fecha_desde').val();
+    var fechaHasta = $('#fecha_hasta').val();
+    var tipoMov = $('#tipo_mov').val();
+    var idCliente = $('#cli_id').val();
+    console.log(cuentaID + " " + fechaDesde + " " + fechaHasta + " " + tipoMov + " " + idCliente);
+
+    swal.fire({
+        title: "Confirmación!",
+        text: "¿Desea descargar el pdf de listado de movimientos?",
+        icon: "warning",
+        confirmButtonText: "Si, descargar",
+        showCancelButton: true,
+        cancelButtonText: "Visualizar"
+    }).then((result) => {
+        var tipoDownload = 0;
+        if (result.isConfirmed) {
+            tipoDownload = 1;
+        } else {
+            tipoDownload = 0;
+        }
+        var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoMovCta&suc_id=" + suc_idx + "&download=" + tipoDownload + "&cli_id=" + w_cliSelected + "&fecha_desde=" + fechaDesde + "&fecha_hasta=" + fechaHasta + "&cta_id=" + cuentaID + "&tipo_mov=" + tipoMov;
+        window.open(url, "_blank");
+
+        $('#generarListadoMovPDF').modal('hide');
+    });
+
+});
+
 function formatDate(dateObject = new Date()) {
     var year = dateObject.getFullYear();
     var month = dateObject.getMonth() + 1;
@@ -415,8 +448,13 @@ function calcularValor() {
 
 }
 
-function verReporte(cta_id){
-    console.log("se genera reporte de la cuenta: " + cta_id)
+function verReporte(cta_id, cli_id) {
+    $('#cta_idMov').val(cta_id);
+    let today = getDate(new Date());
+    $('#fecha_desde').val(today);
+    $('#fecha_hasta').val(today);
+    w_cliSelected = cli_id;
+    $('#generarListadoMovPDF').modal('show');
 }
 
 function generarReporte() {
@@ -429,13 +467,21 @@ function generarReporte() {
         cancelButtonText: "Visualizar"
     }).then((result) => {
         if (result.isConfirmed) {
-            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoCPC&suc_id="+suc_idx+"&download=" + 1;
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoCPC&suc_id=" + suc_idx + "&download=" + 1;
             window.open(url, "_blank");
         } else {
-            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoCPC&suc_id="+suc_idx+"&download=" + 0;
+            var url = "http://localhost/Sistema-Control/controllers/generatePDFController.php?op=generarListadoCPC&suc_id=" + suc_idx + "&download=" + 0;
             window.open(url, "_blank");
         }
     });
+}
+
+function getDate(date) {
+    var dateString = new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+        .toISOString()
+        .split("T")[0];
+
+    return dateString;
 }
 
 init();

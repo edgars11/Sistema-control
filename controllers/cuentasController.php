@@ -25,7 +25,7 @@ switch ($_GET['op']) {
                                 </li>
                                 <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Imprimir movimientos"
                                     data-bs-original-title="Imprimir movimientos">
-                                    <button type="button" onClick="verReporte(' . $row['cta_id'] . ')" id="' . $row['cta_id'] . '" class="btn btn-primary btn-icon waves-effect waves-light"><i class="ri-printer-line"></i></button>
+                                    <button type="button" onClick="verReporte(' . $row['cta_id'] . ', '.$row['cli_id'].')" id="' . $row['cta_id'] . '" class="btn btn-primary btn-icon waves-effect waves-light"><i class="ri-printer-line"></i></button>
                                 </li>
                             </ul>';
             $sub_array[] = '<ul class="list-inline hstack gap-2 mb-0">

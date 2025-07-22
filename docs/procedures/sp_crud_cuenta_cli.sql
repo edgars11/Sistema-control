@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 19/7/2025 16:06:43 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 22/7/2025 16:34:47 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -18,6 +18,8 @@ ALTER procedure [dbo].[sp_crud_cuenta_cli] (
  @i_ven_id int = null,
  @i_cta_monto decimal(14,2) = null,
  @i_cta_obs varchar(75) = null,
+ @i_fecha_desde varchar(75) = null,
+ @i_fecha_hasta varchar(75) = null,
  @i_cta_fecha varchar(70) = null,
  @o_cta_cli int = 0 out
 )
@@ -104,7 +106,8 @@ begin
 			cta_monto,
 			cta_estado,
 			CONVERT(varchar, cta_fecha_upd , 20) as cta_fecha_upd,
-			cta_obs
+			cta_obs,
+			cc.cli_id
 		from 
 		tm_cuenta_cliente cc
 		inner join tm_cliente c on c.cli_id = cc.cli_id
@@ -321,5 +324,22 @@ begin
 
 	end
 	
+	if @i_operacion = 'Z'
+	begin
+		select 
+			movc_id, 
+			isnull(salida_id, 0) as salida_id, 
+			isnull(ven_id, 0) as ven_id, 
+			movc_tipo, 
+			movc_valor,
+			CONVERT(varchar,movc_fecha,20) as movc_fecha, 
+			movc_obs, 
+			isnull(pagc_id , '') as pagc_id
+		from tm_movimiento_cuenta 
+		where cta_id = @i_cta_id
+		and movc_estado = 1
+		and CAST(movc_fecha as date) between @i_fecha_desde and @i_fecha_hasta
+		and movc_tipo = isnull(@i_movc_tipo, movc_tipo)
+	end
 	set nocount off
 end

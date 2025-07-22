@@ -98,11 +98,26 @@ class Cuentas extends Conectar
     public function getListadoCuentaPorCobrar($i_suc_id)
     {
         $conectar = parent::Conexion();
-        $sql = "exec sp_crud_cuenta_cli @i_operacion = 'L', @i_suc_id = 1";
+        $sql = "exec sp_crud_cuenta_cli @i_operacion =?, @i_suc_id = ?";
         $query = $conectar->prepare($sql);
         $query->bindValue(1, 'L');
         $query->bindValue(2, $i_suc_id);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /* TODO: Listar de movimientos de cuenta */
+    public function getMovimientosCuentas($i_cta_id, $i_fecha_desde, $i_fecha_hasta, $i_tipo_mov)
+    {
+        $conectar = parent::Conexion();
+        $sql = "exec sp_crud_cuenta_cli @i_operacion = ?, @i_cta_id =?, @i_fecha_desde=?, @i_fecha_hasta=?, @i_movc_tipo=?";
+        $query = $conectar->prepare($sql);
+        $query->bindValue(1, 'Z');
+        $query->bindValue(2, $i_cta_id);
+        $query->bindValue(3, $i_fecha_desde);
+        $query->bindValue(4, $i_fecha_hasta);
+        $query->bindValue(5, $i_tipo_mov);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }   
 }

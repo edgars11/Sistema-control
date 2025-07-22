@@ -20,10 +20,13 @@ switch ($_GET["op"]) {
     case "generateListadoVentasPdf":
         $cli_id = $_GET['cli_id'] == '' ? null : $_GET['cli_id'];
         $tipoPago = $_GET['tipo_pago'] == '' ? null : $_GET['tipo_pago'];
-        $pdfPrintSales->generate_pdf_listado_ventas_Credito( $cli_id, $tipoPago, $_GET['fecha_desde'], $_GET['fecha_hasta'], $_GET['suc_id'], $_GET['download']);
+        $pdfPrintSales->generate_pdf_listado_ventas_Credito($cli_id, $tipoPago, $_GET['fecha_desde'], $_GET['fecha_hasta'], $_GET['suc_id'], $_GET['download']);
         break;
     case "generarListadoCPC":
         $pdfPrintSales->generarListadoCuentasPorCobrar($_GET['suc_id'], $_GET['download']);
         break;
-
+    case "generarListadoMovCta":
+        $tipoMov = $_GET['tipo_mov'] == 'A' ? null : $_GET['tipo_mov'];
+        $pdfPrintSales->generarListadoMovimientosCuenta($_GET['cli_id'], $tipoMov, $_GET['fecha_desde'], $_GET['fecha_hasta'], $_GET['cta_id'], $_GET['suc_id'], $_GET['download']);
+        break;
 }

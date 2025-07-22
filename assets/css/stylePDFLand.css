@@ -227,9 +227,20 @@ footer {
   color: rgb(240, 30, 30);
   font: bold;
 }
+.danger-2{
+  color: rgb(184, 87, 8);
+  font: bold;
+}
 .warning{
   color: rgb(197, 117, 26);
 }
 .success{
   color: rgb(65, 173, 43);
+}
+.success-2{
+  color: rgb(55, 141, 37);
+}
+
+.primary{
+  color: rgb(28, 50, 148);
 }
