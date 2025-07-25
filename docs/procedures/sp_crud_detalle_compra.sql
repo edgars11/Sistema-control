@@ -66,5 +66,5 @@ set nocount on
 		exec sp_crud_compra @i_operacion = 'T', @i_comp_id= @i_comp_id
 	end
 
-set nocount off
+
 end

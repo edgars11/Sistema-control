@@ -56,6 +56,7 @@ declare
 @w_estado_pago char(1),
 @w_cliente_camal tinyint ,
 @w_cam_registro int,
+@w_fecha_salida date,
 @w_num_decimales int,
 @w_val_pedido_abo decimal(16,2),
 @w_val_pedido decimal(16,2)
@@ -308,7 +309,8 @@ set nocount on
 			@w_lote_id = lote_id,
 			@w_salida_tipo = salida_tipo,
 			@w_cliente_id = cli_id,
-			@i_pago_id = pago_id
+			@i_pago_id = pago_id,
+			@w_fecha_salida = salida_fecha
 		from tm_salida_lote where salida_id =  @i_salida_id and salida_estado = 1
 
 		select @w_desc_forma_pago = pago_nombre from tm_tipo_pago where pago_id = @i_pago_id
@@ -321,13 +323,22 @@ set nocount on
 			lote_cant_vendidos = lote_cant_vendidos - @w_cant_actual_upd,
 			lote_fecha_upd = @w_fecha
 			where lote_id = @w_lote_id
+
+			if @w_cliente_camal = @w_cliente_id
+			begin 
+				update tm_registro_camal
+				set cam_cantidad = (cam_cantidad - @w_cant_actual_upd)
+				where cam_fecha = @w_fecha_salida
+				and lote_id = @w_lote_id
+			end
 		end
 
 		if @w_salida_tipo = 'PF'
 		begin
-			update tm_registro_camal 
-			set cam_estado = 0
-			where salida_id = @i_salida_id
+			update tm_registro_camal
+			set cam_registros = (cam_registros - @w_cant_actual_upd)
+			where cam_fecha = @w_fecha_salida
+			and lote_id = @w_lote_id
 		end
 
 		select @w_cta_obs = 'Se elimina pedido #' + CONVERT(varchar, @i_salida_id)
@@ -606,6 +617,5 @@ set nocount on
 		end
 	end
 
-set nocount off
 	return 0
 end

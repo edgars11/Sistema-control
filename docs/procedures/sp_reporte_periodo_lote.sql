@@ -136,5 +136,4 @@ begin
 		and suc_id = @i_suc_id
 	end
 
-	set nocount off
 end

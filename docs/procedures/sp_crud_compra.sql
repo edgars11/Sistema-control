@@ -135,5 +135,4 @@ set nocount on
 		and tm_compra.comp_estado = 1
 	end
 
-set nocount off
 end

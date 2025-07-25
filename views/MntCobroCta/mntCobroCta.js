@@ -238,13 +238,13 @@ function selCuenta(cta_id) {
 
 function calcular() {
 
-    var cta_monto = $('#cta_monto').val();
+    var cta_monto = w_monto_cta;
     var pagc_monto = $('#pagc_monto').val();
     var tipoCobroCta = $('#tipo_compro').val();
 
     if (cta_monto.length > 0 && pagc_monto.length > 0) {
 
-        total = (parseFloat(cta_monto.substring(2, cta_monto.length).replace(',', '')) - parseFloat(pagc_monto.replace(',', '')))
+        total = (parseFloat(cta_monto.replace(',', '')) - parseFloat(pagc_monto.replace(',', '')))
         if (total < 0) {
             swal.fire({
                 title: "Monto Inválido",

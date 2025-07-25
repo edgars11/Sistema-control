@@ -339,6 +339,5 @@ begin
 
 	end
 	
-	set nocount off
 	return 0
 end

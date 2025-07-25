@@ -194,6 +194,5 @@ begin
 		and rv.rvc_estado = 1
 	end
 
-	set nocount off
 	return 0
 end

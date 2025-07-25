@@ -186,7 +186,7 @@ switch ($_GET['op']) {
                 $outout["cli_telefono"] = $row["cli_telefono"];
                 $outout["cli_direccion"] = $row["cli_direccion"];
                 $outout["cli_correo"] = $row["cli_correo"];
-                $outout["cta_monto"] = $row["cta_monto"];
+                // $outout["cta_monto"] = $row["cta_monto"];
                 $outout["lote_descripcion"] = $row["lote_descripcion"];
                 $outout["salida_tipo"] = $row["salida_tipo"];
                 $outout["salida_cantidad"] = $row["salida_cantidad"];

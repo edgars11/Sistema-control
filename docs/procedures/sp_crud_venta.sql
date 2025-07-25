@@ -248,6 +248,4 @@ set nocount on
 
 	end
 
-
-set nocount off
 end

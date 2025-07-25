@@ -341,5 +341,4 @@ begin
 		and CAST(movc_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 		and movc_tipo = isnull(@i_movc_tipo, movc_tipo)
 	end
-	set nocount off
 end

@@ -537,7 +537,6 @@ function editar(salida_id) {
                     $('#cli_nom').val(data.cli_nombre);
                     $('#salida_id').val(data.salida_id);
                     $('#cli_contacto').val(data.cli_telefono);
-                    $('#cta_cli').val(data.cta_monto);
                     $('#cli_id').val(data.cli_id);
                     $('#cli_identificacion').val(data.cli_ruc);
                     $('#lote_idIng').val(data.lote_id);

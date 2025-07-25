@@ -71,5 +71,4 @@ set nocount on
 		end
 	end
 
-set nocount off
 end
