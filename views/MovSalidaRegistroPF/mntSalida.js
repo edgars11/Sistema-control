@@ -5,6 +5,7 @@ var com_idx = $('#com_idx').val();
 // Se obtiene botones y combo
 const btnclientes = document.getElementById('buscarCliente');
 const comboFormasPago = document.getElementById('pago_id');
+let clienteSeleccionado = 0;
 
 // Variables
 var idCamalClient = 0;
@@ -41,6 +42,8 @@ function guardarMovimiento(e) {
         });
         return;
     }
+
+    clienteSeleccionado = idCliente;
 
     if (pago_id === 'Seleccionar') {
         swal.fire({
@@ -95,7 +98,7 @@ function guardarMovimiento(e) {
                             $('#table_data').DataTable().ajax.reload();
                             
                             // Se carga cliente por defecto
-                            defaultClient('9999999999999');
+                            selectCliente(clienteSeleccionado)
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Modificación exitosa!",
@@ -133,7 +136,7 @@ function guardarMovimiento(e) {
                             // Recarga los datos de la tabla
                             $('#table_data').DataTable().ajax.reload();
                             // Se carga cliente por defecto
-                            defaultClient('9999999999999');
+                            selectCliente(clienteSeleccionado)
                             
                             swal.fire({
                                 title: "Salida Lote",
