@@ -9,6 +9,7 @@
             <form method="post" id="updateRegSalida">
                 <div class="modal-body">
                     <input type="hidden" name="lote_id" id="lote_id">
+                    <input type="hidden" name="pago_id" id="pago_id">
                     <input type="hidden" name="salida_vpagado" id="salida_vpagado">
                     <div class="row g-3">
                         <div class="col-md-4">

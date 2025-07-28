@@ -396,6 +396,7 @@ function editar(salida_id) {
             $('#lote_desc').val(data.lote_descripcion);
             $('#lote_cant').val(data.lote_cant_actual);
             $('#lote_id').val(data.lote_id);
+            $('#lote_id').val(data.pago_id);
             $('#salida_vpagado').val(data.salida_vpagado);
             var estadoRecibo = data.salida_vpagado;
             var classEstado = '';
@@ -427,7 +428,6 @@ function editar(salida_id) {
                 $('#sal_precio').prop('readonly', false);
             }
         });
-
 
     // Mostramos el modal
     $('#modalEditSalida').modal('show');
