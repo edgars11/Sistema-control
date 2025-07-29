@@ -262,7 +262,7 @@ begin
             begin
                 select top 1 @w_prox_recibo = salida_id 
                 from tm_salida_lote 
-                where salida_id > @i_salida_id and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1
+                where salida_id > @i_salida_id and cli_id = @i_cli_id and salida_vpagado not in ('C') and salida_estado = 1 order by salida_id
             end
 
             -- SE RETORNAN VALORES PARA EL CALCULO DESDE PHP

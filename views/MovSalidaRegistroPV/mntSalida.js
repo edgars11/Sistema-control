@@ -7,6 +7,8 @@ const btnclientes = document.getElementById('buscarCliente');
 const comboLotes = document.getElementById('lote_idIng');
 const comboFormasPago = document.getElementById('pago_id');
 
+let clienteSeleccionado = 0;
+
 // Se almacena el idClienteCamal
 var idClienteCamal;
 function init() {
@@ -44,6 +46,8 @@ function guardarMovimiento(e) {
         });
         return;
     }
+
+    clienteSeleccionado = idCliente;
 
     if (idLote === 'Seleccionar') {
         swal.fire({
@@ -110,7 +114,7 @@ function guardarMovimiento(e) {
                                 $('#lote_cant_act').val(data.lote_cant_actual);
                             });
                             // Se carga cliente por defecto
-                            defaultClient();
+                            selectCliente(clienteSeleccionado);
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Modificación exitosa!",
@@ -152,7 +156,7 @@ function guardarMovimiento(e) {
                                 $('#lote_cant_act').val(data.lote_cant_actual);
                             });
                             // Se carga cliente por defecto
-                            defaultClient();
+                            selectCliente(clienteSeleccionado);
                             swal.fire({
                                 title: "Salida Lote",
                                 text: "Ejecución exitosa!",

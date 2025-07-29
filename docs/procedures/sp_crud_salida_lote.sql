@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 17/7/2025 17:22:07 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 27/7/2025 15:28:21 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -170,13 +170,15 @@ set nocount on
 	if @i_operacion = 'U'
 	begin
 		select  @w_fecha = GETDATE()
+		select @w_cliente_camal = par_int from tm_parametros where par_nemonico = 'CLICL'
 
 		select 
 			@w_cantidad_sal = salida_cantidad ,
 		 	@w_valor_total_act = salida_total,
 			@w_lote_id = lote_id,
 			@w_cliente_id = cli_id,
-			@w_salida_tipo = salida_tipo
+			@w_salida_tipo = salida_tipo,
+			@w_fecha_salida = salida_fecha
 		from tm_salida_lote
 		where salida_id = @i_salida_id
 		and salida_estado = 1
@@ -211,14 +213,45 @@ set nocount on
 			lote_cant_vendidos = isnull(lote_cant_vendidos,0) + @i_salida_cantidad,
 			lote_fecha_upd = @w_fecha
 			where lote_id = @i_lote_id
+			
 		end
 
-
-		if @i_salida_tipo = 'PF'
+		if @i_salida_tipo = 'PV' and @w_cliente_camal = @w_cliente_id and @w_fecha_salida <> @i_salida_fecha
 		begin
-			update tm_registro_camal 
-			set cam_cantidad = @i_salida_cantidad
-			where salida_id = @i_salida_id and cam_estado = 1
+
+			-- SE ELIMINA LA CANTIDAD DE LA ANTERIOR FECHA 
+			update tm_registro_camal
+			set cam_cantidad = cam_cantidad - @w_cantidad_sal
+			where cam_fecha = @w_fecha_salida and cam_estado = 1
+
+			if not exists (select 1 from tm_registro_camal where cam_fecha = @i_salida_fecha and lote_id = @i_lote_id)
+			begin			
+				INSERT INTO tm_registro_camal
+				(cam_cantidad,			cam_fecha,			lote_id,		salida_id,
+				cam_registros,			cam_estado,			cam_hora)
+				VALUES
+				(@i_salida_cantidad,	@i_salida_fecha,	@i_lote_id,		@i_salida_id,
+				0,						1,					@w_fecha)
+			end
+			else 
+			begin 
+				update tm_registro_camal
+				set cam_cantidad = cam_cantidad + @i_salida_cantidad
+				where cam_fecha = @i_salida_fecha and cam_estado = 1
+			end
+		end
+
+		if @i_salida_tipo = 'PF' and @w_fecha_salida <> @i_salida_fecha and @w_cantidad_sal <> @i_salida_cantidad
+		begin
+			-- SE ELIMINA LA CANTIDAD DE LA ANTERIOR FECHA 
+			update tm_registro_camal
+			set cam_registros = cam_registros - @w_cantidad_sal
+			where cam_fecha = @w_fecha_salida and cam_estado = 1
+
+			-- SE ACTUALIZA LA NUEVA CANTIDAD EN LA NUEVA FECHA
+			update tm_registro_camal
+			set cam_registros = cam_registros + @i_salida_cantidad
+			where cam_fecha = @i_salida_fecha and cam_estado = 1
 
 		end
 		-- OBSERVACION CUENTA CLIENTE
@@ -563,10 +596,12 @@ set nocount on
 				l.lote_cant_actual,
 				ISNULL((select SUM(pagc_monto) from tm_pago_cuenta pc where pc.salida_id = sl.salida_id and pagc_estado = 1 ),0) as saldo,
 				salida_vpagado,
-				pago_id
+				sl.pago_id,
+				tp.pago_nombre
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente cl on cl.cli_id = sl.cli_id
+			inner join tm_tipo_pago tp on tp.pago_id = sl.pago_id
 			where sl.salida_id = @i_salida_id
 			and sl.salida_estado = 1
 
