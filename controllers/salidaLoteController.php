@@ -14,7 +14,7 @@ switch ($_GET['op']) {
         if (empty($_POST["salida_id"])) {
             $salidalote->insertarSalidaLote($_POST['lote_idIng'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['suc_id'], $_POST['pago_id']);
         } else {
-            $salidalote->updateLote($_POST['lote_id'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['salida_id'], $_POST['suc_id'], $_POST['pago_id']);
+            $salidalote->updateLote($_POST['lote_idIng'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['salida_id'], $_POST['suc_id'], $_POST['pago_id']);
         }
         break;
     // TODO: Listado de registro en format JSON para Datatable JS
@@ -203,6 +203,7 @@ switch ($_GET['op']) {
                 $outout["saldo"] = $row["saldo"];
                 $outout["salida_vpagado"] = $row["salida_vpagado"];
                 $outout["pago_id"] = $row["pago_id"];
+                $outout["pago_nombre"] = $row["pago_nombre"];
             }
             echo json_encode($outout);
         }

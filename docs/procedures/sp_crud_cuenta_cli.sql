@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 22/7/2025 16:34:47 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 28/7/2025 22:25:54 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -147,28 +147,35 @@ begin
 		select @w_cli_id = cli_id from tm_cuenta_cliente where cta_id = @i_cta_id and suc_id = @i_suc_id
 
 		-- SE OBTIENEN VALORES DE PEDIDOS Y VENTAS
-		select  @w_val_pedido_abo = sum(movc_valor) from tm_salida_lote s 
+		select  @w_val_pedido_abo = sum(movc_valor) 
+		from tm_salida_lote s 
 		inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
 		where s.cli_id = @w_cli_id
 		and s.salida_estado = 1 
 		and salida_vpagado not in ('C')
 		and movc_tipo = '-'
+		and mc.movc_estado = 1
 
-		select  @w_val_pedido = sum(movc_valor) from tm_salida_lote s 
+		select  @w_val_pedido = sum(movc_valor) 
+		from tm_salida_lote s 
 		inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
 		where s.cli_id = @w_cli_id
 		and s.salida_estado = 1 
 		and salida_vpagado not in ('C')
 		and movc_tipo = '+'
+		and mc.movc_estado = 1
 
 		set @w_val_pedido = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
 
 		-- VALOR PENDIENTE VENTAS
-		select @w_val_ventas = sum(rvc_monto - rvc_abonado) from tm_ventas v
+		select @w_val_ventas = sum(rvc_monto - rvc_abonado) 
+		from tm_ventas v
 		inner join tm_registro_vencred vc on vc.ven_id = v.ven_id
+		inner join tm_movimiento_cuenta mc on mc.ven_id = v.ven_id
 		where v.cli_id = @w_cli_id
 		and vc.rvc_estado = 1
 		and vc.rvc_est_cta not in ('C')
+		and mc.movc_estado = 1
 
 		select 
 			cta_id,
@@ -211,10 +218,10 @@ begin
 		where cta_id = @i_cta_id
 		and suc_id = @i_suc_id
 
-		update tm_salida_lote
-		set salida_vpagado = 'C', 
-		salida_estado = 0
-		where cli_id = @w_cli_id
+		-- update tm_salida_lote
+		-- set salida_vpagado = 'C', 
+		-- salida_estado = 0
+		-- where cli_id = @w_cli_id
 
 	end
 

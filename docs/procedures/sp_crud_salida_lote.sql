@@ -58,6 +58,7 @@ declare
 @w_cam_registro int,
 @w_fecha_salida date,
 @w_num_decimales int,
+@w_tipo_pago int,
 @w_val_pedido_abo decimal(16,2),
 @w_val_pedido decimal(16,2)
 
@@ -178,7 +179,8 @@ set nocount on
 			@w_lote_id = lote_id,
 			@w_cliente_id = cli_id,
 			@w_salida_tipo = salida_tipo,
-			@w_fecha_salida = salida_fecha
+			@w_fecha_salida = cast(salida_fecha as date),
+			@w_tipo_pago = pago_id
 		from tm_salida_lote
 		where salida_id = @i_salida_id
 		and salida_estado = 1
@@ -200,6 +202,9 @@ set nocount on
 		salida_id = @i_salida_id
 		and salida_estado = 1
 		
+		-- SE OBTIENE EL VALOR DE ID DE PAGO DEL PEDIDO
+		select @w_desc_forma_pago = pago_nombre from tm_tipo_pago where pago_id = @w_tipo_pago
+
 		if @i_salida_tipo = 'PV'
 		begin
 			update tm_lote 
@@ -216,7 +221,7 @@ set nocount on
 			
 		end
 
-		if @i_salida_tipo = 'PV' and @w_cliente_camal = @w_cliente_id and @w_fecha_salida <> @i_salida_fecha
+		if @i_salida_tipo = 'PV' and @w_cliente_camal = @w_cliente_id and (@w_cantidad_sal <> @i_salida_cantidad or @w_fecha_salida <> @i_salida_fecha)
 		begin
 
 			-- SE ELIMINA LA CANTIDAD DE LA ANTERIOR FECHA 
@@ -241,7 +246,7 @@ set nocount on
 			end
 		end
 
-		if @i_salida_tipo = 'PF' and @w_fecha_salida <> @i_salida_fecha and @w_cantidad_sal <> @i_salida_cantidad
+		if @i_salida_tipo = 'PF' and (@w_cantidad_sal <> @i_salida_cantidad or @w_fecha_salida <> @i_salida_fecha)
 		begin
 			-- SE ELIMINA LA CANTIDAD DE LA ANTERIOR FECHA 
 			update tm_registro_camal
@@ -254,79 +259,83 @@ set nocount on
 			where cam_fecha = @i_salida_fecha and cam_estado = 1
 
 		end
-		-- OBSERVACION CUENTA CLIENTE
-		select @w_cta_obs = 'Pedido modificado # ' + CONVERT(varchar, @i_salida_id)
-		-- SE OBTIENE LA CUENTA DEL CLIENTE PARA LA ACTUALIZACIÓN
-		Select @w_cta_cli = cta_id from tm_cuenta_cliente 
-		where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
 
-		-- SE OBTIEN EL ID DE MOVIMIENTO DE LA CUENTA SEGÚN EL ID DE SALIDA Y CUENTA CLIENTE
-		select @w_movc_id = movc_id from tm_movimiento_cuenta mc 
-		where mc.salida_id = @i_salida_id and cta_id = @w_cta_cli and movc_estado = 1
+		-- SE VALIDA QUE EL CLIENTE SEA DIFERENTE A CAMAL Y QUE EL TIPO DE PAGO SEA CREDITO
+		if @w_cliente_camal <> @w_cliente_id and @w_desc_forma_pago = 'CREDITO'
+		begin
+			-- OBSERVACION CUENTA CLIENTE
+			select @w_cta_obs = 'Pedido modificado # ' + CONVERT(varchar, @i_salida_id)
+			-- SE OBTIENE LA CUENTA DEL CLIENTE PARA LA ACTUALIZACIÓN
+			Select @w_cta_cli = cta_id from tm_cuenta_cliente 
+			where cli_id = @i_cli_id and suc_id = @i_suc_id and cta_estado = 1
 
-		-- PARA LA MODIFICACIÓN SE VA A TOMAR EL ULTIMO SALDO REGISTRADO Y POSTERIOR CON ESE SALDO CALCULAR EL VALOR A MODIFICAR
-		select top 1 @w_movc_val_actual = movc_nuevo_val from tm_movimiento_cuenta mc 
-		where movc_id < @w_movc_id and cta_id = @w_cta_cli and movc_estado = 1 order by movc_id desc
+			-- SE OBTIEN EL ID DE MOVIMIENTO DE LA CUENTA SEGÚN EL ID DE SALIDA Y CUENTA CLIENTE
+			select @w_movc_id = movc_id from tm_movimiento_cuenta mc 
+			where mc.salida_id = @i_salida_id and cta_id = @w_cta_cli and movc_estado = 1
 
-		update tm_movimiento_cuenta 
-		set movc_val_actual = @w_movc_val_actual,
-		movc_valor = @i_salida_total,
-		movc_nuevo_val = (@w_movc_val_actual + @i_salida_total),
-		movc_obs = @w_cta_obs,
-		movc_fecha = @w_fecha
-		where salida_id = @i_salida_id
-		and cta_id = @w_cta_cli
-		and movc_estado = 1
+			-- PARA LA MODIFICACIÓN SE VA A TOMAR EL ULTIMO SALDO REGISTRADO Y POSTERIOR CON ESE SALDO CALCULAR EL VALOR A MODIFICAR
+			select top 1 @w_movc_val_actual = movc_nuevo_val from tm_movimiento_cuenta mc 
+			where movc_id < @w_movc_id and cta_id = @w_cta_cli and movc_estado = 1 order by movc_id desc
+
+			update tm_movimiento_cuenta 
+			set movc_val_actual = @w_movc_val_actual,
+			movc_valor = @i_salida_total,
+			movc_nuevo_val = (@w_movc_val_actual + @i_salida_total),
+			movc_obs = @w_cta_obs,
+			movc_fecha = @w_fecha
+			where salida_id = @i_salida_id
+			and cta_id = @w_cta_cli
+			and movc_estado = 1
 
 
-		-- SE VALIDA SI EXISTEN MÁS REGISTROS DE SALIDA PARA MODIFICAR EL SALDO.
-		select @w_total_registros = COUNT(1) from tm_movimiento_cuenta mc
-		where cta_id = @w_cta_cli 
-		and movc_estado = 1
-		and mc.movc_id > @w_movc_id
+			-- SE VALIDA SI EXISTEN MÁS REGISTROS DE SALIDA PARA MODIFICAR EL SALDO.
+			select @w_total_registros = COUNT(1) from tm_movimiento_cuenta mc
+			where cta_id = @w_cta_cli 
+			and movc_estado = 1
+			and mc.movc_id > @w_movc_id
 
-		if @w_total_registros > 0
-		begin 
-			while(@w_total_registros > 0)
-			begin
-				-- se obtiene el nuevo monto del salida modificado
-				select @w_monto_abonado = mc.movc_nuevo_val from tm_movimiento_cuenta mc 
-				where movc_id = @w_movc_id and cta_id = @w_cta_cli and movc_estado = 1
-
-				select top 1 @w_movc_id = movc_id, @w_signo_ope = movc_tipo ,@w_saldo_total_cta = movc_valor 
-				from tm_movimiento_cuenta mc
-				where cta_id = @w_cta_cli  
-				and mc.movc_id > @w_movc_id
-				and mc.movc_estado = 1
-				order by movc_id, movc_fecha
-
-				if @w_signo_ope = '+'
+			if @w_total_registros > 0
+			begin 
+				while(@w_total_registros > 0)
 				begin
-					set @w_movc_nuevo_val = @w_monto_abonado + @w_saldo_total_cta 
-				end
-				else if @w_signo_ope = '-'
-				begin
-					set @w_movc_nuevo_val = @w_monto_abonado - @w_saldo_total_cta 
-				end
+					-- se obtiene el nuevo monto del salida modificado
+					select @w_monto_abonado = mc.movc_nuevo_val from tm_movimiento_cuenta mc 
+					where movc_id = @w_movc_id and cta_id = @w_cta_cli and movc_estado = 1
 
-				update tm_movimiento_cuenta 
-				set movc_val_actual = @w_monto_abonado,
-				movc_nuevo_val = @w_movc_nuevo_val
-				where movc_id = @w_movc_id
-				and cta_id = @w_cta_cli
-				and movc_estado = 1
+					select top 1 @w_movc_id = movc_id, @w_signo_ope = movc_tipo ,@w_saldo_total_cta = movc_valor 
+					from tm_movimiento_cuenta mc
+					where cta_id = @w_cta_cli  
+					and mc.movc_id > @w_movc_id
+					and mc.movc_estado = 1
+					order by movc_id, movc_fecha
 
-				set @w_total_registros = @w_total_registros - 1
+					if @w_signo_ope = '+'
+					begin
+						set @w_movc_nuevo_val = @w_monto_abonado + @w_saldo_total_cta 
+					end
+					else if @w_signo_ope = '-'
+					begin
+						set @w_movc_nuevo_val = @w_monto_abonado - @w_saldo_total_cta 
+					end
+
+					update tm_movimiento_cuenta 
+					set movc_val_actual = @w_monto_abonado,
+					movc_nuevo_val = @w_movc_nuevo_val
+					where movc_id = @w_movc_id
+					and cta_id = @w_cta_cli
+					and movc_estado = 1
+
+					set @w_total_registros = @w_total_registros - 1
+				end
 			end
+
+			update tm_cuenta_cliente
+			set cta_monto = (cta_monto - @w_valor_total_act) + @i_salida_total,
+			cta_fecha_upd = @w_fecha,
+			cta_obs = @w_cta_obs
+			where cta_id = @w_cta_cli
+			and cta_estado = 1
 		end
-
-		update tm_cuenta_cliente
-		set cta_monto = (cta_monto - @w_valor_total_act) + @i_salida_total,
-		cta_fecha_upd = @w_fecha,
-		cta_obs = @w_cta_obs
-		where cta_id = @w_cta_cli
-		and cta_estado = 1
-
 	end
 
 	if @i_operacion = 'D'
@@ -640,15 +649,17 @@ set nocount on
 		if @i_tipo = 'C'
 		begin
 			select 
-				salida_id, 
+				sl.salida_id, 
 				salida_total,
 				salida_vpagado,
 				ISNULL((select SUM(pagc_monto) from tm_pago_cuenta pc where pc.salida_id = sl.salida_id and pagc_estado = 1),0) as saldo
 			from tm_salida_lote sl
+			inner join tm_movimiento_cuenta mc on mc.salida_id = sl.salida_id
 			where salida_vpagado not in ('C')
 			and cli_id = @i_cli_id
 			and salida_estado = 1
-			order by salida_id
+			and mc.movc_estado = 1
+			order by sl.salida_id
 		end
 	end
 

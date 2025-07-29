@@ -75,8 +75,8 @@ if (isset($_SESSION["usu_id"])) {
                                                 <form>
                                                     <div class="row g-3">
                                                         <div class="col-xl-2">
-                                                            <label for="lote_idIng" class="form-label">Lote:</label>
-                                                            <select type="text" class="form-control form-select" name="lote_idIng" id="lote_idIng" aria-label="Seleccionar">
+                                                            <label for="lote_id" class="form-label">Lote:</label>
+                                                            <select type="text" class="form-control form-select" name="lote_id" id="lote_id" aria-label="Seleccionar">
                                                                 <option selected>Seleccionar Lote</option>
                                                             </select>
                                                         </div>

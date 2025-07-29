@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 17/7/2025 22:19:14 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cliente]    Script Date: 28/7/2025 23:21:21 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -88,6 +88,7 @@ begin
 				and s.salida_estado = 1 
 				and salida_vpagado not in ('C')
 				and movc_tipo = '-'
+				and mc.movc_estado = 1
 
 				select  @w_val_pedido = sum(movc_valor) from tm_salida_lote s 
 				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id
@@ -95,17 +96,20 @@ begin
 				and s.salida_estado = 1 
 				and salida_vpagado not in ('C')
 				and movc_tipo = '+'
+				and mc.movc_estado = 1
 
 				set @w_val_pedido = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
 
 				-- VALOR PENDIENTE VENTAS
 				select @w_val_ventas = sum(rvc_monto - rvc_abonado) from tm_ventas v
 				inner join tm_registro_vencred vc on vc.ven_id = v.ven_id
+				inner join tm_movimiento_cuenta mc on mc.ven_id = v.ven_id
 				where v.cli_id = @i_cli_id
 				and vc.rvc_estado = 1
 				and vc.rvc_est_cta not in ('C')
-			end
+				and mc.movc_estado = 1
 
+			end
 
 			select 
 				cli_id,

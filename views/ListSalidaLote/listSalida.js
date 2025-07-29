@@ -111,7 +111,7 @@ $(document).ready(function () {
 
     // Se obtienen los lotes disponibles
     $.post("../../controllers/loteController.php?op=combo", { suc_id: i_suc_id }, function (data) {
-        $('#lote_idIng').html(data);
+        $('#lote_id').html(data);
     });
 
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
 $(document).on("click", "#btnFiltro", function () {
     fromDate = $('#fecha_desde').val();
     toDate = $('#fecha_hasta').val();
-    lote_id = $('#lote_idIng').val();
+    lote_id = $('#lote_id').val();
     cli_id = $('#cli_id').val();
     tipo_prod = $('#tipo_prod').val();
 
@@ -332,7 +332,8 @@ function eliminar(salida_id) {
         { salida_id: salida_id },
         function (data) {
             data = JSON.parse(data);
-            if (data.salida_vpagado === 'C' || data.salida_vpagado === 'A') {
+
+            if (data.pago_nombre == 'CREDITO' && (data.salida_vpagado === 'C' || data.salida_vpagado === 'A')) {
                 swal.fire({
                     title: "Movimiento con Pago",
                     text: "Error!! El recibo no se puede eliminar. Tiene registro de pago",
@@ -395,8 +396,8 @@ function editar(salida_id) {
             $('#sal_total').val(data.salida_total);
             $('#lote_desc').val(data.lote_descripcion);
             $('#lote_cant').val(data.lote_cant_actual);
-            $('#lote_id').val(data.lote_id);
-            $('#lote_id').val(data.pago_id);
+            $('#lote_idIng').val(data.lote_id);
+            $('#pago_id').val(data.pago_id);
             $('#salida_vpagado').val(data.salida_vpagado);
             var estadoRecibo = data.salida_vpagado;
             var classEstado = '';

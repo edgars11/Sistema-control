@@ -29,10 +29,29 @@ function guardarMovimiento(e) {
 
     var sal_total = $('#sal_total').val();
     var sal_cantidad = $('#sal_cantidad').val();
+    var lote_cant_act = $('#lote_cant_act').val();
     var sal_peso = $('#sal_peso').val();
     var sal_fecha = $('#sal_fecha').val();
     var pago_id = $('#pago_id').val();
     var salida_id = $('#salida_id').val();
+
+    if (sal_total.length === 0 || sal_cantidad.length === 0 || sal_peso.length === 0 || sal_fecha.length === 0) {
+        swal.fire({
+            title: "Datos incompletos",
+            text: "Complete todos los campos!",
+            icon: "warning"
+        });
+        return;
+    }
+
+    if (parseInt(lote_cant_act) == 0) {
+        swal.fire({
+            title: "Camal sin registros",
+            text: "Camal no tiene registros para la fecha seleccionada!",
+            icon: "warning"
+        });
+        return;
+    }
 
     if (idCliente.length == 0) {
         swal.fire({
@@ -49,15 +68,6 @@ function guardarMovimiento(e) {
         swal.fire({
             title: "Datos incompletos",
             text: "Seleccione una forma de pago!",
-            icon: "warning"
-        });
-        return;
-    }
-
-    if (sal_total.length === 0 || sal_cantidad.length === 0 || sal_peso.length === 0 || sal_fecha.length === 0) {
-        swal.fire({
-            title: "Datos incompletos",
-            text: "Complete todos los campos!",
             icon: "warning"
         });
         return;
@@ -558,6 +568,7 @@ function editar(salida_id) {
 
                     btnclientes.disabled = true;
                     comboFormasPago.disabled = true;
+                    setCount();
                 })
 
 

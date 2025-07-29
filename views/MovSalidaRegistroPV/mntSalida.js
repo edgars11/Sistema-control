@@ -21,20 +21,16 @@ function guardarMovimiento(e) {
     e.preventDefault();
     var formData = new FormData($('#mantenimiento_formIng')[0]);
     formData.append('suc_id', suc_idx);
-    console.log(formData.get('sal_fecha'));
-    console.log(formData.get('suc_id'));
-    console.log(formData.get('salida_id'));
 
     var idCliente = $('#cli_id').val();
     var numIdClient = $('#cli_identificacion').val();
     var idLote = $('#lote_idIng').val();
-    formData.append('lote_id', idLote);
+    formData.append('lote_idIng', idLote);
     console.log(idLote);
     var sal_total = $('#sal_total').val();
     var sal_cantidad = $('#sal_cantidad').val();
     var sal_peso = $('#sal_peso').val();
     var sal_fecha = $('#sal_fecha').val();
-    var sal_tipo = $('#sal_tipo').val();
     var pago_id = $('#pago_id').val();
     var salida_id = $('#salida_id').val();
 

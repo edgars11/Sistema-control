@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_venta_credito]    Script Date: 18/6/2025 20:16:41 ******/
+/****** Object:  StoredProcedure [dbo].[sp_venta_credito]    Script Date: 28/7/2025 22:20:22 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -15,10 +15,13 @@ ALTER procedure [dbo].[sp_venta_credito] (
  @i_suc_id int = null,
  @i_cli_id int = null,
  @i_ven_id int = null,
+ @i_fecha_ini varchar(20) = null,
+ @i_fecha_hasta varchar(20) = null,
  @i_monto decimal(14,2) = null,
  @i_pago_obs varchar(75) = null
 )
 as
+set nocount on
 declare 
 @w_fecha varchar(75),
 @w_pagc_id int,
@@ -34,8 +37,7 @@ declare
 @w_estado_ven_act char(1),
 @w_saldo_pago decimal(14,2)
 
-begin
-	set nocount on
+
 	select @w_prox_recibo = -1
 
 	if @i_operacion = 'L'
@@ -52,6 +54,7 @@ begin
 		and vc.rvc_estado = 1
 		and vc.rvc_est_cta not in ('C')
 		and mc.movc_tipo = '+'
+		and mc.movc_estado = 1
 		order by ven_id asc
 
 	end
@@ -194,5 +197,42 @@ begin
 		and rv.rvc_estado = 1
 	end
 
-	return 0
-end
+	if @i_operacion = 'T'
+	begin
+		if @i_tipo = 'A'
+		begin
+			select @w_monto_ven = SUM(v.ven_total)
+			from tm_ventas v
+			where v.ven_estado = 1
+			and CAST(ven_fecha_crea as date) between @i_fecha_ini and @i_fecha_hasta
+			and v.cli_id = @i_cli_id
+			and v.suc_id = @i_suc_id
+
+			set @w_val_total_pago = 0
+			set @w_val_total  = 0
+		end
+
+		if @i_tipo = 'C'
+		begin
+			select 
+				@w_val_total = SUM(rv.rvc_monto), 
+				@w_val_total_pago = SUM(rv.rvc_abonado) 
+			from tm_registro_vencred rv
+			inner join tm_ventas v on v.ven_id = rv.ven_id
+			where v.ven_estado = 1
+			and CAST(ven_fecha_crea as date) between @i_fecha_ini and @i_fecha_hasta
+			and v.cli_id = @i_cli_id
+			and v.suc_id = @i_suc_id
+
+			set @w_monto_ven = 0
+		end
+			
+		select 
+			@w_val_total as 'totalVentasCredito',
+			@w_val_total_pago as  'totalAbonado',
+			@w_monto_ven as 'totalVentas'
+
+	end
+
+return 0
+
