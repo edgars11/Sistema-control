@@ -108,62 +108,75 @@ $(document).on("click", "#btnAddPago", function () {
         saldoRestante = 0;
     }
 
-    if (tipoCobroCta == 'PE') {
-        $.post("../../controllers/pagoController.php?op=guardarPago", {
-            cta_id: cta_id,
-            pago_id: pago_id,
-            pagc_obs: pagc_obs,
-            pagc_monto: pagc_monto,
-            suc_id: w_suc_idx,
-            salida_id: recibo_id,
-            saldo_recibo: saldoRestante,
-            cli_id: w_cli_id
-        }, function (data) {
-            data = JSON.parse(data);
+    swal.fire({
+        title: "Confirmación!",
+        text: "¿Desea guardar el pago de la cuenta?",
+        icon: "warning",
+        confirmButtonText: "Si",
+        showCancelButton: true,
+        cancelButtonText: "No"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (tipoCobroCta == 'PE') {
+                $.post("../../controllers/pagoController.php?op=guardarPago", {
+                    cta_id: cta_id,
+                    pago_id: pago_id,
+                    pagc_obs: pagc_obs,
+                    pagc_monto: pagc_monto,
+                    suc_id: w_suc_idx,
+                    salida_id: recibo_id,
+                    saldo_recibo: saldoRestante,
+                    cli_id: w_cli_id
+                }, function (data) {
+                    data = JSON.parse(data);
 
-            if (data.success == true) {
-                limpiarCampos();
-                swal.fire({
-                    title: "Cobro Exitoso",
-                    text: "El cobro de la cuenta se realizó correctamente!",
-                    icon: "success"
+                    if (data.success == true) {
+                        limpiarCampos();
+                        swal.fire({
+                            title: "Cobro Exitoso",
+                            text: "El cobro de la cuenta se realizó correctamente!",
+                            icon: "success"
+                        });
+                    } else {
+                        swal.fire({
+                            title: "Cobro Errado",
+                            text: "Hubo un error al guardar el cobro de cuenta!",
+                            icon: "warning"
+                        });
+                    }
                 });
             } else {
-                swal.fire({
-                    title: "Cobro Errado",
-                    text: "Hubo un error al guardar el cobro de cuenta!",
-                    icon: "warning"
-                });
-            }
-        });
-    } else {
-        $.post("../../controllers/ventaCreditoController.php?op=guardarPago", {
-            cta_id: cta_id,
-            pago_id: pago_id,
-            pagc_obs: pagc_obs,
-            pagc_monto: pagc_monto,
-            suc_id: w_suc_idx,
-            ven_id: recibo_id,
-            cli_id: w_cli_id
-        }, function (data) {
-            data = JSON.parse(data);
+                $.post("../../controllers/ventaCreditoController.php?op=guardarPago", {
+                    cta_id: cta_id,
+                    pago_id: pago_id,
+                    pagc_obs: pagc_obs,
+                    pagc_monto: pagc_monto,
+                    suc_id: w_suc_idx,
+                    ven_id: recibo_id,
+                    cli_id: w_cli_id
+                }, function (data) {
+                    data = JSON.parse(data);
 
-            if (data.success == true) {
-                limpiarCampos();
-                swal.fire({
-                    title: "Cobro Exitoso",
-                    text: "El cobro de la cuenta se realizó correctamente!",
-                    icon: "success"
-                });
-            } else {
-                swal.fire({
-                    title: "Cobro Errado",
-                    text: "Hubo un error al guardar el cobro de cuenta!",
-                    icon: "warning"
+                    if (data.success == true) {
+                        limpiarCampos();
+                        swal.fire({
+                            title: "Cobro Exitoso",
+                            text: "El cobro de la cuenta se realizó correctamente!",
+                            icon: "success"
+                        });
+                    } else {
+                        swal.fire({
+                            title: "Cobro Errado",
+                            text: "Hubo un error al guardar el cobro de cuenta!",
+                            icon: "warning"
+                        });
+                    }
                 });
             }
-        });
-    }
+        }
+    });
+
+
 
 
 });

@@ -125,7 +125,7 @@ function guardarMovimiento(e) {
     } else {
         swal.fire({
             title: "Confirmación!",
-            text: "Desea guardar el registro de salida?",
+            text: "¿Desea guardar el registro de salida?",
             icon: "warning",
             confirmButtonText: "Si",
             showCancelButton: true,
