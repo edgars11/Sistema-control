@@ -177,7 +177,7 @@ function cargarTabla(dataFiltro) {
         "responsive": true,
         "bInfo": true,
         "iDisplayLength": 10,
-        "order": [[0, "desc"]],
+        "order": [[1, "desc"]],
         "language": {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",
