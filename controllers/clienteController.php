@@ -13,7 +13,7 @@ switch ($_GET['op']) {
         if (empty($_POST["cli_id"])) {
             $cliente->insertCliente("C", $_POST['emp_id'], $_POST['cli_nombre'], $_POST['cli_ruc'], $_POST['cli_telefono'], $_POST['cli_direccion'], $_POST['cli_correo']);
         } else {
-            $cliente->updateCliente("U", $_POST['emp_id'], $_POST['cli_nombre'], $_POST['cli_ruc'], $_POST['cli_telefono'], $_POST['cli_direccion'], $_POST['cli_correo'], $_POST['cli_id']);
+            $cliente->updateCliente("U", $_POST['emp_id'], $_POST['cli_nombre'], $_POST['cli_ruc'], $_POST['cli_telefono'], $_POST['cli_direccion'], $_POST['cli_correo'], (int) $_POST['cli_id']);
         }
         break;
     // TODO: Listado de registro en format JSON para Datatable JS
@@ -45,7 +45,7 @@ switch ($_GET['op']) {
         break;
     // TODO: Mostrar información del registro por ID
     case 'mostrar':
-        $datos = $cliente->getClientePorId($_POST['cli_id']);
+        $datos = $cliente->getClientePorId((int)$_POST['cli_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             foreach ($datos as $row) {
                 $outout["cli_id"] = $row["cli_id"];
@@ -81,7 +81,7 @@ switch ($_GET['op']) {
         break;
     // TODO: Eliminar registro por id
     case 'eliminar':
-        $cliente->deleteCliente("D", $_POST['cli_id'], $_POST['emp_id']);
+        $cliente->deleteCliente("D", (int) $_POST['cli_id'], $_POST['emp_id']);
         break;
     /* TODO: Listar combo */
     case 'combo':
@@ -119,7 +119,7 @@ switch ($_GET['op']) {
         break;
 
     case 'byID':
-        $datos = $cliente->getClientePorId($_POST['cli_id']);
+        $datos = $cliente->getClientePorId((int)$_POST['cli_id']);
         if (is_array($datos) == true and count($datos) > 0) {
             foreach ($datos as $row) {
                 $outout["cli_id"] = $row["cli_id"];

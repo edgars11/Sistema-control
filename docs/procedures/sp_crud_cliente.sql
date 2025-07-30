@@ -9,7 +9,7 @@ ALTER procedure [dbo].[sp_crud_cliente] (
  @i_operacion char(1) ,
  @i_tipo char(1)= null,
  @i_emp_id int = null,
- @i_cli_id tinyint = null,
+ @i_cli_id int = null,
  @i_cli_nombre varchar(50) = null,
  @i_cli_ruc varchar(50) = null,
  @i_cli_telefono varchar(50) = null,
@@ -77,10 +77,9 @@ begin
 			set @w_val_pedido = 0
 			set @w_val_ventas = 0
 
-			select @w_monto_cuenta = cta_monto, @w_cta_id= cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and cta_estado = 1
-
-			if @w_cta_id > 0
+			if exists (select 1 from tm_cuenta_cliente where cli_id = @i_cli_id and cta_estado = 1)
 			begin
+				select @w_monto_cuenta = cta_monto, @w_cta_id= cta_id from tm_cuenta_cliente where cli_id = @i_cli_id and cta_estado = 1
 				-- SE OBTIENEN VALORES DE PEDIDOS Y VENTAS
 				select  @w_val_pedido_abo = sum(movc_valor) from tm_salida_lote s 
 				inner join tm_movimiento_cuenta mc on mc.salida_id = s.salida_id

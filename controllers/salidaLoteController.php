@@ -11,10 +11,12 @@ switch ($_GET['op']) {
     // TODO: Guardar y editar registro
     case 'guardar':
         $usu_id = $_SESSION["usu_id"];
+        $idCliente = (int) $_POST['cli_id'];
+        $idLote = (int) $_POST['lote_idIng'];
         if (empty($_POST["salida_id"])) {
-            $salidalote->insertarSalidaLote($_POST['lote_idIng'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['suc_id'], $_POST['pago_id']);
+            $salidalote->insertarSalidaLote($idLote, $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $idCliente, $usu_id, $_POST['suc_id'], $_POST['pago_id']);
         } else {
-            $salidalote->updateLote($_POST['lote_idIng'], $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $_POST['cli_id'], $usu_id, $_POST['salida_id'], $_POST['suc_id'], $_POST['pago_id']);
+            $salidalote->updateLote($idLote, $_POST['sal_fecha'], $_POST['sal_cantidad'], $_POST['sal_peso'], $_POST['sal_tara'], $_POST['sal_peso_neto'], $_POST['sal_precio'], $_POST['sal_total'], $_POST['sal_tipo'], $idCliente, $usu_id, $_POST['salida_id'], $_POST['suc_id'], $_POST['pago_id']);
         }
         break;
     // TODO: Listado de registro en format JSON para Datatable JS
@@ -101,7 +103,7 @@ switch ($_GET['op']) {
     // TODO: Listar combo
     case 'listadoSalida':
         $lote_id = $_POST['lote_id'] == '' ? null : $_POST['lote_id'];
-        $cli_id = $_POST['cli_id'] == '' ? null : $_POST['cli_id'];
+        $cli_id = ($_POST['cli_id'] == '' ? null : (int)$_POST['cli_id']);
         $salida_tipo = $_POST['salida_tipo'] == '' ? null : $_POST['salida_tipo'];
 
         $datos = $salidalote->getlistadoSalida('L', $lote_id, $cli_id, $salida_tipo, $_POST['fecha_desde'], $_POST['fecha_hasta'], $_POST['suc_id']);
@@ -155,7 +157,7 @@ switch ($_GET['op']) {
 
     case 'totales':
         $lote_id = $_POST['lote_id'] == '' ? null : $_POST['lote_id'];
-        $cli_id = $_POST['cli_id'] == '' ? null : $_POST['cli_id'];
+        $cli_id = $_POST['cli_id'] == '' ? null : (int)$_POST['cli_id'];
         $salida_tipo = $_POST['salida_tipo'] == '' ? null : $_POST['salida_tipo'];
 
         $datos = $salidalote->getlistadoSalida('T', $lote_id, $cli_id, $salida_tipo, $_POST['fecha_desde'], $_POST['fecha_hasta'], $_POST['suc_id']);
@@ -209,7 +211,7 @@ switch ($_GET['op']) {
         }
         break;
     case 'ListadoRecibosSP':
-        $cli_id = $_POST['cli_id'] == '' ? null : $_POST['cli_id'];
+        $cli_id = $_POST['cli_id'] == '' ? null : (int)$_POST['cli_id'];
 
         $datos = $salidalote->getRecibosSinPagar($_POST['tipo_val'], $cli_id, $_POST['suc_id']);
         if (is_array($datos) == true and count($datos) > 0) {

@@ -25,7 +25,7 @@ ALTER procedure [dbo].[sp_crud_salida_lote] (
  @i_usu_id tinyint = null,
  @i_year_report tinyint = null,
  @i_month_report tinyint = null,
- @i_cli_id tinyint = null
+ @i_cli_id int = null
 )
 as
 declare
@@ -659,6 +659,7 @@ set nocount on
 			and cli_id = @i_cli_id
 			and salida_estado = 1
 			and mc.movc_estado = 1
+			and movc_tipo = '+'
 			order by sl.salida_id
 		end
 	end

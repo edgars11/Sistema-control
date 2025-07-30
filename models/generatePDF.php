@@ -167,6 +167,7 @@ class GeneratePDF extends Conectar
         $columns = "";
         $textoCuenta = "";
         $columnasSaldosCliente = "";
+        $dataClient = null;
         if (!empty($cli_id)) {
 
             $colSpan = 6;
@@ -313,7 +314,12 @@ class GeneratePDF extends Conectar
             </html>
         ';
 
-        $nombreReporte = 'ReportePedidos-'.$dataClient['cli_nombre'].'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
+        if (!empty($cli_id)) {
+            $nombreReporte = 'ReportePedidos-'.$dataClient['cli_nombre'].'-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
+        }else{
+            $nombreReporte = 'ReportePedidos-PorLote-Desde-' . $fecha_desde . '-Hasta-' . $fecha_hasta . '.pdf';
+
+        }
 
         generarPDF($html, $nombreReporte, $descarga, 'landscape');
     }
