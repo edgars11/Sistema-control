@@ -252,8 +252,10 @@ class GenerateSalesPDF extends Conectar
 
         if($tipo_mov == 'S'){
             $tipo_mov = '+';
-        }else{
+        }else if($tipo_mov == 'R'){
             $tipo_mov = '-';
+        } else{
+            $tipo_mov = null; 
         }
         $detalleMov = $cuentaModelo->getMovimientosCuentas($cta_id, $fecha_desde, $fecha_hasta, $tipo_mov);
 
@@ -287,7 +289,7 @@ class GenerateSalesPDF extends Conectar
             $totalVentas = $totalVentas + 1;
         }
 
-        $observacion = 'Total Cuentas: <span class="text-fw-600"> #' . $totalVentas . '</span>, Valor Total Cuentas: <span class="text-fw-600">$ ' . number_format($subtotal,2) . '</span> - Valor sumado: <span class="text-fw-600">'.$totalVentasSum.'</span> - Valor restado: <span class="text-fw-600">'.$totalVentasRes.'</span>';
+        $observacion = 'Total Movimientos Cuenta: <span class="text-fw-600"> #' . $totalVentas . '</span> | Valor Total Movimientos: <span class="text-fw-600">$ ' . number_format($subtotal,2) . '</span> | Valor Sumado: <span class="text-fw-600">'.$totalVentasSum.'</span> | Valor Restado: <span class="text-fw-600">'.$totalVentasRes.'</span> | Saldo Pendiente Cuenta: <span class="text-fw-600">$ '. number_format($datosCliente["cta_monto"], 2, '.', ',') .'</span>';
 
         $html = '
             <!DOCTYPE html>
@@ -581,6 +583,7 @@ function buscarCliente2($cli_id)
         $datosCliente["cli_direccion"] = $row["cli_direccion"];
         $datosCliente["cli_correo"] = $row["cli_correo"];
         $datosCliente["total_ventas"] = $row["total_ventas"];
+        $datosCliente["cta_monto"] = $row["cta_monto"];
     }
 
     return $datosCliente;

@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 28/7/2025 22:25:54 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 4/8/2025 18:39:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -347,5 +347,6 @@ begin
 		and movc_estado = 1
 		and CAST(movc_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 		and movc_tipo = isnull(@i_movc_tipo, movc_tipo)
+		order by movc_fecha
 	end
 end
