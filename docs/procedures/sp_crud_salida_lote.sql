@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 27/7/2025 15:28:21 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 5/8/2025 11:57:45 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -60,7 +60,10 @@ declare
 @w_num_decimales int,
 @w_tipo_pago int,
 @w_val_pedido_abo decimal(16,2),
-@w_val_pedido decimal(16,2)
+@w_val_pedido decimal(16,2),
+@w_saldo_pend decimal(16,2),
+@w_saldo_pend_pag decimal(16,2),
+@w_total_saldo_pend decimal(16,2)
 
 begin
 set nocount on
@@ -495,7 +498,7 @@ set nocount on
 				l.lote_descripcion,
 				c.cli_nombre,
 				sl.salida_tipo,
-				CONVERT(varchar, sl.salida_fecha , 23) as salida_fecha,
+				cast(salida_fecha as date) salida_fecha,
 				sl.salida_cantidad,
 				sl.salida_peso_neto,
 				sl.salida_precio,
@@ -514,7 +517,7 @@ set nocount on
 			and CAST(sl.salida_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 			and l.suc_id = @i_suc_id
 			and sl.salida_estado = 1
-			order by sl.cli_id, sl.salida_fecha desc
+			order by sl.salida_fecha desc
 		end 
 
 		if @i_tipo = 'T'
@@ -569,8 +572,24 @@ set nocount on
 				and mc.movc_estado = 1
 				and salida_vpagado not in ('C')
 				and movc_tipo = '+'
+				
+				select @w_saldo_pend = sum(movc_valor) from tm_movimiento_cuenta mc
+				inner join tm_cuenta_cliente cc on cc.cta_id = mc.cta_id
+				where cc.cli_id = @i_cli_id
+				and mc.salida_id = 0
+				and movc_tipo = '+'
+				and movc_estado = 1
 
-				set @w_saldo_total_cta = ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)
+				select @w_saldo_pend_pag = sum(movc_valor) from tm_movimiento_cuenta mc
+				inner join tm_cuenta_cliente cc on cc.cta_id = mc.cta_id
+				where cc.cli_id = @i_cli_id
+				and mc.salida_id = 0
+				and movc_tipo = '-'
+				and movc_estado = 1
+
+				set @w_total_saldo_pend = ISNULL(@w_saldo_pend, 0) - ISNULL(@w_saldo_pend_pag, 0)
+
+				set @w_saldo_total_cta = (ISNULL(@w_val_pedido, 0) - isnull(@w_val_pedido_abo ,0)) + @w_total_saldo_pend
 
 			end
 			-- RETORNA LOS VALORES OBTENIDOS
