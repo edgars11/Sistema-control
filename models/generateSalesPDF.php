@@ -289,7 +289,7 @@ class GenerateSalesPDF extends Conectar
             $totalVentas = $totalVentas + 1;
         }
 
-        $observacion = 'Total Movimientos Cuenta: <span class="text-fw-600"> #' . $totalVentas . '</span> | Valor Total Movimientos: <span class="text-fw-600">$ ' . number_format($subtotal,2) . '</span> | Valor Sumado: <span class="text-fw-600">'.$totalVentasSum.'</span> | Valor Restado: <span class="text-fw-600">'.$totalVentasRes.'</span> | Saldo Pendiente Cuenta: <span class="text-fw-600">$ '. number_format($datosCliente["cta_monto"], 2, '.', ',') .'</span>';
+        $observacion = 'Total Movimientos: <span class="text-fw-600"> #' . $totalVentas . '</span> | Valor Total Movimientos: <span class="text-fw-600">$ ' . number_format($subtotal,2) . '</span> | Valor Sumado: <span class="text-fw-600"> $'.$totalVentasSum.'</span> | Valor Restado: <span class="text-fw-600"> $'.$totalVentasRes.'</span> | Saldo Pendiente Cuenta: <span class="text-fw-600">$ '. number_format($datosCliente["cta_monto"], 2, '.', ',') .'</span>';
 
         $html = '
             <!DOCTYPE html>
@@ -338,7 +338,7 @@ class GenerateSalesPDF extends Conectar
                     <tbody>
                         ' . $tbody . '
                         <tr>
-                            <td colspan="6" class="grand total totales">VALOR TOTAL</td>
+                            <td colspan="6" class="grand total totales">Total Movimientos:</td>
                             <td class="grand ts-15 text-fw-600 totales tc-green">$ ' . number_format($subtotal, 2, '.', ',')  . '</td>
                         </tr>
                     </tbody>
