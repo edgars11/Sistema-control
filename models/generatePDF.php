@@ -170,12 +170,13 @@ class GeneratePDF extends Conectar
         $dataClient = null;
         if (!empty($cli_id)) {
 
-            $colSpan = 6;
+            $colSpan = 7;
             $columns = '
                         <th class="text-left"># RECIBO - ESTADO</th>
                         <th class="text-left">PRODUCTO</th>
                         <th class="wd-th-40">FECHA</th>
                         <th class="wd-th-30">CANTIDAD</th>
+                        <th>TARA</th>
                         <th>P.NETO</th>
                         <th>PRECIO</th>
                         <th>TOTAL</th>
@@ -213,10 +214,11 @@ class GeneratePDF extends Conectar
                 $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
                 $tbody .= '
                         <tr>
-                            <td class="ts-13 text-left text-fw-500"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> </td>
+                            <td class="ts-13 text-left"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> | ' . substr($row["pago_nombre"],0,3) . ' </td>
                             <td class="ts-13 text-left">' . $tipoProd . '</td>
                             <td class="ts-13 text-fw-500">' . $row["salida_fecha"] . '</td>
                             <td class="ts-13">' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
+                            <td class="ts-13">' . number_format($row["salida_tara"], 0, '', ',')  . '</td>
                             <td class="ts-13 text-fw-500">' . number_format($row["salida_peso_neto"], 2, '.', ',') . ' Lbs</td>
                             <td class="ts-13">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
                             <td class="ts-13 text-fw-500">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>

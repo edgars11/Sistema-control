@@ -126,7 +126,7 @@ switch ($_GET['op']) {
             $sub_array[] = $row['cli_nombre'];
             $sub_array[] = $row['salida_tipo'] === 'PV' ? '<span class="badge badge-soft-warning text-uppercase fs-12">POLLO VIVO</span>' : '<span class="badge badge-soft-primary text-uppercase fs-12">POLLO FAENADO</span>';
             $sub_array[] = $row['salida_fecha'];
-            $sub_array[] = '<span class="badge badge-soft-' . $colorTag . ' text-uppercase fs-14">' . "# " . $row['salida_id'] . ' - ' . $estadoRecibo . '</span>';
+            $sub_array[] = '<span class="badge badge-soft-' . $colorTag . ' text-uppercase fs-14">' . "# " . $row['salida_id'] . ' - ' . $estadoRecibo . '</span> | ' . substr($row["pago_nombre"],0,3);
             $sub_array[] = '<div class="badge fw-medium badge-soft-secondary fs-14">' . $row['salida_cantidad'] . '</div>';
             $sub_array[] = $row['salida_peso_neto'] . " Lbs";
             $sub_array[] = "$ " . number_format($row['salida_precio'],2);
