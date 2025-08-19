@@ -506,11 +506,14 @@ set nocount on
 				CONCAT(u.usu_nombre, ' ',u.usu_apellido) as usu_nombre,
 				CONVERT(varchar, sl.salida_hora , 120) as salida_hora,
 				sl.salida_id,
-				sl.salida_vpagado
+				sl.salida_vpagado,
+				sl.salida_tara,
+				p.pago_nombre
 			from tm_salida_lote sl
 			inner join tm_lote l on l.lote_id = sl.lote_id
 			inner join tm_cliente c on c.cli_id = sl.cli_id
 			inner join tm_usuario u on u.usu_id = sl.usu_id
+			inner join tm_tipo_pago p on p.pago_id = sl.pago_id
 			where l.lote_id = ISNULL(@i_lote_id, l.lote_id)
 			and c.cli_id = ISNULL( @i_cli_id , c.cli_id)
 			and sl.salida_tipo = ISNULL(@i_salida_tipo,sl.salida_tipo )
