@@ -99,16 +99,6 @@ $(document).ready(function () {
 
 });
 
-function editar(cat_id) {
-    $.post("../../controllers/categoriaController.php?op=mostrar", { cat_id: cat_id }, function (data) {
-        data = JSON.parse(data);
-        $('#cat_id').val(data.cat_id);
-        $('#cat_nombre').val(data.cat_nombre);
-        console.log(data);
-    })
-    $('#lbTitulo').html('Editar Registro');
-    $('#modalMantenimiento').modal('show');
-}
 
 function seleccionar(lote_id, row) {
     console.log(lote_id);
