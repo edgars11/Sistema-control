@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 5/8/2025 11:57:45 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_salida_lote]    Script Date: 7/9/2025 18:14:39 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -499,6 +499,7 @@ set nocount on
 				c.cli_nombre,
 				sl.salida_tipo,
 				cast(salida_fecha as date) salida_fecha,
+				sl.salida_peso,
 				sl.salida_cantidad,
 				sl.salida_peso_neto,
 				sl.salida_precio,

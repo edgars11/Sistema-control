@@ -155,7 +155,7 @@ class GeneratePDF extends Conectar
         $colSpan = 0;
         $tbody = "";
 
-        $content_css = file_get_contents('../assets/css/stylePDFLand.css');
+        $content_css = file_get_contents('../assets/css/stylePDFPorta.css');
         $lote_id = $lote_id === 'null' ? null : $lote_id;
         $cli_id = $cli_id === 'null' ? null : $cli_id;
         $salida_tipo = $salida_tipo === 'null' ? null : $salida_tipo;
@@ -170,12 +170,13 @@ class GeneratePDF extends Conectar
         $dataClient = null;
         if (!empty($cli_id)) {
 
-            $colSpan = 7;
+            $colSpan = 8;
             $columns = '
-                        <th class="text-left"># RECIBO - ESTADO</th>
-                        <th class="text-left">PRODUCTO</th>
+                        <th class="text-left"># ID - ESTADO</th>
+                        <th class="text-left">TIPO</th>
                         <th class="wd-th-40">FECHA</th>
-                        <th class="wd-th-30">CANTIDAD</th>
+                        <th class="wd-th-30">CANT.</th>
+                        <th class="wd-th-30">PESO</th>
                         <th>TARA</th>
                         <th>P.NETO</th>
                         <th>PRECIO</th>
@@ -200,26 +201,27 @@ class GeneratePDF extends Conectar
                 $estadoRecibo = $row["salida_vpagado"];
                 $colorTag = '';
                 if ($estadoRecibo == 'N') {
-                    $estadoRecibo = 'PENDIENTE';
+                    $estadoRecibo = 'PEN';
                     $colorTag = 'danger';
                 } else if ($estadoRecibo == 'A') {
-                    $estadoRecibo = 'ABONADO';
+                    $estadoRecibo = 'ABO';
                     $colorTag = 'warning';
                 } else if ($estadoRecibo == 'C') {
-                    $estadoRecibo = 'CANCELADO';
+                    $estadoRecibo = 'CAN';
                     $colorTag = 'success';
                 }
 
                 $subtotal = $subtotal + $row["salida_total"];
-                $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
+                $tipoProd = $row["salida_tipo"];
                 $tbody .= '
                         <tr>
-                            <td class="ts-13 text-left"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> | ' . substr($row["pago_nombre"],0,3) . ' </td>
-                            <td class="ts-13 text-left">' . $tipoProd . '</td>
+                            <td class="ts-12 text-left"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> | ' . substr($row["pago_nombre"],0,3) . ' </td>
+                            <td class="ts-13 text-center">' . $tipoProd . '</td>
                             <td class="ts-13 text-fw-500">' . $row["salida_fecha"] . '</td>
-                            <td class="ts-13">' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
-                            <td class="ts-13">' . number_format($row["salida_tara"], 0, '', ',')  . '</td>
-                            <td class="ts-13 text-fw-500">' . number_format($row["salida_peso_neto"], 2, '.', ',') . ' Lbs</td>
+                            <td class="ts-13 text-center">' . number_format($row["salida_cantidad"], 0, '', ',')  . '</td>
+                            <td class="ts-13">' . number_format($row["salida_peso"], 2, '.', ',')  . '</td>
+                            <td class="ts-13">' . number_format($row["salida_tara"], 2, '.', ',')   . '</td>
+                            <td class="ts-13 text-fw-500">' . number_format($row["salida_peso_neto"], 2, '.', ',') . ' L</td>
                             <td class="ts-13">$' . number_format($row["salida_precio"], 2, '.', ',')  . '</td>
                             <td class="ts-13 text-fw-500">$' . number_format($row["salida_total"], 2, '.', ',') . '</td>
                         </tr>
@@ -243,13 +245,13 @@ class GeneratePDF extends Conectar
                 $estadoRecibo = $row["salida_vpagado"];
                 $colorTag = '';
                 if ($estadoRecibo == 'N') {
-                    $estadoRecibo = 'PENDIENTE';
+                    $estadoRecibo = 'PEN';
                     $colorTag = 'danger';
                 } else if ($estadoRecibo == 'A') {
-                    $estadoRecibo = 'ABONADO';
+                    $estadoRecibo = 'ABO';
                     $colorTag = 'warning';
                 } else if ($estadoRecibo == 'C') {
-                    $estadoRecibo = 'CANCELADO';
+                    $estadoRecibo = 'CAN';
                     $colorTag = 'success';
                 }
 
@@ -257,7 +259,7 @@ class GeneratePDF extends Conectar
                 $tipoProd = $row["salida_tipo"] == 'PV' ? 'Pollo Vivo' : 'Pollo Faenado';
                 $tbody .= '
                 <tr>
-                    <td class="ts-12 text-left text-fw-500"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> </td>
+                    <td class="ts-11 text-left text-fw-500"> # ' . $row["salida_id"] . ' - <span class="' . $colorTag . '">' . $estadoRecibo . '</span> </td>
                     <td class="service text-fw-500">' . $row["cli_nombre"] . '</td>
                     <td class="service">' . $tipoProd . '</td>
                     <td class="ts-11 text-fw-500">' . $row["salida_fecha"] . '</td>
@@ -323,7 +325,7 @@ class GeneratePDF extends Conectar
 
         }
 
-        generarPDF($html, $nombreReporte, $descarga, 'landscape');
+        generarPDF($html, $nombreReporte, $descarga, 'portrait');
     }
 }
 
@@ -401,7 +403,7 @@ function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id,
         $datosCliente = $dataClient;
         $html = '
         <div id="company" class="clearfix">
-                        <div class="margin-bottom-25"><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
+                        <div><span class="text-fw-600 margin-bottom-25 ts-15">DATOS EMPRESA</span></div>
                         <div><span class="ts-13">' . $datosEmpresa["emp_nombre"] . '</span></div>
                         <div><span class="ts-13">' . $datosEmpresa["emp_direccion"] . '</span></div>
                         <div><span class="ts-13"><a href="mailto:' . $datosEmpresa["emp_correo"] . '">' . $datosEmpresa["emp_correo"] . '</a></span></div>
@@ -409,13 +411,12 @@ function getEncabezadoReporte($lote_id, $salida_tipo, $cli_id, $emp_id, $com_id,
                         <div><span class="ts-13">' . $datosEmpresa["emp_telefono"] . '</span></div>
                     </div>
                     <div id="project">
-                        <div class="margin-bottom-25"><span class="text-fw-600  ts-15">REPORTE DE:</span></div>
-                        <div><span class="text-fw-600">CLIENTE:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
-                        <div><span class="text-fw-600">DIRECCIÓN:</span>  <span class="ts-13">' . $datosCliente["cli_direccion"] . ' </span></div>
-                        <div><span class="text-fw-600">CORREO:</span> <span class="ts-13"> <a href="' . $datosCliente["cli_correo"] . '">' . $datosCliente["cli_correo"] . '</a> </span></div>
+                        <div><span class="text-fw-600  ts-15">REPORTE DE:</span></div>
+                        <div><span class="text-fw-600">Cliente:</span> <span class="ts-13">' . $datosCliente["cli_nombre"] . '</span> </div>
+                        <div><span class="text-fw-600">Dirección:</span>  <span class="ts-13">' . $datosCliente["cli_direccion"] . ' </span></div>
+                        <div><span class="text-fw-600">Correo:</span> <span class="ts-13"> <a href="' . $datosCliente["cli_correo"] . '">' . $datosCliente["cli_correo"] . '</a> </span></div>
                         <div><span class="text-fw-600">RUC/CI:</span>  <span class="ts-13">' . $datosCliente["cli_ruc"] . ' </span></div>
-                        <div><span class="text-fw-600">CONTACTO:</span> <span class="ts-13"> ' . $datosCliente["cli_telefono"] . ' </span></div>
-                        <div><span class="text-fw-600">PRODUCTO:</span> <span class="ts-13"> ' . $producto . ' </span></div>
+                        <div><span class="text-fw-600">Contacto:</span> <span class="ts-13"> ' . $datosCliente["cli_telefono"] . ' </span></div>
                     </div>
         ';
     } else if ($lote_id == null && $cli_id == null) {
