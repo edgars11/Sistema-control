@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 4/8/2025 18:39:07 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_cuenta_cli]    Script Date: 9/9/2025 19:05:49 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -335,16 +335,18 @@ begin
 	begin
 		select 
 			movc_id, 
-			isnull(salida_id, 0) as salida_id, 
+			isnull(mc.salida_id, 0) as salida_id, 
 			isnull(ven_id, 0) as ven_id, 
 			movc_tipo, 
 			movc_valor,
 			CONVERT(varchar,movc_fecha,20) as movc_fecha, 
 			movc_obs, 
 			isnull(pagc_id , '') as pagc_id
-		from tm_movimiento_cuenta 
+		from tm_movimiento_cuenta mc
+		inner join tm_salida_lote sl on sl.salida_id = mc.salida_id
 		where cta_id = @i_cta_id
 		and movc_estado = 1
+		and salida_estado = 1
 		and CAST(movc_fecha as date) between @i_fecha_desde and @i_fecha_hasta
 		and movc_tipo = isnull(@i_movc_tipo, movc_tipo)
 		order by movc_fecha
