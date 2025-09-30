@@ -26,7 +26,7 @@ function guardarMovimiento(e) {
     var formData = new FormData($('#updateRegSalida')[0]);
     formData.append('suc_id', i_suc_id);
 
-    var idCliente = $('#cli_id').val();
+    var idCliente = $('#cli_idReg').val();
     formData.append('cli_id', idCliente);
 
     if (formData.get('sal_tipo') === 'Seleccionar') {
@@ -47,10 +47,6 @@ function guardarMovimiento(e) {
         });
         return;
     }
-
-    // for (const value of formData.values()) {
-    //     console.log(value);
-    // }
 
     var salida_id = $('#salida_id').val();
 
@@ -379,12 +375,16 @@ function eliminar(salida_id) {
         })
 }
 function editar(salida_id) {
+    $.post("../../controllers/loteController.php?op=combo", { suc_id: i_suc_id }, function (data) {
+        $('#lote_idIng').html(data);
+    });
     $.post("../../controllers/salidaLoteController.php?op=mostrarByID",
         { salida_id },
         function (data) {
             data = JSON.parse(data);
             date = data.salida_fecha.split(" ");
             $('#cli_nombreM').val(data.cli_nombre);
+            $('#cli_idReg').val(data.cli_id);
             $('#salida_id').val(data.salida_id);
             $('#sal_tipo').val(data.salida_tipo);
             $('#sal_fecha').val(date[0]);

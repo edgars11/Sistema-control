@@ -8,8 +8,8 @@
             </div>
             <form method="post" id="updateRegSalida">
                 <div class="modal-body">
-                    <input type="hidden" name="lote_idIng" id="lote_idIng">
                     <input type="hidden" name="pago_id" id="pago_id">
+                    <input type="hidden" name="cli_idReg" id="cli_idReg">
                     <input type="hidden" name="salida_vpagado" id="salida_vpagado">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -52,8 +52,10 @@
 
                         <div class="col-md-3">
                             <div>
-                                <label for="lote_desc" class="form-label">Lote:</label>
-                                <input type="text" class="form-control" id="lote_desc" name="lote_desc" placeholder="Seleccione Lote" required readonly>
+                                <label for="lote_idIng" class="form-label">Lote:</label>
+                                <select type="text" class="form-control form-select" name="lote_idIng" id="lote_idIng" aria-label="Seleccionar">
+                                    <option selected>Seleccionar Lote</option>
+                                </select>
                             </div>
                         </div>
 
