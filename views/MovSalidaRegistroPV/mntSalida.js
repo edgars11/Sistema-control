@@ -504,7 +504,7 @@ function editar(salida_id) {
 
     swal.fire({
         title: "Confirmación!",
-        text: "Desea editar el registro de salida?",
+        text: "¿Desea editar el registro de salida?",
         icon: "warning",
         confirmButtonText: "Si",
         showCancelButton: true,
@@ -537,7 +537,7 @@ function editar(salida_id) {
                     $('#agregarSalida').html('<i class="ri-add-circle-line label-icon align-middle fs-16 me-2"></i>Modificar');
 
                     btnclientes.disabled = true;
-                    comboLotes.disabled = true;
+                    //comboLotes.disabled = true;
                     comboFormasPago.disabled = true;
                 })
 
