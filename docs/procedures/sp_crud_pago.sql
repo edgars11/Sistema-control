@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 21/6/2025 18:05:40 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 23/10/2025 18:16:00 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -193,7 +193,7 @@ begin
 		
 			-- SE VALIDA SI HAY SALDO DE PAGO
 			if @w_estado_recibo = 'A'
-				select @w_saldo_pago = pagc_monto from tm_pago_cuenta where salida_id = @i_salida_id and pagc_estado = 1
+				select @w_saldo_pago = SUM(pagc_monto) from tm_pago_cuenta where salida_id = @i_salida_id and pagc_estado = 1
 
 			-- SE CALCULAN LOS VALORES A RESTAR
 			select @w_saldo_recibo = @w_saldo_recibo - isnull(@w_saldo_pago, 0)
