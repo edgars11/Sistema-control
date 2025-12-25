@@ -1,6 +1,6 @@
 USE [SistemaControl]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 23/10/2025 18:16:00 ******/
+/****** Object:  StoredProcedure [dbo].[sp_crud_pago]    Script Date: 21/12/2025 18:59:55 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -37,7 +37,9 @@ declare
 @w_val_total decimal(14,2),
 @w_val_total_w decimal(14,2),
 @w_estado_recibo char(1),
-@w_saldo_pago decimal(14,2)
+@w_saldo_pago decimal(14,2),
+@w_saldo_cuenta_pendiente decimal(14,2),
+@w_abonado_cuenta_pendiente decimal(14,2)
 
 begin
 	set nocount on
@@ -273,6 +275,48 @@ begin
 		end
 		else if @i_salida_id = 0
 		begin
+
+			print 'Validación para cuenta pendiente'
+			-- Se obtienen los valores totales de cuenta pendiente
+			select @w_saldo_cuenta_pendiente = SUM(movc_valor) 
+			from tm_movimiento_cuenta where cta_id =  @i_cta_id and salida_id = 0 and movc_estado = 1 and movc_tipo = '+'
+
+			select @w_abonado_cuenta_pendiente = SUM(movc_valor) 
+			from tm_movimiento_cuenta where cta_id =  @i_cta_id and salida_id = 0 and movc_estado = 1 and movc_tipo = '-'
+
+			set @w_saldo_cuenta_pendiente = @w_saldo_cuenta_pendiente - @w_abonado_cuenta_pendiente
+
+			set @w_saldo_pago = @w_saldo_cuenta_pendiente - @i_pagc_monto
+
+			print '************** Valores Calculadors ************************'
+			print 'Validación @i_cta_id : '+ convert(varchar,  @i_cta_id)
+			print 'Validación @w_saldo_cuenta_pendiente : '+ convert(varchar,  @w_saldo_cuenta_pendiente)
+			print 'Validación @w_abonado_cuenta_pendiente : '+ convert(varchar,  @w_abonado_cuenta_pendiente)
+			print 'Validación @w_saldo_pago : '+ convert(varchar,  @w_saldo_pago)
+
+			if @w_saldo_pago < 0
+			begin
+				set @i_pagc_monto = @w_saldo_cuenta_pendiente
+				set @w_val_total = (@w_saldo_pago * (-1))
+
+				select top 1
+					@w_prox_recibo = sl.salida_id
+				from tm_salida_lote sl
+				inner join tm_movimiento_cuenta mc on mc.salida_id = sl.salida_id
+				where salida_vpagado not in ('C')
+				and cli_id = @i_cli_id
+				and salida_estado = 1
+				and mc.movc_estado = 1
+				and movc_tipo = '+'
+				order by sl.salida_id
+
+			end
+
+			print 'Validación @i_cli_id : '+ convert(varchar,  @i_cli_id)
+			print 'Validación @w_val_total : '+ convert(varchar,  @w_val_total)
+			print 'Validación @w_prox_recibo : '+ convert(varchar,  @w_prox_recibo)
+
+
 			insert into tm_pago_cuenta 
 			(cta_id, 	pago_id,	pagc_obs,	 pagc_fecha,	pagc_estado,	usu_id,		pagc_monto,
 			salida_id)
